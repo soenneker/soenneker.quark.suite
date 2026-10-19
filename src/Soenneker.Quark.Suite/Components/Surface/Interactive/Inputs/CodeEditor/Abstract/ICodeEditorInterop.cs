@@ -11,6 +11,12 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface ICodeEditorInterop : IAsyncDisposable
 {
+    /// <summary>Observes the editor viewport without loading Monaco, notifying the component once it becomes visible.</summary>
+    ValueTask ObserveVisibility(ElementReference container, DotNetObjectReference<CodeEditor> receiver, CancellationToken cancellationToken = default);
+
+    /// <summary>Disconnects an editor's pending visibility observer.</summary>
+    ValueTask UnobserveVisibility(ElementReference container, CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Ensures Monaco resources are loaded (JS, CSS) via CDN.
     /// </summary>

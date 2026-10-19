@@ -135,3 +135,56 @@ test('overlapping height-listener registration leaves one subscription', async t
   assert.equal(env.listeners.size, 0);
   assert.ok(env.observers[0].disconnected);
 });
+
+
+test('offscreen editors notify once on intersection without loading Monaco', async t => {
+  const env = await fixture(t);
+  const original = globalThis.IntersectionObserver;
+  let observer, notifications = 0;
+  globalThis.IntersectionObserver = class {
+    constructor(callback) { this.callback = callback; observer = this; }
+    observe(element) { this.element = element; }
+    disconnect() { this.disconnected = true; }
+  };
+  t.after(() => { globalThis.IntersectionObserver = original; });
+  env.module.observeVisibility(env.container, { invokeMethodAsync(name) {
+    assert.equal(name, 'OnCodeEditorVisible'); notifications++; return Promise.resolve();
+  } });
+  observer.callback([{ isIntersecting: false }]);
+  assert.equal(notifications, 0);
+  assert.equal(env.creations.length, 0);
+  observer.callback([{ isIntersecting: true }]);
+  observer.callback([{ isIntersecting: true }]);
+  assert.equal(notifications, 1);
+  assert.equal(observer.disconnected, true);
+  assert.equal(env.creations.length, 0);
+});
+
+for (const reason of ['dispose', 'detach']) {
+  test(`visibility notification is suppressed after ${reason}`, async t => {
+    const env = await fixture(t);
+    const original = globalThis.IntersectionObserver;
+    let observer, notifications = 0;
+    globalThis.IntersectionObserver = class {
+      constructor(callback) { this.callback = callback; observer = this; }
+      observe() {}
+      disconnect() {}
+    };
+    t.after(() => { globalThis.IntersectionObserver = original; });
+    env.module.observeVisibility(env.container, { invokeMethodAsync() { notifications++; return Promise.resolve(); } });
+    if (reason === 'dispose') env.module.unobserveVisibility(env.container);
+    else env.container.isConnected = false;
+    observer.callback([{ isIntersecting: true }]);
+    assert.equal(notifications, 0);
+  });
+}
+
+test('visibility observation falls back to eager loading when unsupported', async t => {
+  const env = await fixture(t);
+  const original = globalThis.IntersectionObserver;
+  globalThis.IntersectionObserver = undefined;
+  t.after(() => { globalThis.IntersectionObserver = original; });
+  let notifications = 0;
+  env.module.observeVisibility(env.container, { invokeMethodAsync() { notifications++; return Promise.resolve(); } });
+  assert.equal(notifications, 1);
+});

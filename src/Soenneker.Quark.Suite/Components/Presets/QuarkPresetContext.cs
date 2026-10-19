@@ -11,6 +11,8 @@ public sealed class QuarkPresetContext
 
     internal bool HasValue(PresetProperty property) => _values[(int)property] is not null;
 
+    internal string? GetClass(PresetProperty property) => _values[(int)property];
+
     private void Set(int index, string? value)
     {
         _values[index] = value;

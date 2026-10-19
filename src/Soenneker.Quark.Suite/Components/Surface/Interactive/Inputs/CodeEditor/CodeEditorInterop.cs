@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace Soenneker.Quark;
 
-/// <inheritdoc cref="ICodeEditorInterop"/>
 public sealed class CodeEditorInterop : ICodeEditorInterop
 {
     private readonly IModuleImportUtil _moduleImportUtil;
@@ -68,6 +67,18 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
 
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
         await module.InvokeVoidAsync("ensureConfigured", token, _localModulePath, JsonSerializer.SerializeToElement(_localWorkerUrls, QuarkInteropJsonContext.Default.IReadOnlyDictionaryStringString));
+    }
+
+    public async ValueTask ObserveVisibility(ElementReference container, DotNetObjectReference<CodeEditor> receiver, CancellationToken cancellationToken = default)
+    {
+        var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
+        await module.InvokeVoidAsync("observeVisibility", cancellationToken, container, receiver);
+    }
+
+    public async ValueTask UnobserveVisibility(ElementReference container, CancellationToken cancellationToken = default)
+    {
+        var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
+        await module.InvokeVoidAsync("unobserveVisibility", cancellationToken, container);
     }
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)

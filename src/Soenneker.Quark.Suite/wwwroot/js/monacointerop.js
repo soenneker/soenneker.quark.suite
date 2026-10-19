@@ -1,3 +1,29 @@
+const visibilityObservers = new WeakMap();
+
+export function unobserveVisibility(container) {
+    visibilityObservers.get(container)?.disconnect();
+    visibilityObservers.delete(container);
+}
+
+export function observeVisibility(container, receiver) {
+    unobserveVisibility(container);
+    if (!container?.isConnected) return;
+    const notify = () => {
+        unobserveVisibility(container);
+        if (container.isConnected) receiver.invokeMethodAsync("OnCodeEditorVisible").catch(() => {});
+    };
+    if (typeof IntersectionObserver === "undefined") {
+        notify();
+        return;
+    }
+    const observer = new IntersectionObserver(entries => {
+        if (visibilityObservers.get(container) !== observer) return;
+        if (entries.some(entry => entry.isIntersecting)) notify();
+    });
+    visibilityObservers.set(container, observer);
+    observer.observe(container);
+}
+
 const { register: registerFileDrop, unregister: unregisterFileDrop } = await import(new URL(import.meta.url).pathname.endsWith(".min.js") ? "./filedropinterop.min.js" : "./filedropinterop.js");
 const editors = new WeakMap();
 const pendingEditors = new WeakMap();

@@ -448,29 +448,32 @@ public abstract class Element : Component, IElement
         if (Dir is not null)
             attributes["dir"] = Dir;
 
-        if (ContentEditable is not null)
-            attributes["contenteditable"] = ContentEditable;
+        if (_editingHtmlAttributes is not null)
+        {
+            if (_editingHtmlAttributes.ContentEditable is not null)
+                attributes["contenteditable"] = _editingHtmlAttributes.ContentEditable;
 
-        if (SpellCheck.HasValue)
-            attributes["spellcheck"] = SpellCheck.Value ? "true" : "false";
+            if (_editingHtmlAttributes.SpellCheck.HasValue)
+                attributes["spellcheck"] = _editingHtmlAttributes.SpellCheck.Value ? "true" : "false";
 
-        if (AutoCapitalize is not null)
-            attributes["autocapitalize"] = AutoCapitalize;
+            if (_editingHtmlAttributes.AutoCapitalize is not null)
+                attributes["autocapitalize"] = _editingHtmlAttributes.AutoCapitalize;
 
-        if (AutoCorrect.HasValue)
-            attributes["autocorrect"] = AutoCorrect.Value ? "on" : "off";
+            if (_editingHtmlAttributes.AutoCorrect.HasValue)
+                attributes["autocorrect"] = _editingHtmlAttributes.AutoCorrect.Value ? "on" : "off";
 
-        if (EnterKeyHint is not null)
-            attributes["enterkeyhint"] = EnterKeyHint;
+            if (_editingHtmlAttributes.EnterKeyHint is not null)
+                attributes["enterkeyhint"] = _editingHtmlAttributes.EnterKeyHint;
 
-        if (HtmlInputMode is not null)
-            attributes["inputmode"] = HtmlInputMode;
+            if (_editingHtmlAttributes.HtmlInputMode is not null)
+                attributes["inputmode"] = _editingHtmlAttributes.HtmlInputMode;
 
-        if (HtmlDraggable.HasValue)
-            attributes["draggable"] = HtmlDraggable.Value ? "true" : "false";
+            if (_editingHtmlAttributes.HtmlDraggable.HasValue)
+                attributes["draggable"] = _editingHtmlAttributes.HtmlDraggable.Value ? "true" : "false";
 
-        if (TranslateContent.HasValue)
-            attributes["translate"] = TranslateContent.Value ? "yes" : "no";
+            if (_editingHtmlAttributes.TranslateContent.HasValue)
+                attributes["translate"] = _editingHtmlAttributes.TranslateContent.Value ? "yes" : "no";
+        }
 
         if (Inert.HasValue)
             attributes["inert"] = Inert.Value ? QuarkAttributeValues.True : QuarkAttributeValues.False;
@@ -478,74 +481,83 @@ public abstract class Element : Component, IElement
         if (AutoFocus)
             attributes["autofocus"] = QuarkAttributeValues.True;
 
-        if (HtmlSlot is not null)
-            attributes["slot"] = HtmlSlot;
+        if (_advancedHtmlAttributes is not null)
+        {
+            if (_advancedHtmlAttributes.HtmlSlot is not null)
+                attributes["slot"] = _advancedHtmlAttributes.HtmlSlot;
 
-        if (Part is not null)
-            attributes["part"] = Part;
+            if (_advancedHtmlAttributes.Part is not null)
+                attributes["part"] = _advancedHtmlAttributes.Part;
 
-        if (ExportParts is not null)
-            attributes["exportparts"] = ExportParts;
+            if (_advancedHtmlAttributes.ExportParts is not null)
+                attributes["exportparts"] = _advancedHtmlAttributes.ExportParts;
 
-        if (Popover is not null)
-            attributes["popover"] = Popover;
+            if (_advancedHtmlAttributes.Popover is not null)
+                attributes["popover"] = _advancedHtmlAttributes.Popover;
+        }
 
-        if (HtmlItemId is not null)
-            attributes["itemid"] = HtmlItemId;
+        if (_microdataAttributes is not null)
+        {
+            if (_microdataAttributes.HtmlItemId is not null)
+                attributes["itemid"] = _microdataAttributes.HtmlItemId;
 
-        if (ItemProp is not null)
-            attributes["itemprop"] = ItemProp;
+            if (_microdataAttributes.ItemProp is not null)
+                attributes["itemprop"] = _microdataAttributes.ItemProp;
 
-        if (ItemRef is not null)
-            attributes["itemref"] = ItemRef;
+            if (_microdataAttributes.ItemRef is not null)
+                attributes["itemref"] = _microdataAttributes.ItemRef;
 
-        if (ItemScope.HasValue)
-            attributes["itemscope"] = ItemScope.Value ? QuarkAttributeValues.True : QuarkAttributeValues.False;
+            if (_microdataAttributes.ItemScope.HasValue)
+                attributes["itemscope"] = _microdataAttributes.ItemScope.Value ? QuarkAttributeValues.True : QuarkAttributeValues.False;
 
-        if (ItemType is not null)
-            attributes["itemtype"] = ItemType;
+            if (_microdataAttributes.ItemType is not null)
+                attributes["itemtype"] = _microdataAttributes.ItemType;
+        }
 
-        if (AriaLive is not null)
-            attributes["aria-live"] = AriaLive;
+        if (_extendedAriaAttributes is not null)
+        {
+            if (_extendedAriaAttributes.AriaLive is not null)
+                attributes["aria-live"] = _extendedAriaAttributes.AriaLive;
 
-        if (AriaAtomic.HasValue)
-            attributes["aria-atomic"] = AriaAtomic.Value ? "true" : "false";
+            if (_extendedAriaAttributes.AriaAtomic.HasValue)
+                attributes["aria-atomic"] = _extendedAriaAttributes.AriaAtomic.Value ? "true" : "false";
 
-        if (AriaBusy.HasValue)
-            attributes["aria-busy"] = AriaBusy.Value ? "true" : "false";
+            if (_extendedAriaAttributes.AriaBusy.HasValue)
+                attributes["aria-busy"] = _extendedAriaAttributes.AriaBusy.Value ? "true" : "false";
 
-        if (AriaRelevant is not null)
-            attributes["aria-relevant"] = AriaRelevant;
+            if (_extendedAriaAttributes.AriaRelevant is not null)
+                attributes["aria-relevant"] = _extendedAriaAttributes.AriaRelevant;
 
-        if (AriaControls is not null)
-            attributes["aria-controls"] = AriaControls;
+            if (_extendedAriaAttributes.AriaControls is not null)
+                attributes["aria-controls"] = _extendedAriaAttributes.AriaControls;
 
-        if (AriaDetails is not null)
-            attributes["aria-details"] = AriaDetails;
+            if (_extendedAriaAttributes.AriaDetails is not null)
+                attributes["aria-details"] = _extendedAriaAttributes.AriaDetails;
 
-        if (AriaErrorMessage is not null)
-            attributes["aria-errormessage"] = AriaErrorMessage;
+            if (_extendedAriaAttributes.AriaErrorMessage is not null)
+                attributes["aria-errormessage"] = _extendedAriaAttributes.AriaErrorMessage;
 
-        if (AriaFlowTo is not null)
-            attributes["aria-flowto"] = AriaFlowTo;
+            if (_extendedAriaAttributes.AriaFlowTo is not null)
+                attributes["aria-flowto"] = _extendedAriaAttributes.AriaFlowTo;
 
-        if (AriaKeyShortcuts is not null)
-            attributes["aria-keyshortcuts"] = AriaKeyShortcuts;
+            if (_extendedAriaAttributes.AriaKeyShortcuts is not null)
+                attributes["aria-keyshortcuts"] = _extendedAriaAttributes.AriaKeyShortcuts;
 
-        if (AriaOwns is not null)
-            attributes["aria-owns"] = AriaOwns;
+            if (_extendedAriaAttributes.AriaOwns is not null)
+                attributes["aria-owns"] = _extendedAriaAttributes.AriaOwns;
 
-        if (AriaRoleDescription is not null)
-            attributes["aria-roledescription"] = AriaRoleDescription;
+            if (_extendedAriaAttributes.AriaRoleDescription is not null)
+                attributes["aria-roledescription"] = _extendedAriaAttributes.AriaRoleDescription;
 
-        if (AriaDescription is not null)
-            attributes["aria-description"] = AriaDescription;
+            if (_extendedAriaAttributes.AriaDescription is not null)
+                attributes["aria-description"] = _extendedAriaAttributes.AriaDescription;
 
-        if (AriaBrailleLabel is not null)
-            attributes["aria-braillelabel"] = AriaBrailleLabel;
+            if (_extendedAriaAttributes.AriaBrailleLabel is not null)
+                attributes["aria-braillelabel"] = _extendedAriaAttributes.AriaBrailleLabel;
 
-        if (AriaBrailleRoleDescription is not null)
-            attributes["aria-brailleroledescription"] = AriaBrailleRoleDescription;
+            if (_extendedAriaAttributes.AriaBrailleRoleDescription is not null)
+                attributes["aria-brailleroledescription"] = _extendedAriaAttributes.AriaBrailleRoleDescription;
+        }
 
     }
 

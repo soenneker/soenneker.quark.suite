@@ -2593,6 +2593,18 @@ public abstract class Component : RenderComponent, IComponent
     private CssValue<T>? ResolvePresetSlot<T>(CssValue<T>? value, CssValue<T>? presetValue, int slot) where T : class, ICssBuilder =>
         presetValue is null || HasExplicitPresetSlot(slot) ? value : presetValue;
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private bool TryAppendPresetClass(ref PooledStringBuilder classes, QuarkPresetContext? preset, PresetProperty property)
+    {
+        // Presets already contain rendered CSS. Preserve explicit-null suppression without
+        // constructing a nullable CssValue and converting it back to the same string.
+        if (preset is null || preset.GetClass(property) is not { } value || HasExplicitPresetSlot((int)property))
+            return false;
+
+        AppendClass(ref classes, value);
+        return true;
+    }
+
     protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
     {
         base.BuildOwnedAttributes(attrs);
@@ -2657,239 +2669,550 @@ public abstract class Component : RenderComponent, IComponent
             AppendClass(ref cls, Class!);
     }
 
+    // Test storage fields directly before fetching a CssValue. The public getters return a
+    // large nullable struct, which need not be copied just to check whether a slot is populated.
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildAdditionalUtilities1(ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (AspectRatio.HasValue || preset is not null && preset.HasValue(PresetProperty.AspectRatio))
-            AddCss(ref cls, ResolvePresetSlot(AspectRatio, preset?.AspectRatio, (int)PresetProperty.AspectRatio));
-        if (BackgroundAttachment.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundAttachment))
-            AddCss(ref cls, ResolvePresetSlot(BackgroundAttachment, preset?.BackgroundAttachment, (int)PresetProperty.BackgroundAttachment));
-        if (BackgroundBlendMode.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundBlendMode))
-            AddCss(ref cls, ResolvePresetSlot(BackgroundBlendMode, preset?.BackgroundBlendMode, (int)PresetProperty.BackgroundBlendMode));
-        if (BackgroundClip.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundClip))
-            AddCss(ref cls, ResolvePresetSlot(BackgroundClip, preset?.BackgroundClip, (int)PresetProperty.BackgroundClip));
-        if (BackgroundImage.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundImage))
-            AddCss(ref cls, ResolvePresetSlot(BackgroundImage, preset?.BackgroundImage, (int)PresetProperty.BackgroundImage));
-        if (BackgroundOrigin.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundOrigin))
-            AddCss(ref cls, ResolvePresetSlot(BackgroundOrigin, preset?.BackgroundOrigin, (int)PresetProperty.BackgroundOrigin));
-        if (BackgroundPosition.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundPosition))
-            AddCss(ref cls, ResolvePresetSlot(BackgroundPosition, preset?.BackgroundPosition, (int)PresetProperty.BackgroundPosition));
-        if (BackgroundRepeat.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundRepeat))
-            AddCss(ref cls, ResolvePresetSlot(BackgroundRepeat, preset?.BackgroundRepeat, (int)PresetProperty.BackgroundRepeat));
-        if (BackgroundSize.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundSize))
-            AddCss(ref cls, ResolvePresetSlot(BackgroundSize, preset?.BackgroundSize, (int)PresetProperty.BackgroundSize));
-        if (BlockSize.HasValue || preset is not null && preset.HasValue(PresetProperty.BlockSize))
-            AddCss(ref cls, ResolvePresetSlot(BlockSize, preset?.BlockSize, (int)PresetProperty.BlockSize));
-        if (BoxDecorationBreak.HasValue || preset is not null && preset.HasValue(PresetProperty.BoxDecorationBreak))
-            AddCss(ref cls, ResolvePresetSlot(BoxDecorationBreak, preset?.BoxDecorationBreak, (int)PresetProperty.BoxDecorationBreak));
-        if (BoxSizing.HasValue || preset is not null && preset.HasValue(PresetProperty.BoxSizing))
-            AddCss(ref cls, ResolvePresetSlot(BoxSizing, preset?.BoxSizing, (int)PresetProperty.BoxSizing));
-        if (BreakAfter.HasValue || preset is not null && preset.HasValue(PresetProperty.BreakAfter))
-            AddCss(ref cls, ResolvePresetSlot(BreakAfter, preset?.BreakAfter, (int)PresetProperty.BreakAfter));
+        if (_dimensionUtilities is not null && _dimensionUtilities.AspectRatio.HasValue || preset is not null && preset.HasValue(PresetProperty.AspectRatio))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.AspectRatio))
+                AddCss(ref cls, AspectRatio);
+        }
+        if (_backgroundUtilities is not null || preset is not null)
+        {
+            if (_backgroundUtilities is not null && _backgroundUtilities.BackgroundAttachment.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundAttachment))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackgroundAttachment))
+                    AddCss(ref cls, BackgroundAttachment);
+            }
+            if (_backgroundUtilities is not null && _backgroundUtilities.BackgroundBlendMode.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundBlendMode))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackgroundBlendMode))
+                    AddCss(ref cls, BackgroundBlendMode);
+            }
+            if (_backgroundUtilities is not null && _backgroundUtilities.BackgroundClip.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundClip))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackgroundClip))
+                    AddCss(ref cls, BackgroundClip);
+            }
+            if (_backgroundUtilities is not null && _backgroundUtilities.BackgroundImage.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundImage))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackgroundImage))
+                    AddCss(ref cls, BackgroundImage);
+            }
+            if (_backgroundUtilities is not null && _backgroundUtilities.BackgroundOrigin.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundOrigin))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackgroundOrigin))
+                    AddCss(ref cls, BackgroundOrigin);
+            }
+            if (_backgroundUtilities is not null && _backgroundUtilities.BackgroundPosition.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundPosition))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackgroundPosition))
+                    AddCss(ref cls, BackgroundPosition);
+            }
+            if (_backgroundUtilities is not null && _backgroundUtilities.BackgroundRepeat.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundRepeat))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackgroundRepeat))
+                    AddCss(ref cls, BackgroundRepeat);
+            }
+            if (_backgroundUtilities is not null && _backgroundUtilities.BackgroundSize.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundSize))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackgroundSize))
+                    AddCss(ref cls, BackgroundSize);
+            }
+        }
+        if (_logicalLayoutUtilities is not null && _logicalLayoutUtilities.BlockSize.HasValue || preset is not null && preset.HasValue(PresetProperty.BlockSize))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BlockSize))
+                AddCss(ref cls, BlockSize);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.BoxDecorationBreak.HasValue || preset is not null && preset.HasValue(PresetProperty.BoxDecorationBreak))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BoxDecorationBreak))
+                AddCss(ref cls, BoxDecorationBreak);
+        }
+        if (_displayUtilities is not null && _displayUtilities.BoxSizing.HasValue || preset is not null && preset.HasValue(PresetProperty.BoxSizing))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BoxSizing))
+                AddCss(ref cls, BoxSizing);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.BreakAfter.HasValue || preset is not null && preset.HasValue(PresetProperty.BreakAfter))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BreakAfter))
+                AddCss(ref cls, BreakAfter);
+        }
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildAdditionalUtilities2(ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (BreakBefore.HasValue || preset is not null && preset.HasValue(PresetProperty.BreakBefore))
-            AddCss(ref cls, ResolvePresetSlot(BreakBefore, preset?.BreakBefore, (int)PresetProperty.BreakBefore));
-        if (BreakInside.HasValue || preset is not null && preset.HasValue(PresetProperty.BreakInside))
-            AddCss(ref cls, ResolvePresetSlot(BreakInside, preset?.BreakInside, (int)PresetProperty.BreakInside));
-        if (FloatClear.HasValue || preset is not null && preset.HasValue(PresetProperty.FloatClear))
-            AddCss(ref cls, ResolvePresetSlot(FloatClear, preset?.FloatClear, (int)PresetProperty.FloatClear));
-        if (ClipPath.HasValue || preset is not null && preset.HasValue(PresetProperty.ClipPath))
-            AddCss(ref cls, ResolvePresetSlot(ClipPath, preset?.ClipPath, (int)PresetProperty.ClipPath));
-        if (ColEnd.HasValue || preset is not null && preset.HasValue(PresetProperty.ColEnd))
-            AddCss(ref cls, ResolvePresetSlot(ColEnd, preset?.ColEnd, (int)PresetProperty.ColEnd));
-        if (ColorScheme.HasValue || preset is not null && preset.HasValue(PresetProperty.ColorScheme))
-            AddCss(ref cls, ResolvePresetSlot(ColorScheme, preset?.ColorScheme, (int)PresetProperty.ColorScheme));
-        if (ColumnCount.HasValue || preset is not null && preset.HasValue(PresetProperty.ColumnCount))
-            AddCss(ref cls, ResolvePresetSlot(ColumnCount, preset?.ColumnCount, (int)PresetProperty.ColumnCount));
-        if (ContainerQuery.HasValue || preset is not null && preset.HasValue(PresetProperty.ContainerQuery))
-            AddCss(ref cls, ResolvePresetSlot(ContainerQuery, preset?.ContainerQuery, (int)PresetProperty.ContainerQuery));
-        if (Contain.HasValue || preset is not null && preset.HasValue(PresetProperty.Contain))
-            AddCss(ref cls, ResolvePresetSlot(Contain, preset?.Contain, (int)PresetProperty.Contain));
-        if (GeneratedContent.HasValue || preset is not null && preset.HasValue(PresetProperty.GeneratedContent))
-            AddCss(ref cls, ResolvePresetSlot(GeneratedContent, preset?.GeneratedContent, (int)PresetProperty.GeneratedContent));
-        if (DecorationColor.HasValue || preset is not null && preset.HasValue(PresetProperty.DecorationColor))
-            AddCss(ref cls, ResolvePresetSlot(DecorationColor, preset?.DecorationColor, (int)PresetProperty.DecorationColor));
-        if (DecorationStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.DecorationStyle))
-            AddCss(ref cls, ResolvePresetSlot(DecorationStyle, preset?.DecorationStyle, (int)PresetProperty.DecorationStyle));
-        if (DecorationThickness.HasValue || preset is not null && preset.HasValue(PresetProperty.DecorationThickness))
-            AddCss(ref cls, ResolvePresetSlot(DecorationThickness, preset?.DecorationThickness, (int)PresetProperty.DecorationThickness));
-        if (TransitionDelay.HasValue || preset is not null && preset.HasValue(PresetProperty.TransitionDelay))
-            AddCss(ref cls, ResolvePresetSlot(TransitionDelay, preset?.TransitionDelay, (int)PresetProperty.TransitionDelay));
-        if (Ease.HasValue || preset is not null && preset.HasValue(PresetProperty.Ease))
-            AddCss(ref cls, ResolvePresetSlot(Ease, preset?.Ease, (int)PresetProperty.Ease));
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.BreakBefore.HasValue || preset is not null && preset.HasValue(PresetProperty.BreakBefore))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BreakBefore))
+                AddCss(ref cls, BreakBefore);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.BreakInside.HasValue || preset is not null && preset.HasValue(PresetProperty.BreakInside))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BreakInside))
+                AddCss(ref cls, BreakInside);
+        }
+        if (_displayUtilities is not null && _displayUtilities.FloatClear.HasValue || preset is not null && preset.HasValue(PresetProperty.FloatClear))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.FloatClear))
+                AddCss(ref cls, FloatClear);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.ClipPath.HasValue || preset is not null && preset.HasValue(PresetProperty.ClipPath))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ClipPath))
+                AddCss(ref cls, ClipPath);
+        }
+        if (_gridPlacementUtilities is not null && _gridPlacementUtilities.ColEnd.HasValue || preset is not null && preset.HasValue(PresetProperty.ColEnd))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ColEnd))
+                AddCss(ref cls, ColEnd);
+        }
+        if (_interactionUtilities is not null && _interactionUtilities.ColorScheme.HasValue || preset is not null && preset.HasValue(PresetProperty.ColorScheme))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ColorScheme))
+                AddCss(ref cls, ColorScheme);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.ColumnCount.HasValue || preset is not null && preset.HasValue(PresetProperty.ColumnCount))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ColumnCount))
+                AddCss(ref cls, ColumnCount);
+        }
+        if (_displayUtilities is not null && _displayUtilities.ContainerQuery.HasValue || preset is not null && preset.HasValue(PresetProperty.ContainerQuery))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ContainerQuery))
+                AddCss(ref cls, ContainerQuery);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.Contain.HasValue || preset is not null && preset.HasValue(PresetProperty.Contain))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Contain))
+                AddCss(ref cls, Contain);
+        }
+        if (_textDecorationUtilities is not null || preset is not null)
+        {
+            if (_textDecorationUtilities is not null && _textDecorationUtilities.GeneratedContent.HasValue || preset is not null && preset.HasValue(PresetProperty.GeneratedContent))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.GeneratedContent))
+                    AddCss(ref cls, GeneratedContent);
+            }
+            if (_textDecorationUtilities is not null && _textDecorationUtilities.DecorationColor.HasValue || preset is not null && preset.HasValue(PresetProperty.DecorationColor))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.DecorationColor))
+                    AddCss(ref cls, DecorationColor);
+            }
+            if (_textDecorationUtilities is not null && _textDecorationUtilities.DecorationStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.DecorationStyle))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.DecorationStyle))
+                    AddCss(ref cls, DecorationStyle);
+            }
+            if (_textDecorationUtilities is not null && _textDecorationUtilities.DecorationThickness.HasValue || preset is not null && preset.HasValue(PresetProperty.DecorationThickness))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.DecorationThickness))
+                    AddCss(ref cls, DecorationThickness);
+            }
+        }
+        if (_motionUtilities is not null && _motionUtilities.TransitionDelay.HasValue || preset is not null && preset.HasValue(PresetProperty.TransitionDelay))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.TransitionDelay))
+                AddCss(ref cls, TransitionDelay);
+        }
+        if (_motionUtilities is not null && _motionUtilities.Ease.HasValue || preset is not null && preset.HasValue(PresetProperty.Ease))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Ease))
+                AddCss(ref cls, Ease);
+        }
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildAdditionalUtilities3(ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (FlexBasis.HasValue || preset is not null && preset.HasValue(PresetProperty.FlexBasis))
-            AddCss(ref cls, ResolvePresetSlot(FlexBasis, preset?.FlexBasis, (int)PresetProperty.FlexBasis));
-        if (ForcedColorAdjust.HasValue || preset is not null && preset.HasValue(PresetProperty.ForcedColorAdjust))
-            AddCss(ref cls, ResolvePresetSlot(ForcedColorAdjust, preset?.ForcedColorAdjust, (int)PresetProperty.ForcedColorAdjust));
-        if (BackgroundGradient.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundGradient))
-            AddCss(ref cls, ResolvePresetSlot(BackgroundGradient, preset?.BackgroundGradient, (int)PresetProperty.BackgroundGradient));
-        if (ColumnSpan.HasValue || preset is not null && preset.HasValue(PresetProperty.ColumnSpan))
-            AddCss(ref cls, ResolvePresetSlot(ColumnSpan, preset?.ColumnSpan, (int)PresetProperty.ColumnSpan));
-        if (Hyphen.HasValue || preset is not null && preset.HasValue(PresetProperty.Hyphen))
-            AddCss(ref cls, ResolvePresetSlot(Hyphen, preset?.Hyphen, (int)PresetProperty.Hyphen));
-        if (InlineSize.HasValue || preset is not null && preset.HasValue(PresetProperty.InlineSize))
-            AddCss(ref cls, ResolvePresetSlot(InlineSize, preset?.InlineSize, (int)PresetProperty.InlineSize));
-        if (InsetBlockEnd.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetBlockEnd))
-            AddCss(ref cls, ResolvePresetSlot(InsetBlockEnd, preset?.InsetBlockEnd, (int)PresetProperty.InsetBlockEnd));
-        if (InsetBlockStart.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetBlockStart))
-            AddCss(ref cls, ResolvePresetSlot(InsetBlockStart, preset?.InsetBlockStart, (int)PresetProperty.InsetBlockStart));
-        if (InsetEnd.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetEnd))
-            AddCss(ref cls, ResolvePresetSlot(InsetEnd, preset?.InsetEnd, (int)PresetProperty.InsetEnd));
-        if (InsetRingColor.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetRingColor))
-            AddCss(ref cls, ResolvePresetSlot(InsetRingColor, preset?.InsetRingColor, (int)PresetProperty.InsetRingColor));
-        if (InsetRing.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetRing))
-            AddCss(ref cls, ResolvePresetSlot(InsetRing, preset?.InsetRing, (int)PresetProperty.InsetRing));
-        if (InsetShadowColor.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetShadowColor))
-            AddCss(ref cls, ResolvePresetSlot(InsetShadowColor, preset?.InsetShadowColor, (int)PresetProperty.InsetShadowColor));
-        if (InsetShadow.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetShadow))
-            AddCss(ref cls, ResolvePresetSlot(InsetShadow, preset?.InsetShadow, (int)PresetProperty.InsetShadow));
-        if (InsetStart.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetStart))
-            AddCss(ref cls, ResolvePresetSlot(InsetStart, preset?.InsetStart, (int)PresetProperty.InsetStart));
+        if (_flexUtilities is not null && _flexUtilities.FlexBasis.HasValue || preset is not null && preset.HasValue(PresetProperty.FlexBasis))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.FlexBasis))
+                AddCss(ref cls, FlexBasis);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.ForcedColorAdjust.HasValue || preset is not null && preset.HasValue(PresetProperty.ForcedColorAdjust))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ForcedColorAdjust))
+                AddCss(ref cls, ForcedColorAdjust);
+        }
+        if (_backgroundUtilities is not null && _backgroundUtilities.BackgroundGradient.HasValue || preset is not null && preset.HasValue(PresetProperty.BackgroundGradient))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackgroundGradient))
+                AddCss(ref cls, BackgroundGradient);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.ColumnSpan.HasValue || preset is not null && preset.HasValue(PresetProperty.ColumnSpan))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ColumnSpan))
+                AddCss(ref cls, ColumnSpan);
+        }
+        if (_textFlowUtilities is not null && _textFlowUtilities.Hyphen.HasValue || preset is not null && preset.HasValue(PresetProperty.Hyphen))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Hyphen))
+                AddCss(ref cls, Hyphen);
+        }
+        if (_logicalLayoutUtilities is not null || preset is not null)
+        {
+            if (_logicalLayoutUtilities is not null && _logicalLayoutUtilities.InlineSize.HasValue || preset is not null && preset.HasValue(PresetProperty.InlineSize))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.InlineSize))
+                    AddCss(ref cls, InlineSize);
+            }
+            if (_logicalLayoutUtilities is not null && _logicalLayoutUtilities.InsetBlockEnd.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetBlockEnd))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.InsetBlockEnd))
+                    AddCss(ref cls, InsetBlockEnd);
+            }
+            if (_logicalLayoutUtilities is not null && _logicalLayoutUtilities.InsetBlockStart.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetBlockStart))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.InsetBlockStart))
+                    AddCss(ref cls, InsetBlockStart);
+            }
+            if (_logicalLayoutUtilities is not null && _logicalLayoutUtilities.InsetEnd.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetEnd))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.InsetEnd))
+                    AddCss(ref cls, InsetEnd);
+            }
+        }
+        if (_effectUtilities is not null || preset is not null)
+        {
+            if (_effectUtilities is not null && _effectUtilities.InsetRingColor.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetRingColor))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.InsetRingColor))
+                    AddCss(ref cls, InsetRingColor);
+            }
+            if (_effectUtilities is not null && _effectUtilities.InsetRing.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetRing))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.InsetRing))
+                    AddCss(ref cls, InsetRing);
+            }
+            if (_effectUtilities is not null && _effectUtilities.InsetShadowColor.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetShadowColor))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.InsetShadowColor))
+                    AddCss(ref cls, InsetShadowColor);
+            }
+            if (_effectUtilities is not null && _effectUtilities.InsetShadow.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetShadow))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.InsetShadow))
+                    AddCss(ref cls, InsetShadow);
+            }
+        }
+        if (_logicalLayoutUtilities is not null && _logicalLayoutUtilities.InsetStart.HasValue || preset is not null && preset.HasValue(PresetProperty.InsetStart))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.InsetStart))
+                AddCss(ref cls, InsetStart);
+        }
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildAdditionalUtilities4(ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (Isolation.HasValue || preset is not null && preset.HasValue(PresetProperty.Isolation))
-            AddCss(ref cls, ResolvePresetSlot(Isolation, preset?.Isolation, (int)PresetProperty.Isolation));
-        if (MaxBlockSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MaxBlockSize))
-            AddCss(ref cls, ResolvePresetSlot(MaxBlockSize, preset?.MaxBlockSize, (int)PresetProperty.MaxBlockSize));
-        if (MaxInlineSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MaxInlineSize))
-            AddCss(ref cls, ResolvePresetSlot(MaxInlineSize, preset?.MaxInlineSize, (int)PresetProperty.MaxInlineSize));
-        if (MinBlockSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MinBlockSize))
-            AddCss(ref cls, ResolvePresetSlot(MinBlockSize, preset?.MinBlockSize, (int)PresetProperty.MinBlockSize));
-        if (MinInlineSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MinInlineSize))
-            AddCss(ref cls, ResolvePresetSlot(MinInlineSize, preset?.MinInlineSize, (int)PresetProperty.MinInlineSize));
-        if (MixBlendMode.HasValue || preset is not null && preset.HasValue(PresetProperty.MixBlendMode))
-            AddCss(ref cls, ResolvePresetSlot(MixBlendMode, preset?.MixBlendMode, (int)PresetProperty.MixBlendMode));
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.Isolation.HasValue || preset is not null && preset.HasValue(PresetProperty.Isolation))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Isolation))
+                AddCss(ref cls, Isolation);
+        }
+        if (_logicalLayoutUtilities is not null || preset is not null)
+        {
+            if (_logicalLayoutUtilities is not null && _logicalLayoutUtilities.MaxBlockSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MaxBlockSize))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MaxBlockSize))
+                    AddCss(ref cls, MaxBlockSize);
+            }
+            if (_logicalLayoutUtilities is not null && _logicalLayoutUtilities.MaxInlineSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MaxInlineSize))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MaxInlineSize))
+                    AddCss(ref cls, MaxInlineSize);
+            }
+            if (_logicalLayoutUtilities is not null && _logicalLayoutUtilities.MinBlockSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MinBlockSize))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MinBlockSize))
+                    AddCss(ref cls, MinBlockSize);
+            }
+            if (_logicalLayoutUtilities is not null && _logicalLayoutUtilities.MinInlineSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MinInlineSize))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MinInlineSize))
+                    AddCss(ref cls, MinInlineSize);
+            }
+        }
+        if (_effectUtilities is not null && _effectUtilities.MixBlendMode.HasValue || preset is not null && preset.HasValue(PresetProperty.MixBlendMode))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MixBlendMode))
+                AddCss(ref cls, MixBlendMode);
+        }
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildAdditionalUtilities5(ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (Order.HasValue || preset is not null && preset.HasValue(PresetProperty.Order))
-            AddCss(ref cls, ResolvePresetSlot(Order, preset?.Order, (int)PresetProperty.Order));
-        if (Origin.HasValue || preset is not null && preset.HasValue(PresetProperty.Origin))
-            AddCss(ref cls, ResolvePresetSlot(Origin, preset?.Origin, (int)PresetProperty.Origin));
-        if (OutlineColor.HasValue || preset is not null && preset.HasValue(PresetProperty.OutlineColor))
-            AddCss(ref cls, ResolvePresetSlot(OutlineColor, preset?.OutlineColor, (int)PresetProperty.OutlineColor));
-        if (OutlineOffset.HasValue || preset is not null && preset.HasValue(PresetProperty.OutlineOffset))
-            AddCss(ref cls, ResolvePresetSlot(OutlineOffset, preset?.OutlineOffset, (int)PresetProperty.OutlineOffset));
-        if (OutlineWidth.HasValue || preset is not null && preset.HasValue(PresetProperty.OutlineWidth))
-            AddCss(ref cls, ResolvePresetSlot(OutlineWidth, preset?.OutlineWidth, (int)PresetProperty.OutlineWidth));
-        if (OverflowWrap.HasValue || preset is not null && preset.HasValue(PresetProperty.OverflowWrap))
-            AddCss(ref cls, ResolvePresetSlot(OverflowWrap, preset?.OverflowWrap, (int)PresetProperty.OverflowWrap));
-        if (PlaceContentAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.PlaceContentAlign))
-            AddCss(ref cls, ResolvePresetSlot(PlaceContentAlign, preset?.PlaceContentAlign, (int)PresetProperty.PlaceContentAlign));
-        if (PlaceItemsAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.PlaceItemsAlign))
-            AddCss(ref cls, ResolvePresetSlot(PlaceItemsAlign, preset?.PlaceItemsAlign, (int)PresetProperty.PlaceItemsAlign));
-        if (PlaceSelfAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.PlaceSelfAlign))
-            AddCss(ref cls, ResolvePresetSlot(PlaceSelfAlign, preset?.PlaceSelfAlign, (int)PresetProperty.PlaceSelfAlign));
-        if (Rotate.HasValue || preset is not null && preset.HasValue(PresetProperty.Rotate))
-            AddCss(ref cls, ResolvePresetSlot(Rotate, preset?.Rotate, (int)PresetProperty.Rotate));
-        if (RowEnd.HasValue || preset is not null && preset.HasValue(PresetProperty.RowEnd))
-            AddCss(ref cls, ResolvePresetSlot(RowEnd, preset?.RowEnd, (int)PresetProperty.RowEnd));
-        if (Scale.HasValue || preset is not null && preset.HasValue(PresetProperty.Scale))
-            AddCss(ref cls, ResolvePresetSlot(Scale, preset?.Scale, (int)PresetProperty.Scale));
-        if (ScrollbarGutter.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollbarGutter))
-            AddCss(ref cls, ResolvePresetSlot(ScrollbarGutter, preset?.ScrollbarGutter, (int)PresetProperty.ScrollbarGutter));
-        if (ScrollbarThumbColor.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollbarThumbColor))
-            AddCss(ref cls, ResolvePresetSlot(ScrollbarThumbColor, preset?.ScrollbarThumbColor, (int)PresetProperty.ScrollbarThumbColor));
-        if (ScrollbarTrackColor.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollbarTrackColor))
-            AddCss(ref cls, ResolvePresetSlot(ScrollbarTrackColor, preset?.ScrollbarTrackColor, (int)PresetProperty.ScrollbarTrackColor));
-        if (ScrollbarWidth.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollbarWidth))
-            AddCss(ref cls, ResolvePresetSlot(ScrollbarWidth, preset?.ScrollbarWidth, (int)PresetProperty.ScrollbarWidth));
-        if (ScrollBehavior.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollBehavior))
-            AddCss(ref cls, ResolvePresetSlot(ScrollBehavior, preset?.ScrollBehavior, (int)PresetProperty.ScrollBehavior));
-        if (ScrollSnapAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollSnapAlign))
-            AddCss(ref cls, ResolvePresetSlot(ScrollSnapAlign, preset?.ScrollSnapAlign, (int)PresetProperty.ScrollSnapAlign));
+        if (_flexUtilities is not null && _flexUtilities.Order.HasValue || preset is not null && preset.HasValue(PresetProperty.Order))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Order))
+                AddCss(ref cls, Order);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.Origin.HasValue || preset is not null && preset.HasValue(PresetProperty.Origin))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Origin))
+                AddCss(ref cls, Origin);
+        }
+        if (_effectUtilities is not null || preset is not null)
+        {
+            if (_effectUtilities is not null && _effectUtilities.OutlineColor.HasValue || preset is not null && preset.HasValue(PresetProperty.OutlineColor))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.OutlineColor))
+                    AddCss(ref cls, OutlineColor);
+            }
+            if (_effectUtilities is not null && _effectUtilities.OutlineOffset.HasValue || preset is not null && preset.HasValue(PresetProperty.OutlineOffset))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.OutlineOffset))
+                    AddCss(ref cls, OutlineOffset);
+            }
+            if (_effectUtilities is not null && _effectUtilities.OutlineWidth.HasValue || preset is not null && preset.HasValue(PresetProperty.OutlineWidth))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.OutlineWidth))
+                    AddCss(ref cls, OutlineWidth);
+            }
+        }
+        if (_textFlowUtilities is not null && _textFlowUtilities.OverflowWrap.HasValue || preset is not null && preset.HasValue(PresetProperty.OverflowWrap))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.OverflowWrap))
+                AddCss(ref cls, OverflowWrap);
+        }
+        if (_alignmentUtilities is not null || preset is not null)
+        {
+            if (_alignmentUtilities is not null && _alignmentUtilities.PlaceContentAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.PlaceContentAlign))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.PlaceContentAlign))
+                    AddCss(ref cls, PlaceContentAlign);
+            }
+            if (_alignmentUtilities is not null && _alignmentUtilities.PlaceItemsAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.PlaceItemsAlign))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.PlaceItemsAlign))
+                    AddCss(ref cls, PlaceItemsAlign);
+            }
+            if (_alignmentUtilities is not null && _alignmentUtilities.PlaceSelfAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.PlaceSelfAlign))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.PlaceSelfAlign))
+                    AddCss(ref cls, PlaceSelfAlign);
+            }
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.Rotate.HasValue || preset is not null && preset.HasValue(PresetProperty.Rotate))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Rotate))
+                AddCss(ref cls, Rotate);
+        }
+        if (_gridPlacementUtilities is not null && _gridPlacementUtilities.RowEnd.HasValue || preset is not null && preset.HasValue(PresetProperty.RowEnd))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.RowEnd))
+                AddCss(ref cls, RowEnd);
+        }
+        if (_motionUtilities is not null && _motionUtilities.Scale.HasValue || preset is not null && preset.HasValue(PresetProperty.Scale))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Scale))
+                AddCss(ref cls, Scale);
+        }
+        if (_advancedLayoutUtilities is not null || preset is not null)
+        {
+            if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.ScrollbarGutter.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollbarGutter))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ScrollbarGutter))
+                    AddCss(ref cls, ScrollbarGutter);
+            }
+            if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.ScrollbarThumbColor.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollbarThumbColor))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ScrollbarThumbColor))
+                    AddCss(ref cls, ScrollbarThumbColor);
+            }
+            if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.ScrollbarTrackColor.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollbarTrackColor))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ScrollbarTrackColor))
+                    AddCss(ref cls, ScrollbarTrackColor);
+            }
+            if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.ScrollbarWidth.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollbarWidth))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ScrollbarWidth))
+                    AddCss(ref cls, ScrollbarWidth);
+            }
+            if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.ScrollBehavior.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollBehavior))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ScrollBehavior))
+                    AddCss(ref cls, ScrollBehavior);
+            }
+            if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.ScrollSnapAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollSnapAlign))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ScrollSnapAlign))
+                    AddCss(ref cls, ScrollSnapAlign);
+            }
+        }
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildAdditionalUtilities6(ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (ScrollSnap.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollSnap))
-            AddCss(ref cls, ResolvePresetSlot(ScrollSnap, preset?.ScrollSnap, (int)PresetProperty.ScrollSnap));
-        if (ScrollSnapStop.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollSnapStop))
-            AddCss(ref cls, ResolvePresetSlot(ScrollSnapStop, preset?.ScrollSnapStop, (int)PresetProperty.ScrollSnapStop));
-        if (ShadowColor.HasValue || preset is not null && preset.HasValue(PresetProperty.ShadowColor))
-            AddCss(ref cls, ResolvePresetSlot(ShadowColor, preset?.ShadowColor, (int)PresetProperty.ShadowColor));
-        if (Skew.HasValue || preset is not null && preset.HasValue(PresetProperty.Skew))
-            AddCss(ref cls, ResolvePresetSlot(Skew, preset?.Skew, (int)PresetProperty.Skew));
-        if (TabSize.HasValue || preset is not null && preset.HasValue(PresetProperty.TabSize))
-            AddCss(ref cls, ResolvePresetSlot(TabSize, preset?.TabSize, (int)PresetProperty.TabSize));
-        if (TouchAction.HasValue || preset is not null && preset.HasValue(PresetProperty.TouchAction))
-            AddCss(ref cls, ResolvePresetSlot(TouchAction, preset?.TouchAction, (int)PresetProperty.TouchAction));
-        if (TransitionBehavior.HasValue || preset is not null && preset.HasValue(PresetProperty.TransitionBehavior))
-            AddCss(ref cls, ResolvePresetSlot(TransitionBehavior, preset?.TransitionBehavior, (int)PresetProperty.TransitionBehavior));
-        if (Translate.HasValue || preset is not null && preset.HasValue(PresetProperty.Translate))
-            AddCss(ref cls, ResolvePresetSlot(Translate, preset?.Translate, (int)PresetProperty.Translate));
-        if (WillChange.HasValue || preset is not null && preset.HasValue(PresetProperty.WillChange))
-            AddCss(ref cls, ResolvePresetSlot(WillChange, preset?.WillChange, (int)PresetProperty.WillChange));
-        if (Zoom.HasValue || preset is not null && preset.HasValue(PresetProperty.Zoom))
-            AddCss(ref cls, ResolvePresetSlot(Zoom, preset?.Zoom, (int)PresetProperty.Zoom));
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.ScrollSnap.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollSnap))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ScrollSnap))
+                AddCss(ref cls, ScrollSnap);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.ScrollSnapStop.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollSnapStop))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ScrollSnapStop))
+                AddCss(ref cls, ScrollSnapStop);
+        }
+        if (_surfaceUtilities is not null && _surfaceUtilities.ShadowColor.HasValue || preset is not null && preset.HasValue(PresetProperty.ShadowColor))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ShadowColor))
+                AddCss(ref cls, ShadowColor);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.Skew.HasValue || preset is not null && preset.HasValue(PresetProperty.Skew))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Skew))
+                AddCss(ref cls, Skew);
+        }
+        if (_textFlowUtilities is not null && _textFlowUtilities.TabSize.HasValue || preset is not null && preset.HasValue(PresetProperty.TabSize))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.TabSize))
+                AddCss(ref cls, TabSize);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.TouchAction.HasValue || preset is not null && preset.HasValue(PresetProperty.TouchAction))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.TouchAction))
+                AddCss(ref cls, TouchAction);
+        }
+        if (_motionUtilities is not null && _motionUtilities.TransitionBehavior.HasValue || preset is not null && preset.HasValue(PresetProperty.TransitionBehavior))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.TransitionBehavior))
+                AddCss(ref cls, TransitionBehavior);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.Translate.HasValue || preset is not null && preset.HasValue(PresetProperty.Translate))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Translate))
+                AddCss(ref cls, Translate);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.WillChange.HasValue || preset is not null && preset.HasValue(PresetProperty.WillChange))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.WillChange))
+                AddCss(ref cls, WillChange);
+        }
+        if (_motionUtilities is not null && _motionUtilities.Zoom.HasValue || preset is not null && preset.HasValue(PresetProperty.Zoom))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Zoom))
+                AddCss(ref cls, Zoom);
+        }
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildMaskUtilities(ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (MaskClip.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskClip))
-            AddCss(ref cls, ResolvePresetSlot(MaskClip, preset?.MaskClip, (int)PresetProperty.MaskClip));
-        if (MaskComposite.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskComposite))
-            AddCss(ref cls, ResolvePresetSlot(MaskComposite, preset?.MaskComposite, (int)PresetProperty.MaskComposite));
-        if (MaskImage.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskImage))
-            AddCss(ref cls, ResolvePresetSlot(MaskImage, preset?.MaskImage, (int)PresetProperty.MaskImage));
-        if (MaskMode.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskMode))
-            AddCss(ref cls, ResolvePresetSlot(MaskMode, preset?.MaskMode, (int)PresetProperty.MaskMode));
-        if (MaskOrigin.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskOrigin))
-            AddCss(ref cls, ResolvePresetSlot(MaskOrigin, preset?.MaskOrigin, (int)PresetProperty.MaskOrigin));
-        if (MaskPosition.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskPosition))
-            AddCss(ref cls, ResolvePresetSlot(MaskPosition, preset?.MaskPosition, (int)PresetProperty.MaskPosition));
-        if (MaskRepeat.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskRepeat))
-            AddCss(ref cls, ResolvePresetSlot(MaskRepeat, preset?.MaskRepeat, (int)PresetProperty.MaskRepeat));
-        if (MaskSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskSize))
-            AddCss(ref cls, ResolvePresetSlot(MaskSize, preset?.MaskSize, (int)PresetProperty.MaskSize));
-        if (MaskType.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskType))
-            AddCss(ref cls, ResolvePresetSlot(MaskType, preset?.MaskType, (int)PresetProperty.MaskType));
+        if (_maskUtilities is not null && _maskUtilities.MaskClip.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskClip))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MaskClip))
+                AddCss(ref cls, MaskClip);
+        }
+        if (_maskUtilities is not null && _maskUtilities.MaskComposite.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskComposite))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MaskComposite))
+                AddCss(ref cls, MaskComposite);
+        }
+        if (_maskUtilities is not null && _maskUtilities.MaskImage.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskImage))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MaskImage))
+                AddCss(ref cls, MaskImage);
+        }
+        if (_maskUtilities is not null && _maskUtilities.MaskMode.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskMode))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MaskMode))
+                AddCss(ref cls, MaskMode);
+        }
+        if (_maskUtilities is not null && _maskUtilities.MaskOrigin.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskOrigin))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MaskOrigin))
+                AddCss(ref cls, MaskOrigin);
+        }
+        if (_maskUtilities is not null && _maskUtilities.MaskPosition.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskPosition))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MaskPosition))
+                AddCss(ref cls, MaskPosition);
+        }
+        if (_maskUtilities is not null && _maskUtilities.MaskRepeat.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskRepeat))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MaskRepeat))
+                AddCss(ref cls, MaskRepeat);
+        }
+        if (_maskUtilities is not null && _maskUtilities.MaskSize.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskSize))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MaskSize))
+                AddCss(ref cls, MaskSize);
+        }
+        if (_maskUtilities is not null && _maskUtilities.MaskType.HasValue || preset is not null && preset.HasValue(PresetProperty.MaskType))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MaskType))
+                AddCss(ref cls, MaskType);
+        }
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildTransform3DUtilities(ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (BackfaceVisibility.HasValue || preset is not null && preset.HasValue(PresetProperty.BackfaceVisibility))
-            AddCss(ref cls, ResolvePresetSlot(BackfaceVisibility, preset?.BackfaceVisibility, (int)PresetProperty.BackfaceVisibility));
-        if (PerspectiveOrigin.HasValue || preset is not null && preset.HasValue(PresetProperty.PerspectiveOrigin))
-            AddCss(ref cls, ResolvePresetSlot(PerspectiveOrigin, preset?.PerspectiveOrigin, (int)PresetProperty.PerspectiveOrigin));
-        if (Perspective.HasValue || preset is not null && preset.HasValue(PresetProperty.Perspective))
-            AddCss(ref cls, ResolvePresetSlot(Perspective, preset?.Perspective, (int)PresetProperty.Perspective));
-        if (TransformStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.TransformStyle))
-            AddCss(ref cls, ResolvePresetSlot(TransformStyle, preset?.TransformStyle, (int)PresetProperty.TransformStyle));
+        if (_transform3DUtilities is not null && _transform3DUtilities.BackfaceVisibility.HasValue || preset is not null && preset.HasValue(PresetProperty.BackfaceVisibility))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackfaceVisibility))
+                AddCss(ref cls, BackfaceVisibility);
+        }
+        if (_transform3DUtilities is not null && _transform3DUtilities.PerspectiveOrigin.HasValue || preset is not null && preset.HasValue(PresetProperty.PerspectiveOrigin))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.PerspectiveOrigin))
+                AddCss(ref cls, PerspectiveOrigin);
+        }
+        if (_transform3DUtilities is not null && _transform3DUtilities.Perspective.HasValue || preset is not null && preset.HasValue(PresetProperty.Perspective))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Perspective))
+                AddCss(ref cls, Perspective);
+        }
+        if (_transform3DUtilities is not null && _transform3DUtilities.TransformStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.TransformStyle))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.TransformStyle))
+                AddCss(ref cls, TransformStyle);
+        }
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildAdvancedTypographyUtilities(ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (FontFeatureSettings.HasValue || preset is not null && preset.HasValue(PresetProperty.FontFeatureSettings))
-            AddCss(ref cls, ResolvePresetSlot(FontFeatureSettings, preset?.FontFeatureSettings, (int)PresetProperty.FontFeatureSettings));
-        if (FontSmoothing.HasValue || preset is not null && preset.HasValue(PresetProperty.FontSmoothing))
-            AddCss(ref cls, ResolvePresetSlot(FontSmoothing, preset?.FontSmoothing, (int)PresetProperty.FontSmoothing));
-        if (FontStretch.HasValue || preset is not null && preset.HasValue(PresetProperty.FontStretch))
-            AddCss(ref cls, ResolvePresetSlot(FontStretch, preset?.FontStretch, (int)PresetProperty.FontStretch));
-        if (TextIndent.HasValue || preset is not null && preset.HasValue(PresetProperty.TextIndent))
-            AddCss(ref cls, ResolvePresetSlot(TextIndent, preset?.TextIndent, (int)PresetProperty.TextIndent));
-        if (TextShadowColor.HasValue || preset is not null && preset.HasValue(PresetProperty.TextShadowColor))
-            AddCss(ref cls, ResolvePresetSlot(TextShadowColor, preset?.TextShadowColor, (int)PresetProperty.TextShadowColor));
-        if (TextShadow.HasValue || preset is not null && preset.HasValue(PresetProperty.TextShadow))
-            AddCss(ref cls, ResolvePresetSlot(TextShadow, preset?.TextShadow, (int)PresetProperty.TextShadow));
+        if (_advancedTypographyUtilities is not null && _advancedTypographyUtilities.FontFeatureSettings.HasValue || preset is not null && preset.HasValue(PresetProperty.FontFeatureSettings))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.FontFeatureSettings))
+                AddCss(ref cls, FontFeatureSettings);
+        }
+        if (_advancedTypographyUtilities is not null && _advancedTypographyUtilities.FontSmoothing.HasValue || preset is not null && preset.HasValue(PresetProperty.FontSmoothing))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.FontSmoothing))
+                AddCss(ref cls, FontSmoothing);
+        }
+        if (_advancedTypographyUtilities is not null && _advancedTypographyUtilities.FontStretch.HasValue || preset is not null && preset.HasValue(PresetProperty.FontStretch))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.FontStretch))
+                AddCss(ref cls, FontStretch);
+        }
+        if (_advancedTypographyUtilities is not null && _advancedTypographyUtilities.TextIndent.HasValue || preset is not null && preset.HasValue(PresetProperty.TextIndent))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.TextIndent))
+                AddCss(ref cls, TextIndent);
+        }
+        if (_advancedTypographyUtilities is not null && _advancedTypographyUtilities.TextShadowColor.HasValue || preset is not null && preset.HasValue(PresetProperty.TextShadowColor))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.TextShadowColor))
+                AddCss(ref cls, TextShadowColor);
+        }
+        if (_advancedTypographyUtilities is not null && _advancedTypographyUtilities.TextShadow.HasValue || preset is not null && preset.HasValue(PresetProperty.TextShadow))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.TextShadow))
+                AddCss(ref cls, TextShadow);
+        }
     }
 
     // Keep each group as a separate native frame. In particular, do not combine these methods
@@ -2898,222 +3221,558 @@ public abstract class Component : RenderComponent, IComponent
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildTypographyClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (Display.HasValue || preset is not null && preset.HasValue(PresetProperty.Display))
-            AddCss(ref cls, ResolvePresetSlot(Display, preset?.Display, (int)PresetProperty.Display));
-        if (Visibility.HasValue || preset is not null && preset.HasValue(PresetProperty.Visibility))
-            AddCss(ref cls, ResolvePresetSlot(Visibility, preset?.Visibility, (int)PresetProperty.Visibility));
-        if (Float.HasValue || preset is not null && preset.HasValue(PresetProperty.Float))
-            AddCss(ref cls, ResolvePresetSlot(Float, preset?.Float, (int)PresetProperty.Float));
-        if (VerticalAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.VerticalAlign))
-            AddCss(ref cls, ResolvePresetSlot(VerticalAlign, preset?.VerticalAlign, (int)PresetProperty.VerticalAlign));
-        if (TextAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.TextAlign))
-            AddCss(ref cls, ResolvePresetSlot(TextAlign, preset?.TextAlign, (int)PresetProperty.TextAlign));
+        if (_displayUtilities is not null || preset is not null)
+        {
+            if (_displayUtilities is not null && _displayUtilities.Display.HasValue || preset is not null && preset.HasValue(PresetProperty.Display))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Display))
+                    AddCss(ref cls, Display);
+            }
+            if (_displayUtilities is not null && _displayUtilities.Visibility.HasValue || preset is not null && preset.HasValue(PresetProperty.Visibility))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Visibility))
+                    AddCss(ref cls, Visibility);
+            }
+            if (_displayUtilities is not null && _displayUtilities.Float.HasValue || preset is not null && preset.HasValue(PresetProperty.Float))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Float))
+                    AddCss(ref cls, Float);
+            }
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.VerticalAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.VerticalAlign))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.VerticalAlign))
+                AddCss(ref cls, VerticalAlign);
+        }
+        if (_textFlowUtilities is not null && _textFlowUtilities.TextAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.TextAlign))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.TextAlign))
+                AddCss(ref cls, TextAlign);
+        }
         ApplyTextColor(ref sty, ref cls, preset?.TextColor);
-        if (TextSize.HasValue || preset is not null && preset.HasValue(PresetProperty.TextSize))
-            AddCss(ref cls, ResolvePresetSlot(TextSize, preset?.TextSize, (int)PresetProperty.TextSize));
-        if (DecorationLine.HasValue || preset is not null && preset.HasValue(PresetProperty.DecorationLine))
-            AddCss(ref cls, ResolvePresetSlot(DecorationLine, preset?.DecorationLine, (int)PresetProperty.DecorationLine));
-        if (UnderlineOffset.HasValue || preset is not null && preset.HasValue(PresetProperty.UnderlineOffset))
-            AddCss(ref cls, ResolvePresetSlot(UnderlineOffset, preset?.UnderlineOffset, (int)PresetProperty.UnderlineOffset));
-        if (TextTransform.HasValue || preset is not null && preset.HasValue(PresetProperty.TextTransform))
-            AddCss(ref cls, ResolvePresetSlot(TextTransform, preset?.TextTransform, (int)PresetProperty.TextTransform));
-        if (FontFamily.HasValue || preset is not null && preset.HasValue(PresetProperty.FontFamily))
-            AddCss(ref cls, ResolvePresetSlot(FontFamily, preset?.FontFamily, (int)PresetProperty.FontFamily));
-        if (FontWeight.HasValue || preset is not null && preset.HasValue(PresetProperty.FontWeight))
-            AddCss(ref cls, ResolvePresetSlot(FontWeight, preset?.FontWeight, (int)PresetProperty.FontWeight));
-        if (FontStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.FontStyle))
-            AddCss(ref cls, ResolvePresetSlot(FontStyle, preset?.FontStyle, (int)PresetProperty.FontStyle));
-        if (Leading.HasValue || preset is not null && preset.HasValue(PresetProperty.Leading))
-            AddCss(ref cls, ResolvePresetSlot(Leading, preset?.Leading, (int)PresetProperty.Leading));
-        if (Tracking.HasValue || preset is not null && preset.HasValue(PresetProperty.Tracking))
-            AddCss(ref cls, ResolvePresetSlot(Tracking, preset?.Tracking, (int)PresetProperty.Tracking));
-        if (Whitespace.HasValue || preset is not null && preset.HasValue(PresetProperty.Whitespace))
-            AddCss(ref cls, ResolvePresetSlot(Whitespace, preset?.Whitespace, (int)PresetProperty.Whitespace));
-        if (TextWrap.HasValue || preset is not null && preset.HasValue(PresetProperty.TextWrap))
-            AddCss(ref cls, ResolvePresetSlot(TextWrap, preset?.TextWrap, (int)PresetProperty.TextWrap));
-        if (WordBreak.HasValue || preset is not null && preset.HasValue(PresetProperty.WordBreak))
-            AddCss(ref cls, ResolvePresetSlot(WordBreak, preset?.WordBreak, (int)PresetProperty.WordBreak));
-        if (TextOverflow.HasValue || preset is not null && preset.HasValue(PresetProperty.TextOverflow))
-            AddCss(ref cls, ResolvePresetSlot(TextOverflow, preset?.TextOverflow, (int)PresetProperty.TextOverflow));
-        if (Truncate.HasValue || preset is not null && preset.HasValue(PresetProperty.Truncate))
-            AddCss(ref cls, ResolvePresetSlot(Truncate, preset?.Truncate, (int)PresetProperty.Truncate));
-        if (LineClamp.HasValue || preset is not null && preset.HasValue(PresetProperty.LineClamp))
-            AddCss(ref cls, ResolvePresetSlot(LineClamp, preset?.LineClamp, (int)PresetProperty.LineClamp));
-        if (FontVariantNumeric.HasValue || preset is not null && preset.HasValue(PresetProperty.FontVariantNumeric))
-            AddCss(ref cls, ResolvePresetSlot(FontVariantNumeric, preset?.FontVariantNumeric, (int)PresetProperty.FontVariantNumeric));
+        if (_fontUtilities is not null && _fontUtilities.TextSize.HasValue || preset is not null && preset.HasValue(PresetProperty.TextSize))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.TextSize))
+                AddCss(ref cls, TextSize);
+        }
+        if (_textDecorationUtilities is not null && _textDecorationUtilities.DecorationLine.HasValue || preset is not null && preset.HasValue(PresetProperty.DecorationLine))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.DecorationLine))
+                AddCss(ref cls, DecorationLine);
+        }
+        if (_textDecorationUtilities is not null && _textDecorationUtilities.UnderlineOffset.HasValue || preset is not null && preset.HasValue(PresetProperty.UnderlineOffset))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.UnderlineOffset))
+                AddCss(ref cls, UnderlineOffset);
+        }
+        if (_textFlowUtilities is not null && _textFlowUtilities.TextTransform.HasValue || preset is not null && preset.HasValue(PresetProperty.TextTransform))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.TextTransform))
+                AddCss(ref cls, TextTransform);
+        }
+        if (_fontUtilities is not null || preset is not null)
+        {
+            if (_fontUtilities is not null && _fontUtilities.FontFamily.HasValue || preset is not null && preset.HasValue(PresetProperty.FontFamily))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.FontFamily))
+                    AddCss(ref cls, FontFamily);
+            }
+            if (_fontUtilities is not null && _fontUtilities.FontWeight.HasValue || preset is not null && preset.HasValue(PresetProperty.FontWeight))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.FontWeight))
+                    AddCss(ref cls, FontWeight);
+            }
+            if (_fontUtilities is not null && _fontUtilities.FontStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.FontStyle))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.FontStyle))
+                    AddCss(ref cls, FontStyle);
+            }
+            if (_fontUtilities is not null && _fontUtilities.Leading.HasValue || preset is not null && preset.HasValue(PresetProperty.Leading))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Leading))
+                    AddCss(ref cls, Leading);
+            }
+            if (_fontUtilities is not null && _fontUtilities.Tracking.HasValue || preset is not null && preset.HasValue(PresetProperty.Tracking))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Tracking))
+                    AddCss(ref cls, Tracking);
+            }
+        }
+        if (_textFlowUtilities is not null || preset is not null)
+        {
+            if (_textFlowUtilities is not null && _textFlowUtilities.Whitespace.HasValue || preset is not null && preset.HasValue(PresetProperty.Whitespace))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Whitespace))
+                    AddCss(ref cls, Whitespace);
+            }
+            if (_textFlowUtilities is not null && _textFlowUtilities.TextWrap.HasValue || preset is not null && preset.HasValue(PresetProperty.TextWrap))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.TextWrap))
+                    AddCss(ref cls, TextWrap);
+            }
+            if (_textFlowUtilities is not null && _textFlowUtilities.WordBreak.HasValue || preset is not null && preset.HasValue(PresetProperty.WordBreak))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.WordBreak))
+                    AddCss(ref cls, WordBreak);
+            }
+            if (_textFlowUtilities is not null && _textFlowUtilities.TextOverflow.HasValue || preset is not null && preset.HasValue(PresetProperty.TextOverflow))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.TextOverflow))
+                    AddCss(ref cls, TextOverflow);
+            }
+            if (_textFlowUtilities is not null && _textFlowUtilities.Truncate.HasValue || preset is not null && preset.HasValue(PresetProperty.Truncate))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Truncate))
+                    AddCss(ref cls, Truncate);
+            }
+            if (_textFlowUtilities is not null && _textFlowUtilities.LineClamp.HasValue || preset is not null && preset.HasValue(PresetProperty.LineClamp))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.LineClamp))
+                    AddCss(ref cls, LineClamp);
+            }
+        }
+        if (_fontUtilities is not null && _fontUtilities.FontVariantNumeric.HasValue || preset is not null && preset.HasValue(PresetProperty.FontVariantNumeric))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.FontVariantNumeric))
+                AddCss(ref cls, FontVariantNumeric);
+        }
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildLayoutClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (Margin.HasValue || preset is not null && preset.HasValue(PresetProperty.Margin))
-            AddCss(ref cls, ResolvePresetSlot(Margin, preset?.Margin, (int)PresetProperty.Margin));
-        if (Padding.HasValue || preset is not null && preset.HasValue(PresetProperty.Padding))
-            AddCss(ref cls, ResolvePresetSlot(Padding, preset?.Padding, (int)PresetProperty.Padding));
-        if (Inset.HasValue || preset is not null && preset.HasValue(PresetProperty.Inset))
-            AddCss(ref cls, ResolvePresetSlot(Inset, preset?.Inset, (int)PresetProperty.Inset));
-        if (Top.HasValue || preset is not null && preset.HasValue(PresetProperty.Top))
-            AddCss(ref cls, ResolvePresetSlot(Top, preset?.Top, (int)PresetProperty.Top));
-        if (Right.HasValue || preset is not null && preset.HasValue(PresetProperty.Right))
-            AddCss(ref cls, ResolvePresetSlot(Right, preset?.Right, (int)PresetProperty.Right));
-        if (Bottom.HasValue || preset is not null && preset.HasValue(PresetProperty.Bottom))
-            AddCss(ref cls, ResolvePresetSlot(Bottom, preset?.Bottom, (int)PresetProperty.Bottom));
-        if (Left.HasValue || preset is not null && preset.HasValue(PresetProperty.Left))
-            AddCss(ref cls, ResolvePresetSlot(Left, preset?.Left, (int)PresetProperty.Left));
-        if (Position.HasValue || preset is not null && preset.HasValue(PresetProperty.Position))
-            AddCss(ref cls, ResolvePresetSlot(Position, preset?.Position, (int)PresetProperty.Position));
-        if (ScrollMargin.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollMargin))
-            AddCss(ref cls, ResolvePresetSlot(ScrollMargin, preset?.ScrollMargin, (int)PresetProperty.ScrollMargin));
-        if (ScrollPadding.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollPadding))
-            AddCss(ref cls, ResolvePresetSlot(ScrollPadding, preset?.ScrollPadding, (int)PresetProperty.ScrollPadding));
-        if (Size.HasValue || preset is not null && preset.HasValue(PresetProperty.Size))
-            AddCss(ref cls, ResolvePresetSlot(Size, preset?.Size, (int)PresetProperty.Size));
-        if (Width.HasValue || preset is not null && preset.HasValue(PresetProperty.Width))
-            AddCss(ref cls, ResolvePresetSlot(Width, preset?.Width, (int)PresetProperty.Width));
-        if (MinWidth.HasValue || preset is not null && preset.HasValue(PresetProperty.MinWidth))
-            AddCss(ref cls, ResolvePresetSlot(MinWidth, preset?.MinWidth, (int)PresetProperty.MinWidth));
-        if (MaxWidth.HasValue || preset is not null && preset.HasValue(PresetProperty.MaxWidth))
-            AddCss(ref cls, ResolvePresetSlot(MaxWidth, preset?.MaxWidth, (int)PresetProperty.MaxWidth));
-        if (Height.HasValue || preset is not null && preset.HasValue(PresetProperty.Height))
-            AddCss(ref cls, ResolvePresetSlot(Height, preset?.Height, (int)PresetProperty.Height));
-        if (MinHeight.HasValue || preset is not null && preset.HasValue(PresetProperty.MinHeight))
-            AddCss(ref cls, ResolvePresetSlot(MinHeight, preset?.MinHeight, (int)PresetProperty.MinHeight));
-        if (MaxHeight.HasValue || preset is not null && preset.HasValue(PresetProperty.MaxHeight))
-            AddCss(ref cls, ResolvePresetSlot(MaxHeight, preset?.MaxHeight, (int)PresetProperty.MaxHeight));
-        if (Overflow.HasValue || preset is not null && preset.HasValue(PresetProperty.Overflow))
-            AddCss(ref cls, ResolvePresetSlot(Overflow, preset?.Overflow, (int)PresetProperty.Overflow));
-        if (OverflowX.HasValue || preset is not null && preset.HasValue(PresetProperty.OverflowX))
-            AddCss(ref cls, ResolvePresetSlot(OverflowX, preset?.OverflowX, (int)PresetProperty.OverflowX));
-        if (OverflowY.HasValue || preset is not null && preset.HasValue(PresetProperty.OverflowY))
-            AddCss(ref cls, ResolvePresetSlot(OverflowY, preset?.OverflowY, (int)PresetProperty.OverflowY));
-        if (Overscroll.HasValue || preset is not null && preset.HasValue(PresetProperty.Overscroll))
-            AddCss(ref cls, ResolvePresetSlot(Overscroll, preset?.Overscroll, (int)PresetProperty.Overscroll));
-        if (Flex.HasValue || preset is not null && preset.HasValue(PresetProperty.Flex))
-            AddCss(ref cls, ResolvePresetSlot(Flex, preset?.Flex, (int)PresetProperty.Flex));
-        if (FlexDirection.HasValue || preset is not null && preset.HasValue(PresetProperty.FlexDirection))
-            AddCss(ref cls, ResolvePresetSlot(FlexDirection, preset?.FlexDirection, (int)PresetProperty.FlexDirection));
-        if (FlexWrap.HasValue || preset is not null && preset.HasValue(PresetProperty.FlexWrap))
-            AddCss(ref cls, ResolvePresetSlot(FlexWrap, preset?.FlexWrap, (int)PresetProperty.FlexWrap));
-        if (Grow.HasValue || preset is not null && preset.HasValue(PresetProperty.Grow))
-            AddCss(ref cls, ResolvePresetSlot(Grow, preset?.Grow, (int)PresetProperty.Grow));
-        if (Shrink.HasValue || preset is not null && preset.HasValue(PresetProperty.Shrink))
-            AddCss(ref cls, ResolvePresetSlot(Shrink, preset?.Shrink, (int)PresetProperty.Shrink));
-        if (Gap.HasValue || preset is not null && preset.HasValue(PresetProperty.Gap))
-            AddCss(ref cls, ResolvePresetSlot(Gap, preset?.Gap, (int)PresetProperty.Gap));
-        if (Space.HasValue || preset is not null && preset.HasValue(PresetProperty.Space))
-            AddCss(ref cls, ResolvePresetSlot(Space, preset?.Space, (int)PresetProperty.Space));
-        if (Divide.HasValue || preset is not null && preset.HasValue(PresetProperty.Divide))
-            AddCss(ref cls, ResolvePresetSlot(Divide, preset?.Divide, (int)PresetProperty.Divide));
-        if (ContentAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.ContentAlign))
-            AddCss(ref cls, ResolvePresetSlot(ContentAlign, preset?.ContentAlign, (int)PresetProperty.ContentAlign));
-        if (ItemsAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.ItemsAlign))
-            AddCss(ref cls, ResolvePresetSlot(ItemsAlign, preset?.ItemsAlign, (int)PresetProperty.ItemsAlign));
-        if (Justify.HasValue || preset is not null && preset.HasValue(PresetProperty.Justify))
-            AddCss(ref cls, ResolvePresetSlot(Justify, preset?.Justify, (int)PresetProperty.Justify));
-        if (SelfAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.SelfAlign))
-            AddCss(ref cls, ResolvePresetSlot(SelfAlign, preset?.SelfAlign, (int)PresetProperty.SelfAlign));
-        if (JustifyItemsAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.JustifyItemsAlign))
-            AddCss(ref cls, ResolvePresetSlot(JustifyItemsAlign, preset?.JustifyItemsAlign, (int)PresetProperty.JustifyItemsAlign));
-        if (JustifySelfAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.JustifySelfAlign))
-            AddCss(ref cls, ResolvePresetSlot(JustifySelfAlign, preset?.JustifySelfAlign, (int)PresetProperty.JustifySelfAlign));
-        if (ColStart.HasValue || preset is not null && preset.HasValue(PresetProperty.ColStart))
-            AddCss(ref cls, ResolvePresetSlot(ColStart, preset?.ColStart, (int)PresetProperty.ColStart));
-        if (RowSpan.HasValue || preset is not null && preset.HasValue(PresetProperty.RowSpan))
-            AddCss(ref cls, ResolvePresetSlot(RowSpan, preset?.RowSpan, (int)PresetProperty.RowSpan));
-        if (RowStart.HasValue || preset is not null && preset.HasValue(PresetProperty.RowStart))
-            AddCss(ref cls, ResolvePresetSlot(RowStart, preset?.RowStart, (int)PresetProperty.RowStart));
+        if (_spacingUtilities is not null && _spacingUtilities.Margin.HasValue || preset is not null && preset.HasValue(PresetProperty.Margin))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Margin))
+                AddCss(ref cls, Margin);
+        }
+        if (_spacingUtilities is not null && _spacingUtilities.Padding.HasValue || preset is not null && preset.HasValue(PresetProperty.Padding))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Padding))
+                AddCss(ref cls, Padding);
+        }
+        if (_positionUtilities is not null || preset is not null)
+        {
+            if (_positionUtilities is not null && _positionUtilities.Inset.HasValue || preset is not null && preset.HasValue(PresetProperty.Inset))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Inset))
+                    AddCss(ref cls, Inset);
+            }
+            if (_positionUtilities is not null && _positionUtilities.Top.HasValue || preset is not null && preset.HasValue(PresetProperty.Top))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Top))
+                    AddCss(ref cls, Top);
+            }
+            if (_positionUtilities is not null && _positionUtilities.Right.HasValue || preset is not null && preset.HasValue(PresetProperty.Right))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Right))
+                    AddCss(ref cls, Right);
+            }
+            if (_positionUtilities is not null && _positionUtilities.Bottom.HasValue || preset is not null && preset.HasValue(PresetProperty.Bottom))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Bottom))
+                    AddCss(ref cls, Bottom);
+            }
+            if (_positionUtilities is not null && _positionUtilities.Left.HasValue || preset is not null && preset.HasValue(PresetProperty.Left))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Left))
+                    AddCss(ref cls, Left);
+            }
+            if (_positionUtilities is not null && _positionUtilities.Position.HasValue || preset is not null && preset.HasValue(PresetProperty.Position))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Position))
+                    AddCss(ref cls, Position);
+            }
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.ScrollMargin.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollMargin))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ScrollMargin))
+                AddCss(ref cls, ScrollMargin);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.ScrollPadding.HasValue || preset is not null && preset.HasValue(PresetProperty.ScrollPadding))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ScrollPadding))
+                AddCss(ref cls, ScrollPadding);
+        }
+        if (_dimensionUtilities is not null || preset is not null)
+        {
+            if (_dimensionUtilities is not null && _dimensionUtilities.Size.HasValue || preset is not null && preset.HasValue(PresetProperty.Size))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Size))
+                    AddCss(ref cls, Size);
+            }
+            if (_dimensionUtilities is not null && _dimensionUtilities.Width.HasValue || preset is not null && preset.HasValue(PresetProperty.Width))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Width))
+                    AddCss(ref cls, Width);
+            }
+            if (_dimensionUtilities is not null && _dimensionUtilities.MinWidth.HasValue || preset is not null && preset.HasValue(PresetProperty.MinWidth))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MinWidth))
+                    AddCss(ref cls, MinWidth);
+            }
+            if (_dimensionUtilities is not null && _dimensionUtilities.MaxWidth.HasValue || preset is not null && preset.HasValue(PresetProperty.MaxWidth))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MaxWidth))
+                    AddCss(ref cls, MaxWidth);
+            }
+            if (_dimensionUtilities is not null && _dimensionUtilities.Height.HasValue || preset is not null && preset.HasValue(PresetProperty.Height))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Height))
+                    AddCss(ref cls, Height);
+            }
+            if (_dimensionUtilities is not null && _dimensionUtilities.MinHeight.HasValue || preset is not null && preset.HasValue(PresetProperty.MinHeight))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MinHeight))
+                    AddCss(ref cls, MinHeight);
+            }
+            if (_dimensionUtilities is not null && _dimensionUtilities.MaxHeight.HasValue || preset is not null && preset.HasValue(PresetProperty.MaxHeight))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.MaxHeight))
+                    AddCss(ref cls, MaxHeight);
+            }
+        }
+        if (_displayUtilities is not null || preset is not null)
+        {
+            if (_displayUtilities is not null && _displayUtilities.Overflow.HasValue || preset is not null && preset.HasValue(PresetProperty.Overflow))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Overflow))
+                    AddCss(ref cls, Overflow);
+            }
+            if (_displayUtilities is not null && _displayUtilities.OverflowX.HasValue || preset is not null && preset.HasValue(PresetProperty.OverflowX))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.OverflowX))
+                    AddCss(ref cls, OverflowX);
+            }
+            if (_displayUtilities is not null && _displayUtilities.OverflowY.HasValue || preset is not null && preset.HasValue(PresetProperty.OverflowY))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.OverflowY))
+                    AddCss(ref cls, OverflowY);
+            }
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.Overscroll.HasValue || preset is not null && preset.HasValue(PresetProperty.Overscroll))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Overscroll))
+                AddCss(ref cls, Overscroll);
+        }
+        if (_flexUtilities is not null || preset is not null)
+        {
+            if (_flexUtilities is not null && _flexUtilities.Flex.HasValue || preset is not null && preset.HasValue(PresetProperty.Flex))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Flex))
+                    AddCss(ref cls, Flex);
+            }
+            if (_flexUtilities is not null && _flexUtilities.FlexDirection.HasValue || preset is not null && preset.HasValue(PresetProperty.FlexDirection))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.FlexDirection))
+                    AddCss(ref cls, FlexDirection);
+            }
+            if (_flexUtilities is not null && _flexUtilities.FlexWrap.HasValue || preset is not null && preset.HasValue(PresetProperty.FlexWrap))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.FlexWrap))
+                    AddCss(ref cls, FlexWrap);
+            }
+            if (_flexUtilities is not null && _flexUtilities.Grow.HasValue || preset is not null && preset.HasValue(PresetProperty.Grow))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Grow))
+                    AddCss(ref cls, Grow);
+            }
+            if (_flexUtilities is not null && _flexUtilities.Shrink.HasValue || preset is not null && preset.HasValue(PresetProperty.Shrink))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Shrink))
+                    AddCss(ref cls, Shrink);
+            }
+        }
+        if (_spacingUtilities is not null || preset is not null)
+        {
+            if (_spacingUtilities is not null && _spacingUtilities.Gap.HasValue || preset is not null && preset.HasValue(PresetProperty.Gap))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Gap))
+                    AddCss(ref cls, Gap);
+            }
+            if (_spacingUtilities is not null && _spacingUtilities.Space.HasValue || preset is not null && preset.HasValue(PresetProperty.Space))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Space))
+                    AddCss(ref cls, Space);
+            }
+            if (_spacingUtilities is not null && _spacingUtilities.Divide.HasValue || preset is not null && preset.HasValue(PresetProperty.Divide))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Divide))
+                    AddCss(ref cls, Divide);
+            }
+        }
+        if (_alignmentUtilities is not null || preset is not null)
+        {
+            if (_alignmentUtilities is not null && _alignmentUtilities.ContentAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.ContentAlign))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ContentAlign))
+                    AddCss(ref cls, ContentAlign);
+            }
+            if (_alignmentUtilities is not null && _alignmentUtilities.ItemsAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.ItemsAlign))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ItemsAlign))
+                    AddCss(ref cls, ItemsAlign);
+            }
+            if (_alignmentUtilities is not null && _alignmentUtilities.Justify.HasValue || preset is not null && preset.HasValue(PresetProperty.Justify))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Justify))
+                    AddCss(ref cls, Justify);
+            }
+            if (_alignmentUtilities is not null && _alignmentUtilities.SelfAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.SelfAlign))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.SelfAlign))
+                    AddCss(ref cls, SelfAlign);
+            }
+            if (_alignmentUtilities is not null && _alignmentUtilities.JustifyItemsAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.JustifyItemsAlign))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.JustifyItemsAlign))
+                    AddCss(ref cls, JustifyItemsAlign);
+            }
+            if (_alignmentUtilities is not null && _alignmentUtilities.JustifySelfAlign.HasValue || preset is not null && preset.HasValue(PresetProperty.JustifySelfAlign))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.JustifySelfAlign))
+                    AddCss(ref cls, JustifySelfAlign);
+            }
+        }
+        if (_gridPlacementUtilities is not null || preset is not null)
+        {
+            if (_gridPlacementUtilities is not null && _gridPlacementUtilities.ColStart.HasValue || preset is not null && preset.HasValue(PresetProperty.ColStart))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ColStart))
+                    AddCss(ref cls, ColStart);
+            }
+            if (_gridPlacementUtilities is not null && _gridPlacementUtilities.RowSpan.HasValue || preset is not null && preset.HasValue(PresetProperty.RowSpan))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.RowSpan))
+                    AddCss(ref cls, RowSpan);
+            }
+            if (_gridPlacementUtilities is not null && _gridPlacementUtilities.RowStart.HasValue || preset is not null && preset.HasValue(PresetProperty.RowStart))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.RowStart))
+                    AddCss(ref cls, RowStart);
+            }
+        }
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildInteractionClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (Opacity.HasValue || preset is not null && preset.HasValue(PresetProperty.Opacity))
-            AddCss(ref cls, ResolvePresetSlot(Opacity, preset?.Opacity, (int)PresetProperty.Opacity));
-        if (ZIndex.HasValue || preset is not null && preset.HasValue(PresetProperty.ZIndex))
-            AddCss(ref cls, ResolvePresetSlot(ZIndex, preset?.ZIndex, (int)PresetProperty.ZIndex));
-        if (PointerEvents.HasValue || preset is not null && preset.HasValue(PresetProperty.PointerEvents))
-            AddCss(ref cls, ResolvePresetSlot(PointerEvents, preset?.PointerEvents, (int)PresetProperty.PointerEvents));
-        if (UserSelect.HasValue || preset is not null && preset.HasValue(PresetProperty.UserSelect))
-            AddCss(ref cls, ResolvePresetSlot(UserSelect, preset?.UserSelect, (int)PresetProperty.UserSelect));
-        if (Cursor.HasValue || preset is not null && preset.HasValue(PresetProperty.Cursor))
-            AddCss(ref cls, ResolvePresetSlot(Cursor, preset?.Cursor, (int)PresetProperty.Cursor));
-        if (ScreenReader.HasValue || preset is not null && preset.HasValue(PresetProperty.ScreenReader))
-            AddCss(ref cls, ResolvePresetSlot(ScreenReader, preset?.ScreenReader, (int)PresetProperty.ScreenReader));
+        if (_interactionUtilities is not null && _interactionUtilities.Opacity.HasValue || preset is not null && preset.HasValue(PresetProperty.Opacity))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Opacity))
+                AddCss(ref cls, Opacity);
+        }
+        if (_positionUtilities is not null && _positionUtilities.ZIndex.HasValue || preset is not null && preset.HasValue(PresetProperty.ZIndex))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ZIndex))
+                AddCss(ref cls, ZIndex);
+        }
+        if (_interactionUtilities is not null && _interactionUtilities.PointerEvents.HasValue || preset is not null && preset.HasValue(PresetProperty.PointerEvents))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.PointerEvents))
+                AddCss(ref cls, PointerEvents);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.UserSelect.HasValue || preset is not null && preset.HasValue(PresetProperty.UserSelect))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.UserSelect))
+                AddCss(ref cls, UserSelect);
+        }
+        if (_interactionUtilities is not null && _interactionUtilities.Cursor.HasValue || preset is not null && preset.HasValue(PresetProperty.Cursor))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Cursor))
+                AddCss(ref cls, Cursor);
+        }
+        if (_interactionUtilities is not null && _interactionUtilities.ScreenReader.HasValue || preset is not null && preset.HasValue(PresetProperty.ScreenReader))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.ScreenReader))
+                AddCss(ref cls, ScreenReader);
+        }
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void BuildVisualClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls, QuarkPresetContext? preset)
     {
-        if (Border.HasValue || preset is not null && preset.HasValue(PresetProperty.Border))
-            AddCss(ref cls, ResolvePresetSlot(Border, preset?.Border, (int)PresetProperty.Border));
-        if (BorderStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.BorderStyle))
-            AddCss(ref cls, ResolvePresetSlot(BorderStyle, preset?.BorderStyle, (int)PresetProperty.BorderStyle));
+        if (_surfaceUtilities is not null && _surfaceUtilities.Border.HasValue || preset is not null && preset.HasValue(PresetProperty.Border))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Border))
+                AddCss(ref cls, Border);
+        }
+        if (_surfaceUtilities is not null && _surfaceUtilities.BorderStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.BorderStyle))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BorderStyle))
+                AddCss(ref cls, BorderStyle);
+        }
         ApplyBorderColor(ref sty, ref cls, preset?.BorderColor);
         ApplyBackgroundColor(ref sty, ref cls, preset?.BackgroundColor);
         if (Rounded.HasValue || preset is not null && preset.HasValue(PresetProperty.Rounded))
-            AddCss(ref cls, ResolvePresetSlot(Rounded, preset?.Rounded, (int)PresetProperty.Rounded));
-        if (RingColor.HasValue || preset is not null && preset.HasValue(PresetProperty.RingColor))
-            AddCss(ref cls, ResolvePresetSlot(RingColor, preset?.RingColor, (int)PresetProperty.RingColor));
-        if (Ring.HasValue || preset is not null && preset.HasValue(PresetProperty.Ring))
-            AddCss(ref cls, ResolvePresetSlot(Ring, preset?.Ring, (int)PresetProperty.Ring));
-        if (RingOffset.HasValue || preset is not null && preset.HasValue(PresetProperty.RingOffset))
-            AddCss(ref cls, ResolvePresetSlot(RingOffset, preset?.RingOffset, (int)PresetProperty.RingOffset));
-        if (OutlineStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.OutlineStyle))
-            AddCss(ref cls, ResolvePresetSlot(OutlineStyle, preset?.OutlineStyle, (int)PresetProperty.OutlineStyle));
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Rounded))
+                AddCss(ref cls, Rounded);
+        }
+        if (_surfaceUtilities is not null || preset is not null)
+        {
+            if (_surfaceUtilities is not null && _surfaceUtilities.RingColor.HasValue || preset is not null && preset.HasValue(PresetProperty.RingColor))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.RingColor))
+                    AddCss(ref cls, RingColor);
+            }
+            if (_surfaceUtilities is not null && _surfaceUtilities.Ring.HasValue || preset is not null && preset.HasValue(PresetProperty.Ring))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Ring))
+                    AddCss(ref cls, Ring);
+            }
+            if (_surfaceUtilities is not null && _surfaceUtilities.RingOffset.HasValue || preset is not null && preset.HasValue(PresetProperty.RingOffset))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.RingOffset))
+                    AddCss(ref cls, RingOffset);
+            }
+        }
+        if (_effectUtilities is not null && _effectUtilities.OutlineStyle.HasValue || preset is not null && preset.HasValue(PresetProperty.OutlineStyle))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.OutlineStyle))
+                AddCss(ref cls, OutlineStyle);
+        }
         if (Shadow.HasValue || preset is not null && preset.HasValue(PresetProperty.Shadow))
-            AddCss(ref cls, ResolvePresetSlot(Shadow, preset?.Shadow, (int)PresetProperty.Shadow));
-        if (BackdropFilter.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropFilter))
-            AddCss(ref cls, ResolvePresetSlot(BackdropFilter, preset?.BackdropFilter, (int)PresetProperty.BackdropFilter));
-        if (BackdropBlur.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropBlur))
-            AddCss(ref cls, ResolvePresetSlot(BackdropBlur, preset?.BackdropBlur, (int)PresetProperty.BackdropBlur));
-        if (BackdropBrightness.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropBrightness))
-            AddCss(ref cls, ResolvePresetSlot(BackdropBrightness, preset?.BackdropBrightness, (int)PresetProperty.BackdropBrightness));
-        if (BackdropContrast.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropContrast))
-            AddCss(ref cls, ResolvePresetSlot(BackdropContrast, preset?.BackdropContrast, (int)PresetProperty.BackdropContrast));
-        if (BackdropGrayscale.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropGrayscale))
-            AddCss(ref cls, ResolvePresetSlot(BackdropGrayscale, preset?.BackdropGrayscale, (int)PresetProperty.BackdropGrayscale));
-        if (BackdropHueRotate.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropHueRotate))
-            AddCss(ref cls, ResolvePresetSlot(BackdropHueRotate, preset?.BackdropHueRotate, (int)PresetProperty.BackdropHueRotate));
-        if (BackdropInvert.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropInvert))
-            AddCss(ref cls, ResolvePresetSlot(BackdropInvert, preset?.BackdropInvert, (int)PresetProperty.BackdropInvert));
-        if (BackdropOpacity.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropOpacity))
-            AddCss(ref cls, ResolvePresetSlot(BackdropOpacity, preset?.BackdropOpacity, (int)PresetProperty.BackdropOpacity));
-        if (BackdropSaturate.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropSaturate))
-            AddCss(ref cls, ResolvePresetSlot(BackdropSaturate, preset?.BackdropSaturate, (int)PresetProperty.BackdropSaturate));
-        if (BackdropSepia.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropSepia))
-            AddCss(ref cls, ResolvePresetSlot(BackdropSepia, preset?.BackdropSepia, (int)PresetProperty.BackdropSepia));
-        if (Filter.HasValue || preset is not null && preset.HasValue(PresetProperty.Filter))
-            AddCss(ref cls, ResolvePresetSlot(Filter, preset?.Filter, (int)PresetProperty.Filter));
-        if (Blur.HasValue || preset is not null && preset.HasValue(PresetProperty.Blur))
-            AddCss(ref cls, ResolvePresetSlot(Blur, preset?.Blur, (int)PresetProperty.Blur));
-        if (Brightness.HasValue || preset is not null && preset.HasValue(PresetProperty.Brightness))
-            AddCss(ref cls, ResolvePresetSlot(Brightness, preset?.Brightness, (int)PresetProperty.Brightness));
-        if (Contrast.HasValue || preset is not null && preset.HasValue(PresetProperty.Contrast))
-            AddCss(ref cls, ResolvePresetSlot(Contrast, preset?.Contrast, (int)PresetProperty.Contrast));
-        if (DropShadow.HasValue || preset is not null && preset.HasValue(PresetProperty.DropShadow))
-            AddCss(ref cls, ResolvePresetSlot(DropShadow, preset?.DropShadow, (int)PresetProperty.DropShadow));
-        if (DropShadowColor.HasValue || preset is not null && preset.HasValue(PresetProperty.DropShadowColor))
-            AddCss(ref cls, ResolvePresetSlot(DropShadowColor, preset?.DropShadowColor, (int)PresetProperty.DropShadowColor));
-        if (Grayscale.HasValue || preset is not null && preset.HasValue(PresetProperty.Grayscale))
-            AddCss(ref cls, ResolvePresetSlot(Grayscale, preset?.Grayscale, (int)PresetProperty.Grayscale));
-        if (HueRotate.HasValue || preset is not null && preset.HasValue(PresetProperty.HueRotate))
-            AddCss(ref cls, ResolvePresetSlot(HueRotate, preset?.HueRotate, (int)PresetProperty.HueRotate));
-        if (Invert.HasValue || preset is not null && preset.HasValue(PresetProperty.Invert))
-            AddCss(ref cls, ResolvePresetSlot(Invert, preset?.Invert, (int)PresetProperty.Invert));
-        if (Saturate.HasValue || preset is not null && preset.HasValue(PresetProperty.Saturate))
-            AddCss(ref cls, ResolvePresetSlot(Saturate, preset?.Saturate, (int)PresetProperty.Saturate));
-        if (Sepia.HasValue || preset is not null && preset.HasValue(PresetProperty.Sepia))
-            AddCss(ref cls, ResolvePresetSlot(Sepia, preset?.Sepia, (int)PresetProperty.Sepia));
-        if (Resize.HasValue || preset is not null && preset.HasValue(PresetProperty.Resize))
-            AddCss(ref cls, ResolvePresetSlot(Resize, preset?.Resize, (int)PresetProperty.Resize));
-        if (Transform.HasValue || preset is not null && preset.HasValue(PresetProperty.Transform))
-            AddCss(ref cls, ResolvePresetSlot(Transform, preset?.Transform, (int)PresetProperty.Transform));
-        if (Animation.HasValue || preset is not null && preset.HasValue(PresetProperty.Animation))
-            AddCss(ref cls, ResolvePresetSlot(Animation, preset?.Animation, (int)PresetProperty.Animation));
-        if (Duration.HasValue || preset is not null && preset.HasValue(PresetProperty.Duration))
-            AddCss(ref cls, ResolvePresetSlot(Duration, preset?.Duration, (int)PresetProperty.Duration));
-        if (Transition.HasValue || preset is not null && preset.HasValue(PresetProperty.Transition))
-            AddCss(ref cls, ResolvePresetSlot(Transition, preset?.Transition, (int)PresetProperty.Transition));
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Shadow))
+                AddCss(ref cls, Shadow);
+        }
+        if (_effectUtilities is not null || preset is not null)
+        {
+            if (_effectUtilities is not null && _effectUtilities.BackdropFilter.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropFilter))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackdropFilter))
+                    AddCss(ref cls, BackdropFilter);
+            }
+            if (_effectUtilities is not null && _effectUtilities.BackdropBlur.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropBlur))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackdropBlur))
+                    AddCss(ref cls, BackdropBlur);
+            }
+            if (_effectUtilities is not null && _effectUtilities.BackdropBrightness.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropBrightness))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackdropBrightness))
+                    AddCss(ref cls, BackdropBrightness);
+            }
+            if (_effectUtilities is not null && _effectUtilities.BackdropContrast.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropContrast))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackdropContrast))
+                    AddCss(ref cls, BackdropContrast);
+            }
+            if (_effectUtilities is not null && _effectUtilities.BackdropGrayscale.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropGrayscale))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackdropGrayscale))
+                    AddCss(ref cls, BackdropGrayscale);
+            }
+            if (_effectUtilities is not null && _effectUtilities.BackdropHueRotate.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropHueRotate))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackdropHueRotate))
+                    AddCss(ref cls, BackdropHueRotate);
+            }
+            if (_effectUtilities is not null && _effectUtilities.BackdropInvert.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropInvert))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackdropInvert))
+                    AddCss(ref cls, BackdropInvert);
+            }
+            if (_effectUtilities is not null && _effectUtilities.BackdropOpacity.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropOpacity))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackdropOpacity))
+                    AddCss(ref cls, BackdropOpacity);
+            }
+            if (_effectUtilities is not null && _effectUtilities.BackdropSaturate.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropSaturate))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackdropSaturate))
+                    AddCss(ref cls, BackdropSaturate);
+            }
+            if (_effectUtilities is not null && _effectUtilities.BackdropSepia.HasValue || preset is not null && preset.HasValue(PresetProperty.BackdropSepia))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.BackdropSepia))
+                    AddCss(ref cls, BackdropSepia);
+            }
+            if (_effectUtilities is not null && _effectUtilities.Filter.HasValue || preset is not null && preset.HasValue(PresetProperty.Filter))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Filter))
+                    AddCss(ref cls, Filter);
+            }
+            if (_effectUtilities is not null && _effectUtilities.Blur.HasValue || preset is not null && preset.HasValue(PresetProperty.Blur))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Blur))
+                    AddCss(ref cls, Blur);
+            }
+            if (_effectUtilities is not null && _effectUtilities.Brightness.HasValue || preset is not null && preset.HasValue(PresetProperty.Brightness))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Brightness))
+                    AddCss(ref cls, Brightness);
+            }
+            if (_effectUtilities is not null && _effectUtilities.Contrast.HasValue || preset is not null && preset.HasValue(PresetProperty.Contrast))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Contrast))
+                    AddCss(ref cls, Contrast);
+            }
+            if (_effectUtilities is not null && _effectUtilities.DropShadow.HasValue || preset is not null && preset.HasValue(PresetProperty.DropShadow))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.DropShadow))
+                    AddCss(ref cls, DropShadow);
+            }
+            if (_effectUtilities is not null && _effectUtilities.DropShadowColor.HasValue || preset is not null && preset.HasValue(PresetProperty.DropShadowColor))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.DropShadowColor))
+                    AddCss(ref cls, DropShadowColor);
+            }
+            if (_effectUtilities is not null && _effectUtilities.Grayscale.HasValue || preset is not null && preset.HasValue(PresetProperty.Grayscale))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Grayscale))
+                    AddCss(ref cls, Grayscale);
+            }
+            if (_effectUtilities is not null && _effectUtilities.HueRotate.HasValue || preset is not null && preset.HasValue(PresetProperty.HueRotate))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.HueRotate))
+                    AddCss(ref cls, HueRotate);
+            }
+            if (_effectUtilities is not null && _effectUtilities.Invert.HasValue || preset is not null && preset.HasValue(PresetProperty.Invert))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Invert))
+                    AddCss(ref cls, Invert);
+            }
+            if (_effectUtilities is not null && _effectUtilities.Saturate.HasValue || preset is not null && preset.HasValue(PresetProperty.Saturate))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Saturate))
+                    AddCss(ref cls, Saturate);
+            }
+            if (_effectUtilities is not null && _effectUtilities.Sepia.HasValue || preset is not null && preset.HasValue(PresetProperty.Sepia))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Sepia))
+                    AddCss(ref cls, Sepia);
+            }
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.Resize.HasValue || preset is not null && preset.HasValue(PresetProperty.Resize))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Resize))
+                AddCss(ref cls, Resize);
+        }
+        if (_advancedLayoutUtilities is not null && _advancedLayoutUtilities.Transform.HasValue || preset is not null && preset.HasValue(PresetProperty.Transform))
+        {
+            if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Transform))
+                AddCss(ref cls, Transform);
+        }
+        if (_motionUtilities is not null || preset is not null)
+        {
+            if (_motionUtilities is not null && _motionUtilities.Animation.HasValue || preset is not null && preset.HasValue(PresetProperty.Animation))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Animation))
+                    AddCss(ref cls, Animation);
+            }
+            if (_motionUtilities is not null && _motionUtilities.Duration.HasValue || preset is not null && preset.HasValue(PresetProperty.Duration))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Duration))
+                    AddCss(ref cls, Duration);
+            }
+            if (_motionUtilities is not null && _motionUtilities.Transition.HasValue || preset is not null && preset.HasValue(PresetProperty.Transition))
+            {
+                if (preset is null || !TryAppendPresetClass(ref cls, preset, PresetProperty.Transition))
+                    AddCss(ref cls, Transition);
+            }
+        }
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)

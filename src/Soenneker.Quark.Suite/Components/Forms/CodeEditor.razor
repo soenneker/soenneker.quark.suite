@@ -26,6 +26,10 @@
         </button>
     }
 
+    @if (!_initialized.Value)
+    {
+        <pre aria-label="@AriaLabel" style="position:absolute;inset:0;margin:0;overflow:hidden;white-space:pre;padding:10px;font:14px/20px monospace;pointer-events:none">@Text</pre>
+    }
     <div @ref="_container" @attributes="BuildContainerAttributes()" @onfocusout="(_cachedHandleAutoSaveBlurDelegate ??= HandleAutoSaveBlur)"></div>
     @if (AutoSave && OnAutoSave is not null && ShowAutoSaveStatus)
     {
@@ -54,6 +58,22 @@
 </div>
 
 @code {
+    /// <summary>Defers Monaco resources and initialization until the editor enters the viewport. Defaults to true.</summary>
+    [Parameter]
+    public bool Lazy { get; set; } = true;
+
+    private bool _loadRequested;
+    private bool _visibilityObserved;
+
+    [JSInvokable]
+    public Task OnCodeEditorVisible()
+    {
+        if (_disposed.Read())
+            return Task.CompletedTask;
+        _loadRequested = true;
+        return InvokeAsync(StateHasChanged);
+    }
+
     private Func<Task>? _autoSaveRefreshCallback;
     private static readonly CssValue<WidthBuilder> _defaultWidth = Soenneker.Quark.Width.Is100;
     private static readonly CssValue<ScreenReaderBuilder> _renderCss0 = Quark.ScreenReader.Only;
@@ -276,7 +296,18 @@
     {
         if (_disposed.Read())
             return;
-        if (firstRender)
+        if (!_initialized.Value && Lazy && !_loadRequested)
+        {
+            if (!_visibilityObserved)
+            {
+                _visibilityObserved = true;
+                _editorCallbackRef ??= DotNetObjectReference.Create(this);
+                await CodeEditorInterop.ObserveVisibility(_dropZone, _editorCallbackRef, _disposeCts.Token);
+            }
+            await base.OnAfterRenderAsync(firstRender);
+            return;
+        }
+        if (!_initialized.Value)
         {
             await (_initializationTask ??= InitializeEditor());
             if (_disposed.Read())
@@ -325,7 +356,7 @@
 
         var json = CodeEditorOptionsJson.Create(Text, Language, effectiveTheme, ReadOnly, WordWrap, Minimap);
         await CodeEditorInterop.CreateEditor(_container, json);
-        _editorCallbackRef = DotNetObjectReference.Create(this);
+        _editorCallbackRef ??= DotNetObjectReference.Create(this);
         await CodeEditorInterop.RegisterContentChangedCallback(_container, _editorCallbackRef);
 
         await SynchronizeOptions();
@@ -334,6 +365,8 @@
         _lastLanguage = Language;
         _lastTheme = Theme;
         _lastText = Text;
+        if (!_disposed.Read())
+            await InvokeAsync(StateHasChanged);
 
     }
 
@@ -426,6 +459,8 @@
                 AppendStyleDecl(ref sty, "position: relative");
                 AppendStyleDecl(ref sty, "width: 100%");
                 AppendStyleDecl(ref sty, "min-width: 0");
+                if (AutoHeight)
+                    AppendStyleDecl(ref sty, $"min-height: {(Math.Max(1, MinLines ?? 3) + 1) * 20}px");
                 BuildStyleAttribute(attrs, ref sty, ref _lastBuiltStyle);
             }
             finally
@@ -465,6 +500,8 @@
         {
             await _autoSave.DisposeAsync();
             await _disposeCts.CancelAsync();
+            if (_visibilityObserved)
+                await CodeEditorInterop.UnobserveVisibility(_dropZone);
             try
             {
                 if (_initializationTask is not null)
