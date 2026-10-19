@@ -5,6 +5,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class DetailsSectionAppearance
 {
+    internal static DetailsSectionAppearance Default { get; } = new();
+
     /// <summary>Presets for info section title preset.</summary>
     public QuarkPresetToken InfoSectionTitlePreset { get; init; } = CompositionPresets.Title;
 

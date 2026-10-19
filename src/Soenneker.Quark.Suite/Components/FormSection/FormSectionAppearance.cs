@@ -5,6 +5,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class FormSectionAppearance
 {
+    internal static FormSectionAppearance Default { get; } = new();
+
     /// <summary>Presets for section header preset.</summary>
     public QuarkPresetToken SectionHeaderPreset { get; init; } = CompositionPresets.Header;
 

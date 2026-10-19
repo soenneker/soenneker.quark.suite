@@ -5,6 +5,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class DetailsItemAppearance
 {
+    internal static DetailsItemAppearance Default { get; } = new();
+
     /// <summary>Presets for info item preset.</summary>
     public QuarkPresetToken InfoItemPreset { get; init; } = CompositionPresets.Stack;
 

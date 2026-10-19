@@ -23,7 +23,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     private Dictionary<string, object>? _attrsB;
     private int _cachedAttrsKey;
     private int _renderVersion;
-    private readonly List<KeyValuePair<string, object?>> _previousParameters = new();
+    private List<KeyValuePair<string, object?>>? _previousParameters;
     private ValueAtomicBool _renderKeyDirty;
     private bool _useAttrsA;
     private bool _hasIncomingParametersKey;
@@ -53,10 +53,11 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     {
         _defaultsApplied.Value = false;
 
-        // No fingerprint is consumed while suppression is disabled. Forget the previous
-        // fingerprint so switching suppression back on forces a fresh render and cache.
+        // No parameter history is consumed while suppression is disabled. Release its
+        // references and force a fresh comparison when suppression is enabled again.
         if (AlwaysRender)
         {
+            _previousParameters = null;
             _hasIncomingParametersKey = false;
             _incomingParametersChanged.Value = true;
             _cachedAttrs = null;
@@ -307,23 +308,24 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             object? value = parameter.Value;
             if (!IsStableParameter(value))
                 _requiresDetailedRenderKey = true;
-            if (index >= _previousParameters.Count)
+            var previousParameters = _previousParameters ??= new List<KeyValuePair<string, object?>>();
+            if (index >= previousParameters.Count)
             {
                 equal = false;
-                _previousParameters.Add(new(parameter.Name, value));
+                previousParameters.Add(new(parameter.Name, value));
             }
             else
             {
-                var previous = _previousParameters[index];
+                var previous = previousParameters[index];
                 equal &= previous.Key == parameter.Name && RenderedEquals(previous.Value, value);
-                _previousParameters[index] = new(parameter.Name, value);
+                previousParameters[index] = new(parameter.Name, value);
             }
             index++;
         }
-        if (index != _previousParameters.Count)
+        if (_previousParameters is { } captured && index != captured.Count)
         {
             equal = false;
-            _previousParameters.RemoveRange(index, _previousParameters.Count - index);
+            captured.RemoveRange(index, captured.Count - index);
         }
         return equal;
     }

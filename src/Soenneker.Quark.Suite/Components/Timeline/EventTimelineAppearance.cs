@@ -3,6 +3,8 @@ namespace Soenneker.Quark;
 /// <summary>Presets for the event timeline parts.</summary>
 public sealed class EventTimelineAppearance
 {
+    internal static EventTimelineAppearance Default { get; } = new();
+
     /// <summary>Styling for the VerticalContent part of the vertical layout.</summary>
     public QuarkPresetToken VerticalContentPreset { get; init; } = EventTimelinePresets.VerticalContentPreset;
 

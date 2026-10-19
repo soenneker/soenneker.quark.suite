@@ -5,6 +5,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class ChartCardAppearance
 {
+    internal static ChartCardAppearance Default { get; } = new();
+
     /// <summary>Presets for chart card header preset.</summary>
     public QuarkPresetToken ChartCardHeaderPreset { get; init; } = CompositionPresets.Header;
 

@@ -5,6 +5,8 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed class PageHeaderAppearance
 {
+    internal static PageHeaderAppearance Default { get; } = new();
+
     /// <summary>Presets for page header copy preset.</summary>
     public QuarkPresetToken PageHeaderCopyPreset { get; init; } = CompositionPresets.Stack;
 

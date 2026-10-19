@@ -19,6 +19,7 @@ namespace Soenneker.Quark;
 /// </remarks>
 public sealed class ChartOptions
 {
+
     /// <summary>Maximum Cartesian samples displayed at once. Larger datasets expose window navigation. Minimum two; defaults to 2000.</summary>
     public int MaximumVisiblePoints { get; init; } = 2000;
     /// <summary>Maximum pie or donut slices. Excess values are summed into an Other slice; all original values remain in the accessible table.</summary>
@@ -259,6 +260,8 @@ public sealed class ChartOptions
         "var(--series-4)",
         "var(--series-5)"
     ]);
+
+    internal static ChartOptions Default { get; } = new();
 
     internal string FormatValue(double value) => ValueFormatter?.Invoke(value) ?? string.Create(CultureInfo.CurrentCulture, $"{value:0.##}{Unit}");
     internal string FormatLabel(string value) => LabelFormatter?.Invoke(value) ?? value;

@@ -15,6 +15,20 @@ namespace Soenneker.Quark;
 #pragma warning disable BL0007 // Optional style groups use lazy storage without side effects.
 public abstract class Component : RenderComponent, IComponent
 {
+    private DimensionUtilities? _dimensionUtilities;
+    private PositionUtilities? _positionUtilities;
+    private DisplayUtilities? _displayUtilities;
+    private FontUtilities? _fontUtilities;
+    private TextFlowUtilities? _textFlowUtilities;
+    private TextDecorationUtilities? _textDecorationUtilities;
+    private SpacingUtilities? _spacingUtilities;
+    private FlexUtilities? _flexUtilities;
+    private AlignmentUtilities? _alignmentUtilities;
+    private GridPlacementUtilities? _gridPlacementUtilities;
+    private SurfaceUtilities? _surfaceUtilities;
+    private MotionUtilities? _motionUtilities;
+    private InteractionUtilities? _interactionUtilities;
+    private LogicalLayoutUtilities? _logicalLayoutUtilities;
     private BackgroundUtilities? _backgroundUtilities;
     private EffectUtilities? _effectUtilities;
     private AdvancedLayoutUtilities? _advancedLayoutUtilities;
@@ -30,7 +44,15 @@ public abstract class Component : RenderComponent, IComponent
     protected QuarkOptions QuarkOptions { get; set; } = null!;
 
     [Parameter]
-    public CssValue<AspectRatioBuilder>? AspectRatio { get; set; }
+    public CssValue<AspectRatioBuilder>? AspectRatio
+    {
+        get => _dimensionUtilities?.AspectRatio;
+        set
+        {
+            if (value.HasValue) (_dimensionUtilities ??= new DimensionUtilities()).AspectRatio = value;
+            else if (_dimensionUtilities is not null) _dimensionUtilities.AspectRatio = null;
+        }
+    }
 
 #pragma warning disable BL0007 // Lazy storage only; setters do not trigger rendering or alter other parameters.
     [Parameter]
@@ -136,7 +158,15 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<BlockSizeBuilder>? BlockSize { get; set; }
+    public CssValue<BlockSizeBuilder>? BlockSize
+    {
+        get => _logicalLayoutUtilities?.BlockSize;
+        set
+        {
+            if (value.HasValue) (_logicalLayoutUtilities ??= new LogicalLayoutUtilities()).BlockSize = value;
+            else if (_logicalLayoutUtilities is not null) _logicalLayoutUtilities.BlockSize = null;
+        }
+    }
 
     [Parameter]
     public CssValue<BoxDecorationBreakBuilder>? BoxDecorationBreak
@@ -150,7 +180,15 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<BoxSizingBuilder>? BoxSizing { get; set; }
+    public CssValue<BoxSizingBuilder>? BoxSizing
+    {
+        get => _displayUtilities?.BoxSizing;
+        set
+        {
+            if (value.HasValue) (_displayUtilities ??= new DisplayUtilities()).BoxSizing = value;
+            else if (_displayUtilities is not null) _displayUtilities.BoxSizing = null;
+        }
+    }
 
     [Parameter]
     public CssValue<BreakAfterBuilder>? BreakAfter
@@ -186,7 +224,15 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<ClearBuilder>? FloatClear { get; set; }
+    public CssValue<ClearBuilder>? FloatClear
+    {
+        get => _displayUtilities?.FloatClear;
+        set
+        {
+            if (value.HasValue) (_displayUtilities ??= new DisplayUtilities()).FloatClear = value;
+            else if (_displayUtilities is not null) _displayUtilities.FloatClear = null;
+        }
+    }
 
     [Parameter]
     public CssValue<ClipPathBuilder>? ClipPath
@@ -200,10 +246,26 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<ColEndBuilder>? ColEnd { get; set; }
+    public CssValue<ColEndBuilder>? ColEnd
+    {
+        get => _gridPlacementUtilities?.ColEnd;
+        set
+        {
+            if (value.HasValue) (_gridPlacementUtilities ??= new GridPlacementUtilities()).ColEnd = value;
+            else if (_gridPlacementUtilities is not null) _gridPlacementUtilities.ColEnd = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<ColorSchemeBuilder>? ColorScheme { get; set; }
+    public CssValue<ColorSchemeBuilder>? ColorScheme
+    {
+        get => _interactionUtilities?.ColorScheme;
+        set
+        {
+            if (value.HasValue) (_interactionUtilities ??= new InteractionUtilities()).ColorScheme = value;
+            else if (_interactionUtilities is not null) _interactionUtilities.ColorScheme = null;
+        }
+    }
 
     [Parameter]
     public CssValue<ColumnsBuilder>? ColumnCount
@@ -217,7 +279,15 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<ContainerTypeBuilder>? ContainerQuery { get; set; }
+    public CssValue<ContainerTypeBuilder>? ContainerQuery
+    {
+        get => _displayUtilities?.ContainerQuery;
+        set
+        {
+            if (value.HasValue) (_displayUtilities ??= new DisplayUtilities()).ContainerQuery = value;
+            else if (_displayUtilities is not null) _displayUtilities.ContainerQuery = null;
+        }
+    }
 
     [Parameter]
     public CssValue<ContainBuilder>? Contain
@@ -231,25 +301,81 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<ContentBuilder>? GeneratedContent { get; set; }
+    public CssValue<ContentBuilder>? GeneratedContent
+    {
+        get => _textDecorationUtilities?.GeneratedContent;
+        set
+        {
+            if (value.HasValue) (_textDecorationUtilities ??= new TextDecorationUtilities()).GeneratedContent = value;
+            else if (_textDecorationUtilities is not null) _textDecorationUtilities.GeneratedContent = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<DecorationColorBuilder>? DecorationColor { get; set; }
+    public CssValue<DecorationColorBuilder>? DecorationColor
+    {
+        get => _textDecorationUtilities?.DecorationColor;
+        set
+        {
+            if (value.HasValue) (_textDecorationUtilities ??= new TextDecorationUtilities()).DecorationColor = value;
+            else if (_textDecorationUtilities is not null) _textDecorationUtilities.DecorationColor = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<DecorationStyleBuilder>? DecorationStyle { get; set; }
+    public CssValue<DecorationStyleBuilder>? DecorationStyle
+    {
+        get => _textDecorationUtilities?.DecorationStyle;
+        set
+        {
+            if (value.HasValue) (_textDecorationUtilities ??= new TextDecorationUtilities()).DecorationStyle = value;
+            else if (_textDecorationUtilities is not null) _textDecorationUtilities.DecorationStyle = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<DecorationThicknessBuilder>? DecorationThickness { get; set; }
+    public CssValue<DecorationThicknessBuilder>? DecorationThickness
+    {
+        get => _textDecorationUtilities?.DecorationThickness;
+        set
+        {
+            if (value.HasValue) (_textDecorationUtilities ??= new TextDecorationUtilities()).DecorationThickness = value;
+            else if (_textDecorationUtilities is not null) _textDecorationUtilities.DecorationThickness = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<DelayBuilder>? TransitionDelay { get; set; }
+    public CssValue<DelayBuilder>? TransitionDelay
+    {
+        get => _motionUtilities?.TransitionDelay;
+        set
+        {
+            if (value.HasValue) (_motionUtilities ??= new MotionUtilities()).TransitionDelay = value;
+            else if (_motionUtilities is not null) _motionUtilities.TransitionDelay = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<EaseBuilder>? Ease { get; set; }
+    public CssValue<EaseBuilder>? Ease
+    {
+        get => _motionUtilities?.Ease;
+        set
+        {
+            if (value.HasValue) (_motionUtilities ??= new MotionUtilities()).Ease = value;
+            else if (_motionUtilities is not null) _motionUtilities.Ease = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<FlexBasisBuilder>? FlexBasis { get; set; }
+    public CssValue<FlexBasisBuilder>? FlexBasis
+    {
+        get => _flexUtilities?.FlexBasis;
+        set
+        {
+            if (value.HasValue) (_flexUtilities ??= new FlexUtilities()).FlexBasis = value;
+            else if (_flexUtilities is not null) _flexUtilities.FlexBasis = null;
+        }
+    }
 
 #pragma warning disable BL0007 // Lazy storage only; setters do not trigger rendering or alter other parameters.
     [Parameter]
@@ -330,19 +456,59 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<HyphenBuilder>? Hyphen { get; set; }
+    public CssValue<HyphenBuilder>? Hyphen
+    {
+        get => _textFlowUtilities?.Hyphen;
+        set
+        {
+            if (value.HasValue) (_textFlowUtilities ??= new TextFlowUtilities()).Hyphen = value;
+            else if (_textFlowUtilities is not null) _textFlowUtilities.Hyphen = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<InlineSizeBuilder>? InlineSize { get; set; }
+    public CssValue<InlineSizeBuilder>? InlineSize
+    {
+        get => _logicalLayoutUtilities?.InlineSize;
+        set
+        {
+            if (value.HasValue) (_logicalLayoutUtilities ??= new LogicalLayoutUtilities()).InlineSize = value;
+            else if (_logicalLayoutUtilities is not null) _logicalLayoutUtilities.InlineSize = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<InsetBlockEndBuilder>? InsetBlockEnd { get; set; }
+    public CssValue<InsetBlockEndBuilder>? InsetBlockEnd
+    {
+        get => _logicalLayoutUtilities?.InsetBlockEnd;
+        set
+        {
+            if (value.HasValue) (_logicalLayoutUtilities ??= new LogicalLayoutUtilities()).InsetBlockEnd = value;
+            else if (_logicalLayoutUtilities is not null) _logicalLayoutUtilities.InsetBlockEnd = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<InsetBlockStartBuilder>? InsetBlockStart { get; set; }
+    public CssValue<InsetBlockStartBuilder>? InsetBlockStart
+    {
+        get => _logicalLayoutUtilities?.InsetBlockStart;
+        set
+        {
+            if (value.HasValue) (_logicalLayoutUtilities ??= new LogicalLayoutUtilities()).InsetBlockStart = value;
+            else if (_logicalLayoutUtilities is not null) _logicalLayoutUtilities.InsetBlockStart = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<InsetEndBuilder>? InsetEnd { get; set; }
+    public CssValue<InsetEndBuilder>? InsetEnd
+    {
+        get => _logicalLayoutUtilities?.InsetEnd;
+        set
+        {
+            if (value.HasValue) (_logicalLayoutUtilities ??= new LogicalLayoutUtilities()).InsetEnd = value;
+            else if (_logicalLayoutUtilities is not null) _logicalLayoutUtilities.InsetEnd = null;
+        }
+    }
 
     [Parameter]
     public CssValue<InsetRingColorBuilder>? InsetRingColor
@@ -389,7 +555,15 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<InsetStartBuilder>? InsetStart { get; set; }
+    public CssValue<InsetStartBuilder>? InsetStart
+    {
+        get => _logicalLayoutUtilities?.InsetStart;
+        set
+        {
+            if (value.HasValue) (_logicalLayoutUtilities ??= new LogicalLayoutUtilities()).InsetStart = value;
+            else if (_logicalLayoutUtilities is not null) _logicalLayoutUtilities.InsetStart = null;
+        }
+    }
 
     [Parameter]
     public CssValue<IsolationBuilder>? Isolation
@@ -538,16 +712,48 @@ public abstract class Component : RenderComponent, IComponent
 
 
     [Parameter]
-    public CssValue<MaxBlockSizeBuilder>? MaxBlockSize { get; set; }
+    public CssValue<MaxBlockSizeBuilder>? MaxBlockSize
+    {
+        get => _logicalLayoutUtilities?.MaxBlockSize;
+        set
+        {
+            if (value.HasValue) (_logicalLayoutUtilities ??= new LogicalLayoutUtilities()).MaxBlockSize = value;
+            else if (_logicalLayoutUtilities is not null) _logicalLayoutUtilities.MaxBlockSize = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<MaxInlineSizeBuilder>? MaxInlineSize { get; set; }
+    public CssValue<MaxInlineSizeBuilder>? MaxInlineSize
+    {
+        get => _logicalLayoutUtilities?.MaxInlineSize;
+        set
+        {
+            if (value.HasValue) (_logicalLayoutUtilities ??= new LogicalLayoutUtilities()).MaxInlineSize = value;
+            else if (_logicalLayoutUtilities is not null) _logicalLayoutUtilities.MaxInlineSize = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<MinBlockSizeBuilder>? MinBlockSize { get; set; }
+    public CssValue<MinBlockSizeBuilder>? MinBlockSize
+    {
+        get => _logicalLayoutUtilities?.MinBlockSize;
+        set
+        {
+            if (value.HasValue) (_logicalLayoutUtilities ??= new LogicalLayoutUtilities()).MinBlockSize = value;
+            else if (_logicalLayoutUtilities is not null) _logicalLayoutUtilities.MinBlockSize = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<MinInlineSizeBuilder>? MinInlineSize { get; set; }
+    public CssValue<MinInlineSizeBuilder>? MinInlineSize
+    {
+        get => _logicalLayoutUtilities?.MinInlineSize;
+        set
+        {
+            if (value.HasValue) (_logicalLayoutUtilities ??= new LogicalLayoutUtilities()).MinInlineSize = value;
+            else if (_logicalLayoutUtilities is not null) _logicalLayoutUtilities.MinInlineSize = null;
+        }
+    }
 
     [Parameter]
     public CssValue<MixBlendModeBuilder>? MixBlendMode
@@ -561,7 +767,15 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<OrderBuilder>? Order { get; set; }
+    public CssValue<OrderBuilder>? Order
+    {
+        get => _flexUtilities?.Order;
+        set
+        {
+            if (value.HasValue) (_flexUtilities ??= new FlexUtilities()).Order = value;
+            else if (_flexUtilities is not null) _flexUtilities.Order = null;
+        }
+    }
 
     [Parameter]
     public CssValue<OriginBuilder>? Origin
@@ -608,7 +822,15 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<OverflowWrapBuilder>? OverflowWrap { get; set; }
+    public CssValue<OverflowWrapBuilder>? OverflowWrap
+    {
+        get => _textFlowUtilities?.OverflowWrap;
+        set
+        {
+            if (value.HasValue) (_textFlowUtilities ??= new TextFlowUtilities()).OverflowWrap = value;
+            else if (_textFlowUtilities is not null) _textFlowUtilities.OverflowWrap = null;
+        }
+    }
 
 #pragma warning disable BL0007 // Lazy storage only; setters do not trigger rendering or alter other parameters.
     [Parameter]
@@ -641,13 +863,37 @@ public abstract class Component : RenderComponent, IComponent
 
 
     [Parameter]
-    public CssValue<PlaceContentAlignBuilder>? PlaceContentAlign { get; set; }
+    public CssValue<PlaceContentAlignBuilder>? PlaceContentAlign
+    {
+        get => _alignmentUtilities?.PlaceContentAlign;
+        set
+        {
+            if (value.HasValue) (_alignmentUtilities ??= new AlignmentUtilities()).PlaceContentAlign = value;
+            else if (_alignmentUtilities is not null) _alignmentUtilities.PlaceContentAlign = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<PlaceItemsAlignBuilder>? PlaceItemsAlign { get; set; }
+    public CssValue<PlaceItemsAlignBuilder>? PlaceItemsAlign
+    {
+        get => _alignmentUtilities?.PlaceItemsAlign;
+        set
+        {
+            if (value.HasValue) (_alignmentUtilities ??= new AlignmentUtilities()).PlaceItemsAlign = value;
+            else if (_alignmentUtilities is not null) _alignmentUtilities.PlaceItemsAlign = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<PlaceSelfAlignBuilder>? PlaceSelfAlign { get; set; }
+    public CssValue<PlaceSelfAlignBuilder>? PlaceSelfAlign
+    {
+        get => _alignmentUtilities?.PlaceSelfAlign;
+        set
+        {
+            if (value.HasValue) (_alignmentUtilities ??= new AlignmentUtilities()).PlaceSelfAlign = value;
+            else if (_alignmentUtilities is not null) _alignmentUtilities.PlaceSelfAlign = null;
+        }
+    }
 
     [Parameter]
     public CssValue<RotateBuilder>? Rotate
@@ -661,10 +907,26 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<RowEndBuilder>? RowEnd { get; set; }
+    public CssValue<RowEndBuilder>? RowEnd
+    {
+        get => _gridPlacementUtilities?.RowEnd;
+        set
+        {
+            if (value.HasValue) (_gridPlacementUtilities ??= new GridPlacementUtilities()).RowEnd = value;
+            else if (_gridPlacementUtilities is not null) _gridPlacementUtilities.RowEnd = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<ScaleBuilder>? Scale { get; set; }
+    public CssValue<ScaleBuilder>? Scale
+    {
+        get => _motionUtilities?.Scale;
+        set
+        {
+            if (value.HasValue) (_motionUtilities ??= new MotionUtilities()).Scale = value;
+            else if (_motionUtilities is not null) _motionUtilities.Scale = null;
+        }
+    }
 
     [Parameter]
     public CssValue<ScrollbarGutterBuilder>? ScrollbarGutter
@@ -755,7 +1017,15 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<ShadowColorBuilder>? ShadowColor { get; set; }
+    public CssValue<ShadowColorBuilder>? ShadowColor
+    {
+        get => _surfaceUtilities?.ShadowColor;
+        set
+        {
+            if (value.HasValue) (_surfaceUtilities ??= new SurfaceUtilities()).ShadowColor = value;
+            else if (_surfaceUtilities is not null) _surfaceUtilities.ShadowColor = null;
+        }
+    }
 
     [Parameter]
     public CssValue<SkewBuilder>? Skew
@@ -769,7 +1039,15 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<TabSizeBuilder>? TabSize { get; set; }
+    public CssValue<TabSizeBuilder>? TabSize
+    {
+        get => _textFlowUtilities?.TabSize;
+        set
+        {
+            if (value.HasValue) (_textFlowUtilities ??= new TextFlowUtilities()).TabSize = value;
+            else if (_textFlowUtilities is not null) _textFlowUtilities.TabSize = null;
+        }
+    }
 
 #pragma warning disable BL0007 // Lazy storage only; setters do not trigger rendering or alter other parameters.
     [Parameter]
@@ -843,7 +1121,15 @@ public abstract class Component : RenderComponent, IComponent
 
 
     [Parameter]
-    public CssValue<TransitionBehaviorBuilder>? TransitionBehavior { get; set; }
+    public CssValue<TransitionBehaviorBuilder>? TransitionBehavior
+    {
+        get => _motionUtilities?.TransitionBehavior;
+        set
+        {
+            if (value.HasValue) (_motionUtilities ??= new MotionUtilities()).TransitionBehavior = value;
+            else if (_motionUtilities is not null) _motionUtilities.TransitionBehavior = null;
+        }
+    }
 
     [Parameter]
     public CssValue<TranslateBuilder>? Translate
@@ -868,7 +1154,15 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<ZoomBuilder>? Zoom { get; set; }
+    public CssValue<ZoomBuilder>? Zoom
+    {
+        get => _motionUtilities?.Zoom;
+        set
+        {
+            if (value.HasValue) (_motionUtilities ??= new MotionUtilities()).Zoom = value;
+            else if (_motionUtilities is not null) _motionUtilities.Zoom = null;
+        }
+    }
 
     [Parameter]
     public bool Container { get; set; }
@@ -889,28 +1183,92 @@ public abstract class Component : RenderComponent, IComponent
     public string? DataSlot { get; set; }
 
     [Parameter]
-    public CssValue<InsetBuilder>? Inset { get; set; }
+    public CssValue<InsetBuilder>? Inset
+    {
+        get => _positionUtilities?.Inset;
+        set
+        {
+            if (value.HasValue) (_positionUtilities ??= new PositionUtilities()).Inset = value;
+            else if (_positionUtilities is not null) _positionUtilities.Inset = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<TopBuilder>? Top { get; set; }
+    public CssValue<TopBuilder>? Top
+    {
+        get => _positionUtilities?.Top;
+        set
+        {
+            if (value.HasValue) (_positionUtilities ??= new PositionUtilities()).Top = value;
+            else if (_positionUtilities is not null) _positionUtilities.Top = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<RightBuilder>? Right { get; set; }
+    public CssValue<RightBuilder>? Right
+    {
+        get => _positionUtilities?.Right;
+        set
+        {
+            if (value.HasValue) (_positionUtilities ??= new PositionUtilities()).Right = value;
+            else if (_positionUtilities is not null) _positionUtilities.Right = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<BottomBuilder>? Bottom { get; set; }
+    public CssValue<BottomBuilder>? Bottom
+    {
+        get => _positionUtilities?.Bottom;
+        set
+        {
+            if (value.HasValue) (_positionUtilities ??= new PositionUtilities()).Bottom = value;
+            else if (_positionUtilities is not null) _positionUtilities.Bottom = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<LeftBuilder>? Left { get; set; }
+    public CssValue<LeftBuilder>? Left
+    {
+        get => _positionUtilities?.Left;
+        set
+        {
+            if (value.HasValue) (_positionUtilities ??= new PositionUtilities()).Left = value;
+            else if (_positionUtilities is not null) _positionUtilities.Left = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<DisplayBuilder>? Display { get; set; }
+    public CssValue<DisplayBuilder>? Display
+    {
+        get => _displayUtilities?.Display;
+        set
+        {
+            if (value.HasValue) (_displayUtilities ??= new DisplayUtilities()).Display = value;
+            else if (_displayUtilities is not null) _displayUtilities.Display = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<VisibilityBuilder>? Visibility { get; set; }
+    public CssValue<VisibilityBuilder>? Visibility
+    {
+        get => _displayUtilities?.Visibility;
+        set
+        {
+            if (value.HasValue) (_displayUtilities ??= new DisplayUtilities()).Visibility = value;
+            else if (_displayUtilities is not null) _displayUtilities.Visibility = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<FloatBuilder>? Float { get; set; }
+    public CssValue<FloatBuilder>? Float
+    {
+        get => _displayUtilities?.Float;
+        set
+        {
+            if (value.HasValue) (_displayUtilities ??= new DisplayUtilities()).Float = value;
+            else if (_displayUtilities is not null) _displayUtilities.Float = null;
+        }
+    }
 
     [Parameter]
     public CssValue<VerticalAlignBuilder>? VerticalAlign
@@ -924,67 +1282,235 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<TextAlignBuilder>? TextAlign { get; set; }
+    public CssValue<TextAlignBuilder>? TextAlign
+    {
+        get => _textFlowUtilities?.TextAlign;
+        set
+        {
+            if (value.HasValue) (_textFlowUtilities ??= new TextFlowUtilities()).TextAlign = value;
+            else if (_textFlowUtilities is not null) _textFlowUtilities.TextAlign = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<TextColorBuilder>? TextColor { get; set; }
+    public CssValue<TextColorBuilder>? TextColor
+    {
+        get => _surfaceUtilities?.TextColor;
+        set
+        {
+            if (value.HasValue) (_surfaceUtilities ??= new SurfaceUtilities()).TextColor = value;
+            else if (_surfaceUtilities is not null) _surfaceUtilities.TextColor = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<TextSizeBuilder>? TextSize { get; set; }
+    public CssValue<TextSizeBuilder>? TextSize
+    {
+        get => _fontUtilities?.TextSize;
+        set
+        {
+            if (value.HasValue) (_fontUtilities ??= new FontUtilities()).TextSize = value;
+            else if (_fontUtilities is not null) _fontUtilities.TextSize = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<DecorationLineBuilder>? DecorationLine { get; set; }
+    public CssValue<DecorationLineBuilder>? DecorationLine
+    {
+        get => _textDecorationUtilities?.DecorationLine;
+        set
+        {
+            if (value.HasValue) (_textDecorationUtilities ??= new TextDecorationUtilities()).DecorationLine = value;
+            else if (_textDecorationUtilities is not null) _textDecorationUtilities.DecorationLine = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<UnderlineOffsetBuilder>? UnderlineOffset { get; set; }
+    public CssValue<UnderlineOffsetBuilder>? UnderlineOffset
+    {
+        get => _textDecorationUtilities?.UnderlineOffset;
+        set
+        {
+            if (value.HasValue) (_textDecorationUtilities ??= new TextDecorationUtilities()).UnderlineOffset = value;
+            else if (_textDecorationUtilities is not null) _textDecorationUtilities.UnderlineOffset = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<TextTransformBuilder>? TextTransform { get; set; }
+    public CssValue<TextTransformBuilder>? TextTransform
+    {
+        get => _textFlowUtilities?.TextTransform;
+        set
+        {
+            if (value.HasValue) (_textFlowUtilities ??= new TextFlowUtilities()).TextTransform = value;
+            else if (_textFlowUtilities is not null) _textFlowUtilities.TextTransform = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<FontFamilyBuilder>? FontFamily { get; set; }
+    public CssValue<FontFamilyBuilder>? FontFamily
+    {
+        get => _fontUtilities?.FontFamily;
+        set
+        {
+            if (value.HasValue) (_fontUtilities ??= new FontUtilities()).FontFamily = value;
+            else if (_fontUtilities is not null) _fontUtilities.FontFamily = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<FontWeightBuilder>? FontWeight { get; set; }
+    public CssValue<FontWeightBuilder>? FontWeight
+    {
+        get => _fontUtilities?.FontWeight;
+        set
+        {
+            if (value.HasValue) (_fontUtilities ??= new FontUtilities()).FontWeight = value;
+            else if (_fontUtilities is not null) _fontUtilities.FontWeight = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<FontStyleBuilder>? FontStyle { get; set; }
+    public CssValue<FontStyleBuilder>? FontStyle
+    {
+        get => _fontUtilities?.FontStyle;
+        set
+        {
+            if (value.HasValue) (_fontUtilities ??= new FontUtilities()).FontStyle = value;
+            else if (_fontUtilities is not null) _fontUtilities.FontStyle = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<LeadingBuilder>? Leading { get; set; }
+    public CssValue<LeadingBuilder>? Leading
+    {
+        get => _fontUtilities?.Leading;
+        set
+        {
+            if (value.HasValue) (_fontUtilities ??= new FontUtilities()).Leading = value;
+            else if (_fontUtilities is not null) _fontUtilities.Leading = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<TrackingBuilder>? Tracking { get; set; }
+    public CssValue<TrackingBuilder>? Tracking
+    {
+        get => _fontUtilities?.Tracking;
+        set
+        {
+            if (value.HasValue) (_fontUtilities ??= new FontUtilities()).Tracking = value;
+            else if (_fontUtilities is not null) _fontUtilities.Tracking = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<WhitespaceBuilder>? Whitespace { get; set; }
+    public CssValue<WhitespaceBuilder>? Whitespace
+    {
+        get => _textFlowUtilities?.Whitespace;
+        set
+        {
+            if (value.HasValue) (_textFlowUtilities ??= new TextFlowUtilities()).Whitespace = value;
+            else if (_textFlowUtilities is not null) _textFlowUtilities.Whitespace = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<TextWrapBuilder>? TextWrap { get; set; }
+    public CssValue<TextWrapBuilder>? TextWrap
+    {
+        get => _textFlowUtilities?.TextWrap;
+        set
+        {
+            if (value.HasValue) (_textFlowUtilities ??= new TextFlowUtilities()).TextWrap = value;
+            else if (_textFlowUtilities is not null) _textFlowUtilities.TextWrap = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<WordBreakBuilder>? WordBreak { get; set; }
+    public CssValue<WordBreakBuilder>? WordBreak
+    {
+        get => _textFlowUtilities?.WordBreak;
+        set
+        {
+            if (value.HasValue) (_textFlowUtilities ??= new TextFlowUtilities()).WordBreak = value;
+            else if (_textFlowUtilities is not null) _textFlowUtilities.WordBreak = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<TextOverflowBuilder>? TextOverflow { get; set; }
+    public CssValue<TextOverflowBuilder>? TextOverflow
+    {
+        get => _textFlowUtilities?.TextOverflow;
+        set
+        {
+            if (value.HasValue) (_textFlowUtilities ??= new TextFlowUtilities()).TextOverflow = value;
+            else if (_textFlowUtilities is not null) _textFlowUtilities.TextOverflow = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<TruncateBuilder>? Truncate { get; set; }
+    public CssValue<TruncateBuilder>? Truncate
+    {
+        get => _textFlowUtilities?.Truncate;
+        set
+        {
+            if (value.HasValue) (_textFlowUtilities ??= new TextFlowUtilities()).Truncate = value;
+            else if (_textFlowUtilities is not null) _textFlowUtilities.Truncate = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<LineClampBuilder>? LineClamp { get; set; }
+    public CssValue<LineClampBuilder>? LineClamp
+    {
+        get => _textFlowUtilities?.LineClamp;
+        set
+        {
+            if (value.HasValue) (_textFlowUtilities ??= new TextFlowUtilities()).LineClamp = value;
+            else if (_textFlowUtilities is not null) _textFlowUtilities.LineClamp = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<FontVariantNumericBuilder>? FontVariantNumeric { get; set; }
+    public CssValue<FontVariantNumericBuilder>? FontVariantNumeric
+    {
+        get => _fontUtilities?.FontVariantNumeric;
+        set
+        {
+            if (value.HasValue) (_fontUtilities ??= new FontUtilities()).FontVariantNumeric = value;
+            else if (_fontUtilities is not null) _fontUtilities.FontVariantNumeric = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<MarginBuilder>? Margin { get; set; }
+    public CssValue<MarginBuilder>? Margin
+    {
+        get => _spacingUtilities?.Margin;
+        set
+        {
+            if (value.HasValue) (_spacingUtilities ??= new SpacingUtilities()).Margin = value;
+            else if (_spacingUtilities is not null) _spacingUtilities.Margin = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<PaddingBuilder>? Padding { get; set; }
+    public CssValue<PaddingBuilder>? Padding
+    {
+        get => _spacingUtilities?.Padding;
+        set
+        {
+            if (value.HasValue) (_spacingUtilities ??= new SpacingUtilities()).Padding = value;
+            else if (_spacingUtilities is not null) _spacingUtilities.Padding = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<PositionBuilder>? Position { get; set; }
+    public CssValue<PositionBuilder>? Position
+    {
+        get => _positionUtilities?.Position;
+        set
+        {
+            if (value.HasValue) (_positionUtilities ??= new PositionUtilities()).Position = value;
+            else if (_positionUtilities is not null) _positionUtilities.Position = null;
+        }
+    }
 
     [Parameter]
     public CssValue<ScrollMarginBuilder>? ScrollMargin
@@ -1009,34 +1535,114 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<SizeBuilder>? Size { get; set; }
+    public CssValue<SizeBuilder>? Size
+    {
+        get => _dimensionUtilities?.Size;
+        set
+        {
+            if (value.HasValue) (_dimensionUtilities ??= new DimensionUtilities()).Size = value;
+            else if (_dimensionUtilities is not null) _dimensionUtilities.Size = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<WidthBuilder>? Width { get; set; }
+    public CssValue<WidthBuilder>? Width
+    {
+        get => _dimensionUtilities?.Width;
+        set
+        {
+            if (value.HasValue) (_dimensionUtilities ??= new DimensionUtilities()).Width = value;
+            else if (_dimensionUtilities is not null) _dimensionUtilities.Width = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<MinWidthBuilder>? MinWidth { get; set; }
+    public CssValue<MinWidthBuilder>? MinWidth
+    {
+        get => _dimensionUtilities?.MinWidth;
+        set
+        {
+            if (value.HasValue) (_dimensionUtilities ??= new DimensionUtilities()).MinWidth = value;
+            else if (_dimensionUtilities is not null) _dimensionUtilities.MinWidth = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<MaxWidthBuilder>? MaxWidth { get; set; }
+    public CssValue<MaxWidthBuilder>? MaxWidth
+    {
+        get => _dimensionUtilities?.MaxWidth;
+        set
+        {
+            if (value.HasValue) (_dimensionUtilities ??= new DimensionUtilities()).MaxWidth = value;
+            else if (_dimensionUtilities is not null) _dimensionUtilities.MaxWidth = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<HeightBuilder>? Height { get; set; }
+    public CssValue<HeightBuilder>? Height
+    {
+        get => _dimensionUtilities?.Height;
+        set
+        {
+            if (value.HasValue) (_dimensionUtilities ??= new DimensionUtilities()).Height = value;
+            else if (_dimensionUtilities is not null) _dimensionUtilities.Height = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<MinHeightBuilder>? MinHeight { get; set; }
+    public CssValue<MinHeightBuilder>? MinHeight
+    {
+        get => _dimensionUtilities?.MinHeight;
+        set
+        {
+            if (value.HasValue) (_dimensionUtilities ??= new DimensionUtilities()).MinHeight = value;
+            else if (_dimensionUtilities is not null) _dimensionUtilities.MinHeight = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<MaxHeightBuilder>? MaxHeight { get; set; }
+    public CssValue<MaxHeightBuilder>? MaxHeight
+    {
+        get => _dimensionUtilities?.MaxHeight;
+        set
+        {
+            if (value.HasValue) (_dimensionUtilities ??= new DimensionUtilities()).MaxHeight = value;
+            else if (_dimensionUtilities is not null) _dimensionUtilities.MaxHeight = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<OverflowBuilder>? Overflow { get; set; }
+    public CssValue<OverflowBuilder>? Overflow
+    {
+        get => _displayUtilities?.Overflow;
+        set
+        {
+            if (value.HasValue) (_displayUtilities ??= new DisplayUtilities()).Overflow = value;
+            else if (_displayUtilities is not null) _displayUtilities.Overflow = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<OverflowBuilder>? OverflowX { get; set; }
+    public CssValue<OverflowBuilder>? OverflowX
+    {
+        get => _displayUtilities?.OverflowX;
+        set
+        {
+            if (value.HasValue) (_displayUtilities ??= new DisplayUtilities()).OverflowX = value;
+            else if (_displayUtilities is not null) _displayUtilities.OverflowX = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<OverflowBuilder>? OverflowY { get; set; }
+    public CssValue<OverflowBuilder>? OverflowY
+    {
+        get => _displayUtilities?.OverflowY;
+        set
+        {
+            if (value.HasValue) (_displayUtilities ??= new DisplayUtilities()).OverflowY = value;
+            else if (_displayUtilities is not null) _displayUtilities.OverflowY = null;
+        }
+    }
 
     [Parameter]
     public CssValue<OverscrollBuilder>? Overscroll
@@ -1050,64 +1656,224 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<FlexBuilder>? Flex { get; set; }
+    public CssValue<FlexBuilder>? Flex
+    {
+        get => _flexUtilities?.Flex;
+        set
+        {
+            if (value.HasValue) (_flexUtilities ??= new FlexUtilities()).Flex = value;
+            else if (_flexUtilities is not null) _flexUtilities.Flex = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<FlexDirectionBuilder>? FlexDirection { get; set; }
+    public CssValue<FlexDirectionBuilder>? FlexDirection
+    {
+        get => _flexUtilities?.FlexDirection;
+        set
+        {
+            if (value.HasValue) (_flexUtilities ??= new FlexUtilities()).FlexDirection = value;
+            else if (_flexUtilities is not null) _flexUtilities.FlexDirection = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<FlexWrapBuilder>? FlexWrap { get; set; }
+    public CssValue<FlexWrapBuilder>? FlexWrap
+    {
+        get => _flexUtilities?.FlexWrap;
+        set
+        {
+            if (value.HasValue) (_flexUtilities ??= new FlexUtilities()).FlexWrap = value;
+            else if (_flexUtilities is not null) _flexUtilities.FlexWrap = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<GrowBuilder>? Grow { get; set; }
+    public CssValue<GrowBuilder>? Grow
+    {
+        get => _flexUtilities?.Grow;
+        set
+        {
+            if (value.HasValue) (_flexUtilities ??= new FlexUtilities()).Grow = value;
+            else if (_flexUtilities is not null) _flexUtilities.Grow = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<ShrinkBuilder>? Shrink { get; set; }
+    public CssValue<ShrinkBuilder>? Shrink
+    {
+        get => _flexUtilities?.Shrink;
+        set
+        {
+            if (value.HasValue) (_flexUtilities ??= new FlexUtilities()).Shrink = value;
+            else if (_flexUtilities is not null) _flexUtilities.Shrink = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<GapBuilder>? Gap { get; set; }
+    public CssValue<GapBuilder>? Gap
+    {
+        get => _spacingUtilities?.Gap;
+        set
+        {
+            if (value.HasValue) (_spacingUtilities ??= new SpacingUtilities()).Gap = value;
+            else if (_spacingUtilities is not null) _spacingUtilities.Gap = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<SpaceBuilder>? Space { get; set; }
+    public CssValue<SpaceBuilder>? Space
+    {
+        get => _spacingUtilities?.Space;
+        set
+        {
+            if (value.HasValue) (_spacingUtilities ??= new SpacingUtilities()).Space = value;
+            else if (_spacingUtilities is not null) _spacingUtilities.Space = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<DivideBuilder>? Divide { get; set; }
+    public CssValue<DivideBuilder>? Divide
+    {
+        get => _spacingUtilities?.Divide;
+        set
+        {
+            if (value.HasValue) (_spacingUtilities ??= new SpacingUtilities()).Divide = value;
+            else if (_spacingUtilities is not null) _spacingUtilities.Divide = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<ContentAlignBuilder>? ContentAlign { get; set; }
+    public CssValue<ContentAlignBuilder>? ContentAlign
+    {
+        get => _alignmentUtilities?.ContentAlign;
+        set
+        {
+            if (value.HasValue) (_alignmentUtilities ??= new AlignmentUtilities()).ContentAlign = value;
+            else if (_alignmentUtilities is not null) _alignmentUtilities.ContentAlign = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<ItemsBuilder>? ItemsAlign { get; set; }
+    public CssValue<ItemsBuilder>? ItemsAlign
+    {
+        get => _alignmentUtilities?.ItemsAlign;
+        set
+        {
+            if (value.HasValue) (_alignmentUtilities ??= new AlignmentUtilities()).ItemsAlign = value;
+            else if (_alignmentUtilities is not null) _alignmentUtilities.ItemsAlign = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<JustifyBuilder>? Justify { get; set; }
+    public CssValue<JustifyBuilder>? Justify
+    {
+        get => _alignmentUtilities?.Justify;
+        set
+        {
+            if (value.HasValue) (_alignmentUtilities ??= new AlignmentUtilities()).Justify = value;
+            else if (_alignmentUtilities is not null) _alignmentUtilities.Justify = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<SelfBuilder>? SelfAlign { get; set; }
+    public CssValue<SelfBuilder>? SelfAlign
+    {
+        get => _alignmentUtilities?.SelfAlign;
+        set
+        {
+            if (value.HasValue) (_alignmentUtilities ??= new AlignmentUtilities()).SelfAlign = value;
+            else if (_alignmentUtilities is not null) _alignmentUtilities.SelfAlign = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<JustifyItemsAlignBuilder>? JustifyItemsAlign { get; set; }
+    public CssValue<JustifyItemsAlignBuilder>? JustifyItemsAlign
+    {
+        get => _alignmentUtilities?.JustifyItemsAlign;
+        set
+        {
+            if (value.HasValue) (_alignmentUtilities ??= new AlignmentUtilities()).JustifyItemsAlign = value;
+            else if (_alignmentUtilities is not null) _alignmentUtilities.JustifyItemsAlign = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<JustifySelfAlignBuilder>? JustifySelfAlign { get; set; }
+    public CssValue<JustifySelfAlignBuilder>? JustifySelfAlign
+    {
+        get => _alignmentUtilities?.JustifySelfAlign;
+        set
+        {
+            if (value.HasValue) (_alignmentUtilities ??= new AlignmentUtilities()).JustifySelfAlign = value;
+            else if (_alignmentUtilities is not null) _alignmentUtilities.JustifySelfAlign = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<ColStartBuilder>? ColStart { get; set; }
+    public CssValue<ColStartBuilder>? ColStart
+    {
+        get => _gridPlacementUtilities?.ColStart;
+        set
+        {
+            if (value.HasValue) (_gridPlacementUtilities ??= new GridPlacementUtilities()).ColStart = value;
+            else if (_gridPlacementUtilities is not null) _gridPlacementUtilities.ColStart = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<RowSpanBuilder>? RowSpan { get; set; }
+    public CssValue<RowSpanBuilder>? RowSpan
+    {
+        get => _gridPlacementUtilities?.RowSpan;
+        set
+        {
+            if (value.HasValue) (_gridPlacementUtilities ??= new GridPlacementUtilities()).RowSpan = value;
+            else if (_gridPlacementUtilities is not null) _gridPlacementUtilities.RowSpan = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<RowStartBuilder>? RowStart { get; set; }
+    public CssValue<RowStartBuilder>? RowStart
+    {
+        get => _gridPlacementUtilities?.RowStart;
+        set
+        {
+            if (value.HasValue) (_gridPlacementUtilities ??= new GridPlacementUtilities()).RowStart = value;
+            else if (_gridPlacementUtilities is not null) _gridPlacementUtilities.RowStart = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<OpacityBuilder>? Opacity { get; set; }
+    public CssValue<OpacityBuilder>? Opacity
+    {
+        get => _interactionUtilities?.Opacity;
+        set
+        {
+            if (value.HasValue) (_interactionUtilities ??= new InteractionUtilities()).Opacity = value;
+            else if (_interactionUtilities is not null) _interactionUtilities.Opacity = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<ZIndexBuilder>? ZIndex { get; set; }
+    public CssValue<ZIndexBuilder>? ZIndex
+    {
+        get => _positionUtilities?.ZIndex;
+        set
+        {
+            if (value.HasValue) (_positionUtilities ??= new PositionUtilities()).ZIndex = value;
+            else if (_positionUtilities is not null) _positionUtilities.ZIndex = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<PointerEventsBuilder>? PointerEvents { get; set; }
+    public CssValue<PointerEventsBuilder>? PointerEvents
+    {
+        get => _interactionUtilities?.PointerEvents;
+        set
+        {
+            if (value.HasValue) (_interactionUtilities ??= new InteractionUtilities()).PointerEvents = value;
+            else if (_interactionUtilities is not null) _interactionUtilities.PointerEvents = null;
+        }
+    }
 
     [Parameter]
     public CssValue<UserSelectBuilder>? UserSelect
@@ -1121,34 +1887,106 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<CursorBuilder>? Cursor { get; set; }
+    public CssValue<CursorBuilder>? Cursor
+    {
+        get => _interactionUtilities?.Cursor;
+        set
+        {
+            if (value.HasValue) (_interactionUtilities ??= new InteractionUtilities()).Cursor = value;
+            else if (_interactionUtilities is not null) _interactionUtilities.Cursor = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<ScreenReaderBuilder>? ScreenReader { get; set; }
+    public CssValue<ScreenReaderBuilder>? ScreenReader
+    {
+        get => _interactionUtilities?.ScreenReader;
+        set
+        {
+            if (value.HasValue) (_interactionUtilities ??= new InteractionUtilities()).ScreenReader = value;
+            else if (_interactionUtilities is not null) _interactionUtilities.ScreenReader = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<BackgroundColorBuilder>? BackgroundColor { get; set; }
+    public CssValue<BackgroundColorBuilder>? BackgroundColor
+    {
+        get => _surfaceUtilities?.BackgroundColor;
+        set
+        {
+            if (value.HasValue) (_surfaceUtilities ??= new SurfaceUtilities()).BackgroundColor = value;
+            else if (_surfaceUtilities is not null) _surfaceUtilities.BackgroundColor = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<BorderBuilder>? Border { get; set; }
+    public CssValue<BorderBuilder>? Border
+    {
+        get => _surfaceUtilities?.Border;
+        set
+        {
+            if (value.HasValue) (_surfaceUtilities ??= new SurfaceUtilities()).Border = value;
+            else if (_surfaceUtilities is not null) _surfaceUtilities.Border = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<BorderStyleBuilder>? BorderStyle { get; set; }
+    public CssValue<BorderStyleBuilder>? BorderStyle
+    {
+        get => _surfaceUtilities?.BorderStyle;
+        set
+        {
+            if (value.HasValue) (_surfaceUtilities ??= new SurfaceUtilities()).BorderStyle = value;
+            else if (_surfaceUtilities is not null) _surfaceUtilities.BorderStyle = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<BorderColorBuilder>? BorderColor { get; set; }
+    public CssValue<BorderColorBuilder>? BorderColor
+    {
+        get => _surfaceUtilities?.BorderColor;
+        set
+        {
+            if (value.HasValue) (_surfaceUtilities ??= new SurfaceUtilities()).BorderColor = value;
+            else if (_surfaceUtilities is not null) _surfaceUtilities.BorderColor = null;
+        }
+    }
 
     [Parameter]
     public virtual CssValue<RoundedBuilder>? Rounded { get; set; }
 
     [Parameter]
-    public CssValue<RingBuilder>? Ring { get; set; }
+    public CssValue<RingBuilder>? Ring
+    {
+        get => _surfaceUtilities?.Ring;
+        set
+        {
+            if (value.HasValue) (_surfaceUtilities ??= new SurfaceUtilities()).Ring = value;
+            else if (_surfaceUtilities is not null) _surfaceUtilities.Ring = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<RingOffsetBuilder>? RingOffset { get; set; }
+    public CssValue<RingOffsetBuilder>? RingOffset
+    {
+        get => _surfaceUtilities?.RingOffset;
+        set
+        {
+            if (value.HasValue) (_surfaceUtilities ??= new SurfaceUtilities()).RingOffset = value;
+            else if (_surfaceUtilities is not null) _surfaceUtilities.RingOffset = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<RingColorBuilder>? RingColor { get; set; }
+    public CssValue<RingColorBuilder>? RingColor
+    {
+        get => _surfaceUtilities?.RingColor;
+        set
+        {
+            if (value.HasValue) (_surfaceUtilities ??= new SurfaceUtilities()).RingColor = value;
+            else if (_surfaceUtilities is not null) _surfaceUtilities.RingColor = null;
+        }
+    }
 
     [Parameter]
     public CssValue<OutlineStyleBuilder>? OutlineStyle
@@ -1418,13 +2256,37 @@ public abstract class Component : RenderComponent, IComponent
     }
 
     [Parameter]
-    public CssValue<AnimationBuilder>? Animation { get; set; }
+    public CssValue<AnimationBuilder>? Animation
+    {
+        get => _motionUtilities?.Animation;
+        set
+        {
+            if (value.HasValue) (_motionUtilities ??= new MotionUtilities()).Animation = value;
+            else if (_motionUtilities is not null) _motionUtilities.Animation = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<DurationBuilder>? Duration { get; set; }
+    public CssValue<DurationBuilder>? Duration
+    {
+        get => _motionUtilities?.Duration;
+        set
+        {
+            if (value.HasValue) (_motionUtilities ??= new MotionUtilities()).Duration = value;
+            else if (_motionUtilities is not null) _motionUtilities.Duration = null;
+        }
+    }
 
     [Parameter]
-    public CssValue<TransitionBuilder>? Transition { get; set; }
+    public CssValue<TransitionBuilder>? Transition
+    {
+        get => _motionUtilities?.Transition;
+        set
+        {
+            if (value.HasValue) (_motionUtilities ??= new MotionUtilities()).Transition = value;
+            else if (_motionUtilities is not null) _motionUtilities.Transition = null;
+        }
+    }
 
     [Parameter]
     public EventCallback<ElementReference> OnElementRefReady { get; set; }
