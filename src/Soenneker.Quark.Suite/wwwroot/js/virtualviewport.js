@@ -3,20 +3,38 @@ const viewportStates = globalThis[Symbol.for("quark.virtual.viewports")] ??= new
 const estimatedHeight = 24;
 const overscan = 8;
 
-function offsets(state) {
-    const result = [0];
-    for (const key of state.keys ?? []) result.push(result[result.length - 1] + (state.heights.get(key) ?? state.estimate));
-    return result;
-}
-
-function indexAt(positions, offset) {
-    let low = 0, high = positions.length - 1;
-    while (low < high) {
-        const mid = Math.floor((low + high + 1) / 2);
-        if (positions[mid] <= offset) low = mid;
-        else high = mid - 1;
+// Fenwick sums keep scrolling and individual row measurements logarithmic.
+function rebuildHeights(state) {
+    const keys = state.keys ?? [];
+    state.indexes = new Map();
+    state.tree = new Float64Array(keys.length + 1);
+    for (let i = 0; i < keys.length; i++) {
+        state.indexes.set(keys[i], i);
+        state.tree[i + 1] += state.heights.get(keys[i]) ?? state.estimate;
+        const parent = i + 1 + ((i + 1) & -(i + 1));
+        if (parent < state.tree.length) state.tree[parent] += state.tree[i + 1];
     }
-    return Math.min(low, Math.max(0, positions.length - 2));
+}
+function prefix(state, count) {
+    let sum = 0;
+    for (let i = count; i > 0; i -= i & -i) sum += state.tree[i];
+    return sum;
+}
+function indexAt(state, offset) {
+    const count = state.keys?.length ?? 0;
+    let index = 0, sum = 0;
+    for (let bit = 2 ** Math.floor(Math.log2(Math.max(1, count))); bit >= 1; bit /= 2) {
+        const next = index + bit;
+        if (next <= count && sum + state.tree[next] <= offset) { index = next; sum += state.tree[next]; }
+    }
+    return Math.min(index, Math.max(0, count - 1));
+}
+function measure(state, key, height) {
+    const previous = state.heights.get(key) ?? state.estimate;
+    state.heights.set(key, height);
+    const index = state.indexes?.get(key);
+    if (index === undefined || height === previous) return;
+    for (let i = index + 1; i < state.tree.length; i += i & -i) state.tree[i] += height - previous;
 }
 
 function contentTop(element, state) {
@@ -26,10 +44,9 @@ function contentTop(element, state) {
 
 function rememberAnchor(element, state) {
     if (!state.keys?.length) return;
-    const positions = offsets(state);
     const offset = Math.max(0, state.scroller.scrollTop - contentTop(element, state));
-    const index = indexAt(positions, offset);
-    state.anchor = { key: state.keys[index], offset: offset - positions[index] };
+    const index = indexAt(state, offset);
+    state.anchor = { key: state.keys[index], offset: offset - prefix(state, index) };
 }
 
 function schedule(element, state) {
@@ -43,12 +60,11 @@ function refresh(element, state) {
     const currentRows = new Set(rows);
     for (const row of state.rows) if (!currentRows.has(row)) state.resize.unobserve(row);
     for (const row of rows) {
-        state.heights.set(row.getAttribute(state.keyAttribute), Math.max(1, row.getBoundingClientRect().height));
+        measure(state, row.getAttribute(state.keyAttribute), Math.max(1, row.getBoundingClientRect().height));
         if (!state.rows.has(row)) state.resize.observe(row);
     }
     state.rows = currentRows;
-    const positions = offsets(state);
-    const total = positions[positions.length - 1];
+    const total = prefix(state, state.keys?.length ?? 0);
     if (state.hasAfter && total <= state.scroller.clientHeight + 100 && !state.loadingAfter && state.receiver && state.afterCursor !== (state.keys?.at(-1) ?? null)) {
         state.afterCursor = state.keys?.at(-1) ?? null;
         state.loadingAfter = true;
@@ -58,32 +74,32 @@ function refresh(element, state) {
     let target = state.scroller.scrollTop;
     if (state.follow && state.autoScroll) target = state.keys ? Math.max(0, top + total - state.scroller.clientHeight) : state.scroller.scrollHeight;
     else if (state.anchor && state.keys) {
-        const index = state.keys.indexOf(state.anchor.key);
-        if (index >= 0) target = Math.max(0, top + positions[index] + state.anchor.offset);
+        const index = (state.indexes.get(state.anchor.key) ?? -1);
+        if (index >= 0) target = Math.max(0, top + prefix(state, index) + state.anchor.offset);
     }
     if (state.scrollRequest && state.keys) {
-        const index = state.keys.indexOf(state.scrollRequest.key);
+        const index = (state.indexes.get(state.scrollRequest.key) ?? -1);
         if (index >= 0) {
-            const rowTop = top + positions[index];
-            const rowBottom = top + positions[index + 1];
+            const rowTop = top + prefix(state, index);
+            const rowBottom = top + prefix(state, index + 1);
             target = rowTop < target ? rowTop : rowBottom > target + state.scroller.clientHeight ? rowBottom - state.scroller.clientHeight : target;
         } else state.scrollRequest = null;
     }
     if (state.keys && state.receiver) {
-        const first = indexAt(positions, Math.max(0, target - top));
-        const last = indexAt(positions, Math.max(0, target - top + state.scroller.clientHeight));
+        const first = indexAt(state, Math.max(0, target - top));
+        const last = indexAt(state, Math.max(0, target - top + state.scroller.clientHeight));
         let start = Math.max(0, first - state.overscan);
         let end = Math.min(state.keys.length, last + state.overscan + 1);
         // Keep focused controls mounted while the user edits or drags an item.
         const focused = element.contains(globalThis.document?.activeElement) ? globalThis.document.activeElement.closest(state.rowSelector) : null;
-        const focusIndex = focused ? state.keys.indexOf(focused.getAttribute(state.keyAttribute)) : -1;
+        const focusIndex = focused ? (state.indexes.get(focused.getAttribute(state.keyAttribute)) ?? -1) : -1;
         const pinned = !state.scrollRequest && focusIndex >= 0 && (focusIndex < start || focusIndex >= end) ? focusIndex : -1;
         if (state.dragging && state.range) { start = Math.min(start, state.range[0]); end = Math.max(end, state.range[1]); }
         state.range = [start, end];
-        const args = [start, end - start, positions[start], total - positions[end], !state.follow];
+        const args = [start, end - start, prefix(state, start), total - prefix(state, end), !state.follow];
         if (state.pinFocus) {
-            const before = pinned < 0 ? 0 : pinned < start ? positions[pinned] : positions[pinned] - positions[end];
-            const after = pinned < 0 ? 0 : pinned < start ? positions[start] - positions[pinned + 1] : total - positions[pinned + 1];
+            const before = pinned < 0 ? 0 : pinned < start ? prefix(state, pinned) : prefix(state, pinned) - prefix(state, end);
+            const after = pinned < 0 ? 0 : pinned < start ? prefix(state, start) - prefix(state, pinned + 1) : total - prefix(state, pinned + 1);
             args.push(pinned, before, after);
         }
         const signature = JSON.stringify(args);
@@ -120,6 +136,7 @@ function createState(element, options = {}) {
     const state = { scroller, parentScroll: !!options.parentScroll, estimate: options.estimate ?? estimatedHeight, overscan: options.overscan ?? overscan,
         rowSelector: options.rowSelector ?? '[data-console-key]', keyAttribute: options.keyAttribute ?? 'data-console-key',
         spacerSelector: options.spacerSelector ?? '[data-console-spacer="top"]', keys: null, heights: new Map(), rows: new Set(), follow: true, autoScroll: true, frame: 0, pending: false, destroyed: false };
+    rebuildHeights(state);
     state.resize = new ResizeObserver(() => schedule(element, state));
     state.resize.observe(state.scroller);
     state.observer = new MutationObserver(mutations => {
@@ -159,6 +176,7 @@ export function updateViewport(element, receiver, keys, autoScroll, hasOlderItem
     const retained = new Set(keys ?? []);
     for (const key of state.heights.keys()) if (!retained.has(key)) state.heights.delete(key);
     state.keys = keys;
+    rebuildHeights(state);
     state.receiver = receiver;
     state.autoScroll = autoScroll;
     state.hasOlder = hasOlderItems;

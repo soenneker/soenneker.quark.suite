@@ -31,7 +31,6 @@
     </Button>
     <InputFile id="@_inputId"
                data-slot="prompt-input-file-input"
-               data-quark-blazor-input-file="true"
                class="sr-only"
                tabindex="-1"
                accept="@EffectiveAccept"
@@ -90,51 +89,65 @@
         return PromptInputInterop.OpenFileDialogById(_inputId).AsTask();
     }
 
-    private async Task HandleFilesSelected(InputFileChangeEventArgs args)
+    private Task HandleFilesSelected(InputFileChangeEventArgs args)
     {
         if (Disabled || _disposed.Read() || PromptInput is null)
-            return;
+            return Task.CompletedTask;
 
-        PromptInputAttachmentInfo[] attachments;
-
-        if (EffectiveMultiple)
+        var browserFiles = args.GetMultipleFiles(args.FileCount);
+        var multiple = EffectiveMultiple;
+        var accept = EffectiveAccept;
+        List<PromptInputAttachmentInfo>? accepted = null;
+        for (var i = 0; i < browserFiles.Count; i++)
         {
-            var browserFiles = args.GetMultipleFiles(args.FileCount);
-            attachments = new PromptInputAttachmentInfo[browserFiles.Count];
-
-            for (var i = 0; i < browserFiles.Count; i++)
-            {
-                attachments[i] = CreateAttachment(browserFiles[i]);
-            }
+            var file = browserFiles[i];
+            if (!FileAcceptFilter.Matches(accept, file.Name, file.ContentType)) continue;
+            (accepted ??= new(multiple ? browserFiles.Count : 1)).Add(new(
+                file.Name, file.Size, string.IsNullOrEmpty(file.ContentType) ? null : file.ContentType,
+                file.LastModified.ToUnixTimeMilliseconds()));
+            if (!multiple) break;
         }
-        else
-        {
-            attachments = [CreateAttachment(args.File)];
-        }
-
-        await PromptInput.AddAttachments(attachments);
-    }
-
-    private static PromptInputAttachmentInfo CreateAttachment(IBrowserFile file)
-    {
-        var lastModified = file.LastModified.ToUnixTimeMilliseconds();
-
-        return new PromptInputAttachmentInfo
-        {
-            Id = $"{file.Name}-{file.Size}-{lastModified}",
-            Name = file.Name,
-            Size = file.Size,
-            Type = file.ContentType,
-            LastModified = lastModified
-        };
+        return accepted is null ? Task.CompletedTask : PromptInput.AddAttachments(accepted);
     }
 
     [JSInvokable(nameof(AddAttachments))]
-    public Task AddAttachmentsFromJson(JsonElement payload) =>
-        AddAttachments(JsonSerializer.Deserialize(payload, QuarkInteropJsonContext.Default.PromptInputAttachmentInfoArray)!);
+    public Task AddAttachmentsFromJson(JsonElement payload)
+    {
+        if (Disabled || _disposed.Read() || PromptInput is null) return Task.CompletedTask;
+        var multiple = EffectiveMultiple;
+        var accept = EffectiveAccept;
+        List<PromptInputAttachmentInfo>? accepted = null;
+        foreach (var file in payload.EnumerateArray())
+        {
+            var name = file.TryGetProperty("name", out var nameValue) ? nameValue.GetString() ?? string.Empty : string.Empty;
+            var type = file.TryGetProperty("type", out var typeValue) ? typeValue.GetString() : null;
+            if (!FileAcceptFilter.Matches(accept, name, type)) continue;
+            var size = file.TryGetProperty("size", out var sizeValue) ? sizeValue.GetInt64() : 0;
+            var modified = file.TryGetProperty("lastModified", out var modifiedValue) ? modifiedValue.GetInt64() : 0;
+            var id = file.TryGetProperty("id", out var idValue) ? idValue.GetString() : null;
+            (accepted ??= new(multiple ? payload.GetArrayLength() : 1)).Add(new(name, size, type, modified, id));
+            if (!multiple) break;
+        }
+        return accepted is null ? Task.CompletedTask : PromptInput.AddAttachments(accepted);
+    }
 
-    public Task AddAttachments(PromptInputAttachmentInfo[] attachments) =>
-        Disabled || _disposed.Read() ? Task.CompletedTask : PromptInput?.AddAttachments(attachments) ?? Task.CompletedTask;
+    public Task AddAttachments(PromptInputAttachmentInfo[] attachments)
+    {
+        if (Disabled || _disposed.Read() || PromptInput is null)
+            return Task.CompletedTask;
+
+        var multiple = EffectiveMultiple;
+        var accept = EffectiveAccept;
+        List<PromptInputAttachmentInfo>? accepted = null;
+        foreach (var attachment in attachments)
+        {
+            if (!FileAcceptFilter.Matches(accept, attachment.Name, attachment.Type)) continue;
+            (accepted ??= new(multiple ? attachments.Length : 1)).Add(string.IsNullOrEmpty(attachment.Id)
+                ? new(attachment.Name, attachment.Size, attachment.Type, attachment.LastModified) : attachment);
+            if (!multiple) break;
+        }
+        return accepted is null ? Task.CompletedTask : PromptInput.AddAttachments(accepted);
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

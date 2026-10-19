@@ -20,9 +20,8 @@ test('IME composition does not submit or cancel confirmation Enter', () => {
   assert.equal(textarea.listeners.size, 0);
 });
 
-test('Blazor file inputs have one change owner and drop respects accept, multiple and disabled', async () => {
+test('Blazor owns selection policy and IDs while drops forward metadata and respect disabled', async () => {
   const input = element(), form = element(), calls = [];
-  input.dataset.quarkBlazorInputFile = 'true';
   input.closest = () => form;
   input.accept = '.png,image/jpeg';
   input.multiple = false;
@@ -38,7 +37,9 @@ test('Blazor file inputs have one change owner and drop respects accept, multipl
   form.listeners.get('drop')(event);
   await Promise.resolve();
   assert.equal(calls.length, 1);
-  assert.deepEqual(calls[0][1].map(file => file.name), ['first.PNG']);
+  assert.deepEqual(calls[0][1].map(file => file.name), files.map(file => file.name));
+  assert.ok(calls[0][1].every(file => !('id' in file)));
+  assert.equal(calls[0][0], 'AddAttachments');
   input.disabled = true;
   form.listeners.get('drop')(event);
   assert.equal(calls.length, 1);

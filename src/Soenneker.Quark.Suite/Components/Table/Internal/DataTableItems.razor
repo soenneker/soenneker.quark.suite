@@ -153,6 +153,12 @@
         finally { _interactionReference?.Dispose(); await base.DisposeAsync(); }
     }
 
+    [Parameter] public long? DataVersion { get; set; }
+    private long? _preparedVersion;
+    private IReadOnlyList<TItem>? _preparedItems;
+    private IReadOnlyList<DataTableColumn<TItem>>? _preparedColumns;
+    private QuarkViewState? _preparedState;
+    private Func<TItem, string>? _preparedRowKey;
     [Parameter] public IReadOnlyList<TItem> Items { get; set; } = [];
     [Parameter] public IReadOnlyList<DataTableColumn<TItem>> Columns { get; set; } = [];
     [Parameter, EditorRequired] public Func<TItem, string> RowKey { get; set; } = null!;
@@ -179,7 +185,9 @@
     private int _requestVersion, _remoteCount;
     private bool _loading, _loadError, _failedAppend;
     private Task Retry() => FetchPage(_failedAppend);
-    private IReadOnlyList<TItem> _remoteItems = [];
+    private readonly List<TItem> _remoteItems = [];
+    private readonly List<string> _remoteKeyOrder = [];
+    private readonly HashSet<string> _remoteKeys = new(StringComparer.Ordinal);
     private bool _showColumns, _showFilters, _saving, _editError;
     private int _page;
     private string? _dragColumn, _editingKey;
@@ -192,7 +200,9 @@
     protected override async Task OnParametersSetAsync()
     {
         if (!ReferenceEquals(State, _loadedState)) _page = 0;
-        Prepare();
+        bool cached = DataVersion.HasValue && DataVersion == _preparedVersion && ReferenceEquals(Items, _preparedItems) &&
+            ReferenceEquals(Columns, _preparedColumns) && RowKey == _preparedRowKey && SameQuery(State, _preparedState);
+        Prepare(!cached);
         if (LoadData is not null && (!ReferenceEquals(State, _loadedState) || LoadData != _loadedProvider)) { _page = 0; await Reload(); }
         else if (LoadData is null) { _loadedState = State; if (_loadedProvider is not null) { _requestVersion++; _loadCancellation?.Cancel(); _loadedProvider = null; _loading = false; } }
     }
@@ -213,10 +223,20 @@
             var requestedPage = append ? _page + 1 : UseVirtualRows ? 0 : _page;
             var result = await LoadData(new(State, requestedPage, PageSize), cancellation.Token);
             if (version != _requestVersion || cancellation.IsCancellationRequested || IsDisposed) return;
-            if (result.Items.Select(RowKey).Distinct().Count() != result.Items.Count) throw new ArgumentException("Row keys must be unique.");
-            var combined = append ? _remoteItems.Concat(result.Items).ToArray() : result.Items;
-            if (combined.Select(RowKey).Distinct().Count() != combined.Count) throw new ArgumentException("Appended row keys must be unique.");
-            _remoteItems = combined; _page = requestedPage;
+            var incomingKeys = new HashSet<string>(StringComparer.Ordinal);
+            var incomingOrder = new List<string>(result.Items.Count);
+            foreach (var item in result.Items)
+            {
+                var key = RowKey(item);
+                if (!incomingKeys.Add(key) || (append && _remoteKeys.Contains(key)))
+                    throw new ArgumentException("Row keys must be unique.");
+                incomingOrder.Add(key);
+            }
+            if (!append) { _remoteItems.Clear(); _remoteKeys.Clear(); _remoteKeyOrder.Clear(); }
+            _remoteItems.AddRange(result.Items);
+            _remoteKeys.UnionWith(incomingKeys);
+            _remoteKeyOrder.AddRange(incomingOrder);
+            _page = requestedPage;
             _remoteCount = result.Items.Count == 0 ? _remoteItems.Count : Math.Max(0, result.TotalCount); Prepare();
             if (!UseVirtualRows && _page >= PageCount) { _page = PageCount - 1; await Reload(); }
         }
@@ -227,20 +247,33 @@
     private async Task GoToPage(int page) { _page = Math.Clamp(page, 0, PageCount - 1); _pageItems = null; if (LoadData is not null) await Reload(); else { Owner.UpdateDataStatus(_filtered.Count, _page, PageSize, VisibleRowKeys()); StateHasChanged(); } }
 
     private IReadOnlyList<FilterField> FilterFields() => _fields;
-    private void Prepare()
+    private static bool SameQuery(QuarkViewState state, QuarkViewState? previous) => previous is not null && state.Search == previous.Search &&
+        ReferenceEquals(state.Filters, previous.Filters) && state.Sorts.SequenceEqual(previous.Sorts) && state.PageSize == previous.PageSize;
+    private void Prepare(bool prepareData = true)
     {
         if (Columns.Select(c => c.Key).Distinct().Count() != Columns.Count) throw new ArgumentException("Column keys must be unique.");
         _columnMap = Columns.ToDictionary(c => c.Key);
         _fields = Columns.Select(c => new FilterField(c.Key, c.Title, c.FilterType, c.Choices)).ToArray();
         _preferences = BuildPreferences();
         _visibleColumns = _preferences.Where(p => p.Visible).OrderBy(p => p.Pin == DataTableColumnPin.Start ? 0 : p.Pin == DataTableColumnPin.End ? 2 : 1).ToList();
-        _columnStyles = _visibleColumns.ToDictionary(c => c.Key, ComputeColumnStyle);
+        _columnStyles = new();
+        var startOffset = 0;
+        var endOffset = _visibleColumns.Where(c => c.Pin == DataTableColumnPin.End).Sum(c => c.Width);
+        foreach (var column in _visibleColumns)
+        {
+            if (column.Pin == DataTableColumnPin.End) endOffset -= column.Width;
+            _columnStyles[column.Key] = ComputeColumnStyle(column, column.Pin == DataTableColumnPin.Start ? startOffset : endOffset);
+            if (column.Pin == DataTableColumnPin.Start) startOffset += column.Width;
+        }
+        if (!prepareData) return;
+        _preparedVersion = DataVersion; _preparedItems = Items; _preparedColumns = Columns; _preparedRowKey = RowKey; _preparedState = State;
         _pageItems = null;
         if (RowKey is null) throw new ArgumentException("RowKey is required.");
-        if (LoadData is not null) { _filtered = _remoteItems.ToList(); Owner.UpdateDataStatus(_remoteCount, _page, PageSize, VisibleRowKeys()); return; }
+        if (LoadData is not null) { _filtered = _remoteItems; Owner.UpdateDataStatus(_remoteCount, _page, PageSize, VisibleRowKeys()); return; }
         if (Items.Select(RowKey).Distinct().Count() != Items.Count) throw new ArgumentException("Row keys must be unique.");
         var fields = FilterFields();
-        IEnumerable<TItem> query = Items.Where(item => FilterEvaluator.Matches(State.Filters, fields, key => _columnMap[key].Value(item)) &&
+        var matches = FilterEvaluator.Compile<TItem>(State.Filters, fields, (item, key) => _columnMap[key].Value(item));
+        IEnumerable<TItem> query = Items.Where(item => matches(item) &&
             (string.IsNullOrWhiteSpace(State.Search) || Columns.Any(c => (Convert.ToString(c.Value(item), Text.Culture) ?? "").Contains(State.Search, StringComparison.OrdinalIgnoreCase))));
         IOrderedEnumerable<TItem>? ordered = null;
         foreach (var sort in State.Sorts)
@@ -256,21 +289,29 @@
     private static int Compare(object? a, object? b) => a is null ? b is null ? 0 : -1 : b is null ? 1 : a.GetType() == b.GetType() && a is IComparable comparable ? comparable.CompareTo(b) : StringComparer.OrdinalIgnoreCase.Compare(a.ToString(), b.ToString());
     private IReadOnlyList<TItem> PageItems()
     {
-        if (_pageItems is null) { _pageItems = LoadData is not null ? _remoteItems : UseVirtualRows ? _filtered : _filtered.Skip(_page * PageSize).Take(PageSize).ToArray(); _pageKeys = _pageItems.Select(RowKey).ToArray(); }
+        if (_pageItems is null) { _pageItems = LoadData is not null ? _remoteItems : UseVirtualRows ? _filtered : _filtered.Skip(_page * PageSize).Take(PageSize).ToArray(); _pageKeys = LoadData is not null ? _remoteKeyOrder : _pageItems.Select(RowKey).ToArray(); }
         return _pageItems;
     }
     private List<DataTableColumnState> Preferences() => _preferences;
-    private List<DataTableColumnState> BuildPreferences() => State.Columns.Where(p => Columns.Any(c => c.Key == p.Key)).DistinctBy(p => p.Key)
-        .Concat(Columns.Where(c => !State.Columns.Any(p => p.Key == c.Key)).Select(c => new DataTableColumnState(c.Key, Width: c.Width))).Select(p => p with { Width = Math.Clamp(p.Width, 64, 1200) }).ToList();
+    private List<DataTableColumnState> BuildPreferences()
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var preferences = new List<DataTableColumnState>(Columns.Count);
+        foreach (var preference in State.Columns)
+            if (_columnMap.ContainsKey(preference.Key) && seen.Add(preference.Key))
+                preferences.Add(preference with { Width = Math.Clamp(preference.Width, 64, 1200) });
+        foreach (var column in Columns)
+            if (seen.Add(column.Key))
+                preferences.Add(new DataTableColumnState(column.Key, Width: Math.Clamp(column.Width, 64, 1200)));
+        return preferences;
+    }
     private List<DataTableColumnState> VisibleColumns() => _visibleColumns;
     private string GridStyle => $"table-layout:fixed;width:{VisibleColumns().Sum(c => c.Width) + (SelectionEnabled ? 40 : 0) + (DetailTemplate is not null ? 40 : 0)}px";
     private string ColumnStyle(DataTableColumnState p) => _columnStyles[p.Key];
-    private string ComputeColumnStyle(DataTableColumnState p)
+    private string ComputeColumnStyle(DataTableColumnState p, int offset)
     {
         var style = $"width:{p.Width}px;min-width:{p.Width}px;max-width:{p.Width}px;overflow-wrap:anywhere;";
         if (p.Pin == DataTableColumnPin.None) return style;
-        var columns = VisibleColumns(); var index = columns.FindIndex(x => x.Key == p.Key);
-        var offset = p.Pin == DataTableColumnPin.Start ? columns.Take(index).Where(x => x.Pin == p.Pin).Sum(x => x.Width) : columns.Skip(index + 1).Where(x => x.Pin == p.Pin).Sum(x => x.Width);
         return style + $"position:sticky;inset-inline-{(p.Pin == DataTableColumnPin.Start ? "start" : "end")}:{offset}px;z-index:1;";
     }
     private async Task SearchChanged(ChangeEventArgs e)
@@ -294,9 +335,10 @@
     }
     private async Task Change(QuarkViewState state, bool reload = true)
     {
+        bool queryChanged = !SameQuery(state, State);
         State = state;
         if (reload) _page = 0;
-        Prepare(); _loadedState = state; _loadedProvider = LoadData;
+        Prepare(queryChanged); _loadedState = state; _loadedProvider = LoadData;
         await StateChanged.InvokeAsync(state);
         if (reload && LoadData is not null && ReferenceEquals(State, state)) await Reload();
     }

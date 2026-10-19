@@ -60,11 +60,27 @@
     private IQuarkLocalizer Text => Services.GetService<IQuarkLocalizer>() ?? _fallback;
     private readonly QuarkLocalizer _fallback = new();
     private IEnumerable<SelectOption> Options => LoadOptions is null ? Choices.Where(o => string.IsNullOrWhiteSpace(_search) || OptionNavigation.Matches(o.Label, o.Value, _search)) : _items;
-    private IReadOnlyList<SelectOption> EncodedOptions => Options.Select(o => new SelectOption(EncodeValue(o.Value), o.Label, o.Disabled)).ToArray();
+    private SelectOption[] _choiceSnapshot = [];
+    private string[] _valueSnapshot = [];
+    private string[] _encodedValues = [];
+    private object? _encodedLoader;
+    private IReadOnlyList<SelectOption>? _encodedOptions;
+    private IReadOnlyList<SelectOption> EncodedOptions => _encodedOptions ??= Options.Select(o => new SelectOption(EncodeValue(o.Value), o.Label, o.Disabled)).ToArray();
     private string? EncodedValue => Value is null ? null : EncodeValue(Value);
-    private string[] EncodedValues => Values.Select(EncodeValue).ToArray();
+    private string[] EncodedValues
+    {
+        get
+        {
+            if (!_valueSnapshot.SequenceEqual(Values))
+            {
+                _valueSnapshot = Values.ToArray();
+                _encodedValues = Values.Select(EncodeValue).ToArray();
+            }
+            return _encodedValues;
+        }
+    }
     private static string EncodeValue(string value) => "option:" + value;
-    private string LabelFor(string value) => Choices.FirstOrDefault(o => o.Value == value)?.Label ?? (_labels.TryGetValue(value, out var option) ? option.Label : value);
+    private string LabelFor(string value) => Choices.FirstOrDefault(o => o.Value == value)?.Label ?? _items.FirstOrDefault(o => o.Value == value)?.Label ?? (_labels.TryGetValue(value, out var option) ? option.Label : value);
     private string DisplayValue => Value is null ? "" : LabelFor(Value);
     private void ReportError(Exception exception, string operation) => Services.GetService<ILogger<SearchableSelect>>()?.LogWarning(exception, "SearchableSelect failed to {Operation}", operation);
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -73,8 +89,21 @@
     }
     protected override async Task OnParametersSetAsync()
     {
+        if (!_choiceSnapshot.SequenceEqual(Choices) || !Equals(_encodedLoader, LoadOptions))
+        {
+            _choiceSnapshot = Choices.ToArray();
+            _encodedLoader = LoadOptions;
+            _encodedOptions = null;
+        }
+        PruneLabels();
         if (Disabled) { _open = false; _version++; _searchCancellation?.Cancel(); _loading = false; }
         await ResolveValues();
+    }
+    private void PruneLabels()
+    {
+        var selected = new HashSet<string>(Multiple ? Values : Value is null ? [] : new[] { Value }, StringComparer.Ordinal);
+        foreach (var key in _labels.Keys.ToArray())
+            if (!selected.Contains(key)) _labels.Remove(key);
     }
     private async Task ResolveValues()
     {
@@ -91,6 +120,7 @@
             var resolved = await Resolve(missing, cancellation.Token);
             if (version != _resolveVersion || cancellation.IsCancellationRequested || IsDisposed) return;
             foreach (var option in resolved) _labels[option.Value] = option;
+            PruneLabels();
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
         catch (Exception exception) { ReportError(exception, "resolve selected options"); if (!IsDisposed && version == _resolveVersion) _resolveError = true; }
@@ -100,6 +130,7 @@
     {
         if (Disabled) return;
         _search = value;
+        _encodedOptions = null;
         if (_selectionChanged)
         {
             _selectionChanged = false;
@@ -130,7 +161,7 @@
         _searchCancellation = cancellation;
         var version = ++_version; var query = _search ?? ""; var token = append ? _continuation : null;
         _loading = true; _error = false; _failedAppend = append;
-        if (!append) { _items = []; _continuation = null; }
+        if (!append) { _items = []; _continuation = null; _encodedOptions = null; }
         try
         {
             if (debounce) await Task.Delay(Math.Clamp(DebounceMilliseconds, 0, 10000), cancellation.Token);
@@ -139,6 +170,8 @@
             var combined = append ? _items.Concat(result.Items) : result.Items;
             _items = combined.DistinctBy(o => o.Value).ToList();
             foreach (var option in result.Items) _labels[option.Value] = option;
+            PruneLabels();
+            _encodedOptions = null;
             _continuation = result.ContinuationToken == token ? null : result.ContinuationToken;
 
         }
@@ -155,6 +188,7 @@
         _labels[option.Value] = option;
         _selectionChanged = true;
         Value = option.Value;
+        PruneLabels();
         await ValueChanged.InvokeAsync(Value);
         if (ParentValidation is not null) await ParentValidation.NotifyInputChanged(Value);
     }
@@ -163,6 +197,7 @@
         if (Disabled) return;
         foreach (var option in Options) _labels[option.Value] = option;
         Values = encoded.Where(v => v.StartsWith("option:", StringComparison.Ordinal)).Select(v => v[7..]).ToArray();
+        PruneLabels();
         await ValuesChanged.InvokeAsync(Values);
         if (ParentValidation is not null) await ParentValidation.NotifyInputChanged(Values);
     }

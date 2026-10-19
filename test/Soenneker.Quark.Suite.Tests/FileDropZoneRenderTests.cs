@@ -11,6 +11,33 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public async Task FileDropZone_keyboard_reorders_current_state_and_ignores_invalid_or_disabled_actions()
+    {
+        var cut = Render<FileDropZone>(p => p.Add(c => c.Files, [
+            new() { Id = "a", Name = "a" }, new() { Id = "b", Name = "b" }, new() { Id = "c", Name = "c" }
+        ]));
+        await cut.InvokeAsync(() => cut.Instance.MoveFileByKey("b", "ArrowUp"));
+        cut.Instance.Files.Select(file => file.Id).Should().Equal("b", "a", "c");
+        await cut.InvokeAsync(() => cut.Instance.MoveFileByKey("b", "ArrowDown"));
+        await cut.InvokeAsync(() => cut.Instance.MoveFileByKey("b", "ArrowDown"));
+        cut.Instance.Files.Select(file => file.Id).Should().Equal("a", "c", "b");
+        await cut.InvokeAsync(() => cut.Instance.MoveFileByKey("b", "Home"));
+        cut.Instance.Files.Select(file => file.Id).Should().Equal("b", "a", "c");
+        await cut.InvokeAsync(() => cut.Instance.MoveFileByKey("b", "End"));
+        await cut.InvokeAsync(() => cut.Instance.MoveFileByKey("b", "ArrowDown"));
+        await cut.InvokeAsync(() => cut.Instance.MoveFileByKey("missing", "Home"));
+        await cut.InvokeAsync(() => cut.Instance.MoveFileByKey("b", "Enter"));
+        cut.Instance.Files.Select(file => file.Id).Should().Equal("a", "c", "b");
+        cut.Find("[aria-live='polite']").TextContent.Should().Contain("position 3 of 3");
+        cut.Render(p => p.Add(c => c.Disabled, true));
+        await cut.InvokeAsync(() => cut.Instance.MoveFileByKey("b", "Home"));
+        cut.Instance.Files.Select(file => file.Id).Should().Equal("a", "c", "b");
+        cut.Render(p => p.Add(c => c.Disabled, false).Add(c => c.ReadOnly, true));
+        await cut.InvokeAsync(() => cut.Instance.MoveFileByKey("b", "Home"));
+        cut.Instance.Files.Select(file => file.Id).Should().Equal("a", "c", "b");
+    }
+
+    [Test]
     public void FileDropZone_only_explains_reordering_when_reorder_controls_exist()
     {
         var files = new FileDropZoneFile[] { new() { Id = "a", Name = "a.pdf" }, new() { Id = "b", Name = "b.pdf" } };

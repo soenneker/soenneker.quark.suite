@@ -14,18 +14,25 @@ public static class SchedulerLayout
             .Where(p => p.Event.End > p.Event.Start).OrderBy(p => p.StartMinute).ThenByDescending(p => p.EndMinute).ToArray();
         var result = new List<SchedulerEventPlacement>();
         var group = new List<SchedulerEventPlacement>();
-        var ends = new List<double>();
+        var active = new PriorityQueue<int, double>();
+        var available = new PriorityQueue<int, int>();
+        int columns = 0;
         double groupEnd = -1;
-        void Flush() { foreach (var item in group) result.Add(item with { ColumnCount = ends.Count }); group.Clear(); ends.Clear(); }
+        void Flush() { foreach (var item in group) result.Add(item with { ColumnCount = columns }); group.Clear(); active.Clear(); available.Clear(); columns = 0; groupEnd = -1; }
         foreach (var placement in placements)
         {
             if (placement.StartMinute >= groupEnd) Flush();
             // Preserve a visible hit target across DST folds and for very short events.
             var end = Math.Max(placement.StartMinute + 30, placement.EndMinute);
-            var column = ends.FindIndex(value => value <= placement.StartMinute);
-            if (column < 0) { column = ends.Count; ends.Add(end); } else ends[column] = end;
+            while (active.TryPeek(out var released, out var finish) && finish <= placement.StartMinute)
+            {
+                active.Dequeue();
+                available.Enqueue(released, released);
+            }
+            var column = available.Count == 0 ? columns++ : available.Dequeue();
+            active.Enqueue(column, end);
             group.Add(placement with { Column = column, EndMinute = end });
-            groupEnd = ends.Max();
+            groupEnd = Math.Max(groupEnd, end);
         }
         Flush(); return result;
     }

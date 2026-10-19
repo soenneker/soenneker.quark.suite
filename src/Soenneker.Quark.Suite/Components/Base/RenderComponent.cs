@@ -23,8 +23,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     private Dictionary<string, object>? _attrsB;
     private int _cachedAttrsKey;
     private int _renderVersion;
-    private int _incomingParametersKey;
-    private int _lastIncomingParametersKey;
+    private readonly List<KeyValuePair<string, object?>> _previousParameters = new();
     private ValueAtomicBool _renderKeyDirty;
     private bool _useAttrsA;
     private bool _hasIncomingParametersKey;
@@ -64,14 +63,10 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             return base.SetParametersAsync(parameters);
         }
 
-        _incomingParametersKey = ComputeIncomingParametersKey(parameters, out bool hasRenderFragment, out _requiresDetailedRenderKey, IndependentChildContent);
+        bool equal = CompareAndCaptureParameters(parameters, out bool hasRenderFragment);
+        _incomingParametersChanged.Value = hasRenderFragment || !equal || _requiresDetailedRenderKey;
 
-        // A render fragment can keep the same delegate identity while reading mutated state from its owner.
-        // Re-render fragment-bearing components so they do not freeze otherwise valid descendant updates.
-        _incomingParametersChanged.Value = hasRenderFragment || !_hasIncomingParametersKey || _incomingParametersKey != _lastIncomingParametersKey;
-
-        if (_incomingParametersChanged.Value && !(IndependentChildContent && hasRenderFragment && _hasIncomingParametersKey &&
-            _incomingParametersKey == _lastIncomingParametersKey && !_requiresDetailedRenderKey && !_renderKeyDirty.Value))
+        if (!equal || _requiresDetailedRenderKey || _renderKeyDirty.Value || (hasRenderFragment && !IndependentChildContent))
         {
             _cachedAttrs = null;
             _cachedAttrsKey = 0;
@@ -143,35 +138,10 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             return;
         }
 
-        bool requiresDetailedRenderKey = _requiresDetailedRenderKey;
-
-        // An unchanged parameter set is the hot path in large component trees. The inexpensive
-        // ParameterView fingerprint lets us avoid recomputing every inherited and component-local
-        // render-key value. Conversely, any changed parameter forces a render, so a parameter that
-        // a component forgot to include in ComputeRenderKeyCore cannot leave stale UI.
-        if (!_incomingParametersChanged.Value && !_renderKeyDirty.Value && !requiresDetailedRenderKey)
-        {
-            _shouldRender.Value = false;
-            return;
-        }
-
-        // Direct parameter changes already guarantee a render and invalidate the attribute cache.
-        // Avoid the detailed component-wide key walk unless a mutable model or cascading context can affect
-        // output without changing its reference.
-        if (_incomingParametersChanged.Value && !requiresDetailedRenderKey)
-        {
-            _lastRenderKey = HashCode.Combine(_incomingParametersKey, _renderVersion);
-            _shouldRender.Value = true;
-            _renderKeyDirty.Value = false;
-            CommitIncomingParametersKey();
-            return;
-        }
-
-        var key = ComputeRenderKey();
-        _shouldRender.Value = _incomingParametersChanged.Value || key != _lastRenderKey;
-        _lastRenderKey = key;
+        _shouldRender.Value = _incomingParametersChanged.Value || _renderKeyDirty.Value;
         _renderKeyDirty.Value = false;
-        CommitIncomingParametersKey();
+        _hasIncomingParametersKey = true;
+        _incomingParametersChanged.Value = false;
     }
 
     protected override Dictionary<string, object> BuildAttributes()
@@ -180,7 +150,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
         if (!AlwaysRender && _renderKeyDirty.Value)
         {
-            _lastRenderKey = ComputeRenderKey();
+            _lastRenderKey = _renderVersion;
             _renderKeyDirty.Value = false;
         }
 
@@ -319,53 +289,74 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             hc.Add(v.Value);
     }
 
-    private int ComputeRenderKey()
+    private bool CompareAndCaptureParameters(ParameterView parameters, out bool hasRenderFragment)
     {
-        var hc = new HashCode();
-
-        hc.Add(_renderVersion);
-        hc.Add(Id);
-        AddAttributesToRenderKey(ref hc, AdditionalAttributes);
-        AddAttributesToRenderKey(ref hc, Attributes);
-        ComputeRenderKeyCore(ref hc);
-
-        return hc.ToHashCode();
-    }
-
-    private static int ComputeIncomingParametersKey(ParameterView parameters, out bool hasRenderFragment, out bool requiresDetailedRenderKey, bool independentChildContent)
-    {
-        var hashCode = new HashCode();
+        bool equal = _hasIncomingParametersKey;
         hasRenderFragment = false;
-        requiresDetailedRenderKey = false;
-
+        _requiresDetailedRenderKey = false;
+        int index = 0;
         foreach (var parameter in parameters)
         {
-            if (independentChildContent && parameter.Name == nameof(ChildContent))
-            {
-                hasRenderFragment = true;
-                continue;
-            }
-            hashCode.Add(parameter.Name, StringComparer.Ordinal);
-            AddIncomingParameterValue(ref hashCode, parameter.Value);
-
-            // ParameterView already identifies cascades. Inspect delivered values instead
-            // of reflecting every component type, including absent optional contexts.
-            // Direct models and collections also need the component's value-based key:
-            // their contents can change while their parameter identity stays the same.
-            if (parameter.Value is { } value)
-            {
-                Type type = value.GetType();
-                if (parameter.Cascading
-                    ? !IsKnownImmutableCascadingType(type)
-                    : !type.IsValueType && value is not string and not Delegate and not Type and not IReadOnlyDictionary<string, object>)
-                    requiresDetailedRenderKey = true;
-            }
-
             if (IsRenderFragment(parameter.Value))
+            {
                 hasRenderFragment = true;
-        }
+                if (IndependentChildContent && parameter.Name == nameof(ChildContent))
+                    continue;
+            }
 
-        return hashCode.ToHashCode();
+            object? value = parameter.Value;
+            if (!IsStableParameter(value))
+                _requiresDetailedRenderKey = true;
+            if (index >= _previousParameters.Count)
+            {
+                equal = false;
+                _previousParameters.Add(new(parameter.Name, value));
+            }
+            else
+            {
+                var previous = _previousParameters[index];
+                equal &= previous.Key == parameter.Name && RenderedEquals(previous.Value, value);
+                _previousParameters[index] = new(parameter.Name, value);
+            }
+            index++;
+        }
+        if (index != _previousParameters.Count)
+        {
+            equal = false;
+            _previousParameters.RemoveRange(index, _previousParameters.Count - index);
+        }
+        return equal;
+    }
+
+    private static bool IsStableParameter(object? value)
+    {
+        if (value is null or string or Type or Delegate or EventCallback) return true;
+        if (value is QuarkPresetToken preset) return preset.IsFrozen;
+        Type type = value.GetType();
+        if (IsKnownImmutableCascadingType(type)) return true;
+        if (!type.IsGenericType) return false;
+        Type definition = type.GetGenericTypeDefinition();
+        return definition == typeof(CssValue<>) || definition == typeof(EventCallback<>);
+    }
+
+    private static bool RenderedEquals(object? left, object? right)
+    {
+        if (left is decimal decimalLeft && right is decimal decimalRight)
+        {
+            Span<int> x = stackalloc int[4];
+            Span<int> y = stackalloc int[4];
+            decimal.GetBits(decimalLeft, x);
+            decimal.GetBits(decimalRight, y);
+            return x.SequenceEqual(y);
+        }
+        return (left, right) switch
+        {
+            (double a, double b) => BitConverter.DoubleToInt64Bits(a) == BitConverter.DoubleToInt64Bits(b),
+            (float a, float b) => BitConverter.SingleToInt32Bits(a) == BitConverter.SingleToInt32Bits(b),
+            (DateTime a, DateTime b) => a.Ticks == b.Ticks && a.Kind == b.Kind,
+            (DateTimeOffset a, DateTimeOffset b) => a.Ticks == b.Ticks && a.Offset == b.Offset,
+            _ => Equals(left, right)
+        };
     }
 
     private static bool IsRenderFragment(object? value)
@@ -380,59 +371,6 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
         Type type = callback.GetType();
         return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(RenderFragment<>);
-    }
-
-    private static void AddIncomingParameterValue(ref HashCode hashCode, object? value)
-    {
-        if (value is IReadOnlyDictionary<string, object> attributes)
-            AddAttributesToRenderKey(ref hashCode, attributes);
-        else
-            AddRenderedValue(ref hashCode, value);
-    }
-
-    private static void AddRenderedValue(ref HashCode hashCode, object? value)
-    {
-        // Value equality can hide representation changes that affect rendered text.
-        switch (value)
-        {
-            case decimal number:
-                AddDecimalParameter(ref hashCode, number);
-                return;
-            case double number:
-                hashCode.Add(BitConverter.DoubleToInt64Bits(number));
-                return;
-            case float number:
-                hashCode.Add(BitConverter.SingleToInt32Bits(number));
-                return;
-            case DateTime date:
-                hashCode.Add(date.Ticks);
-                hashCode.Add(date.Kind);
-                return;
-            case DateTimeOffset date:
-                hashCode.Add(date.Ticks);
-                hashCode.Add(date.Offset);
-                return;
-        }
-
-        hashCode.Add(value);
-    }
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private static void AddDecimalParameter(ref HashCode hashCode, decimal value)
-    {
-        // Equal decimal values can render different trailing zeroes. Include scale
-        // and sign so suppression does not discard a representation-only change.
-        Span<int> bits = stackalloc int[4];
-        decimal.GetBits(value, bits);
-        hashCode.Add(value);
-        hashCode.Add(bits[3]);
-    }
-
-    private void CommitIncomingParametersKey()
-    {
-        _lastIncomingParametersKey = _incomingParametersKey;
-        _hasIncomingParametersKey = true;
-        _incomingParametersChanged.Value = false;
     }
 
     private static bool IsKnownImmutableCascadingType(Type type)
@@ -474,29 +412,6 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
     protected virtual void ComputeRenderKeyCore(ref HashCode hc)
     {
-    }
-
-    private static void AddAttributesToRenderKey(ref HashCode hc, IReadOnlyDictionary<string, object>? attributes)
-    {
-        if (attributes is null || attributes.Count == 0)
-            return;
-
-        if (attributes is Dictionary<string, object> dictionary)
-        {
-            foreach (var kv in dictionary)
-            {
-                hc.Add(kv.Key, StringComparer.OrdinalIgnoreCase);
-                AddRenderedValue(ref hc, kv.Value);
-            }
-
-            return;
-        }
-
-        foreach (var kv in attributes)
-        {
-            hc.Add(kv.Key, StringComparer.OrdinalIgnoreCase);
-            AddRenderedValue(ref hc, kv.Value);
-        }
     }
 
     private static void MergeAttributes(IReadOnlyDictionary<string, object>? attributes, Dictionary<string, object> attrs, ref PooledStringBuilder sty, ref PooledStringBuilder cls)

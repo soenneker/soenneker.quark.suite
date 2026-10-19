@@ -21,17 +21,23 @@
     private string? _currentKey;
     private IReadOnlyList<string> _previousKeys = [];
 
+    private Dictionary<string, int> _keyIndexes = new(StringComparer.Ordinal);
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
         if (!Virtualize) return;
-        if (_currentKey is null || !ItemKeys.Contains(_currentKey))
+        if (!_previousKeys.SequenceEqual(ItemKeys))
+        {
+            _keyIndexes = new Dictionary<string, int>(StringComparer.Ordinal);
+            for (int i = 0; i < ItemKeys.Count; i++) _keyIndexes.Add(ItemKeys[i], i);
+        }
+        if (_currentKey is null || !_keyIndexes.ContainsKey(_currentKey))
         {
             int previous = _currentKey is null ? 0 : _previousKeys.ToList().IndexOf(_currentKey);
-            _currentKey = _previousKeys.Take(Math.Max(0, previous)).Reverse().FirstOrDefault(ItemKeys.Contains)
+            _currentKey = _previousKeys.Take(Math.Max(0, previous)).Reverse().FirstOrDefault(key => _keyIndexes.TryGetValue(key, out int i) && ItemDisabled?.Invoke(i) != true)
                 ?? ItemKeys.Where((_, index) => ItemDisabled?.Invoke(index) != true).FirstOrDefault();
         }
-        _previousKeys = ItemKeys.ToArray();
+        if (!_previousKeys.SequenceEqual(ItemKeys)) _previousKeys = ItemKeys.ToArray();
     }
 
     private CurrentCultureInt32TextCache _spacingText;
@@ -98,7 +104,7 @@
         if (key is not ("ArrowDown" or "ArrowUp" or "Home" or "End")) return false;
         if (Virtualize && _virtualItems is not null)
         {
-            int index = ItemKeys.ToList().IndexOf(item.Id!);
+            int index = _keyIndexes.GetValueOrDefault(item.Id!, -1);
             int direction = key is "ArrowUp" or "End" ? -1 : 1;
             int targetIndex = key == "Home" ? 0 : key == "End" ? ItemKeys.Count - 1 : index + direction;
             while (targetIndex >= 0 && targetIndex < ItemKeys.Count && ItemDisabled?.Invoke(targetIndex) == true) targetIndex += direction;
@@ -160,7 +166,7 @@
 
     public ValueTask FocusItem(string key)
     {
-        int index = ItemKeys.ToList().IndexOf(key);
+        int index = _keyIndexes.GetValueOrDefault(key, -1);
         if (index < 0 || ItemDisabled?.Invoke(index) == true || _virtualItems is null) return ValueTask.CompletedTask;
         _currentKey = key;
         return _virtualItems.ScrollToIndex(index, "[role=treeitem]");

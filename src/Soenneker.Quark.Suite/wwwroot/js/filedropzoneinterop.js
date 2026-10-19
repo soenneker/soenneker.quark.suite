@@ -21,11 +21,15 @@ export function initialize(owner, root, callback) {
     const rows = () => root.querySelectorAll('[data-slot="file-drop-zone-file"]');
     const canReorder = () => root.dataset.canReorder === 'true';
     let drag = null, frame = 0, pending = false, external = false;
+    let resizeObserver = null, mutationObserver = null;
 
     const listen = (target, name, fn, options = {}) => target.addEventListener(name, fn, { ...options, signal: controller.signal });
     const clear = () => {
         if (frame) cancelAnimationFrame(frame);
         frame = 0;
+        resizeObserver?.disconnect();
+        mutationObserver?.disconnect();
+        resizeObserver = mutationObserver = null;
         if (drag) {
             drag.row.style.opacity = '';
             drag.handle.removeAttribute('aria-pressed');
@@ -50,10 +54,10 @@ export function initialize(owner, root, callback) {
         const rect = root.getBoundingClientRect();
         const target = (next ?? last).getBoundingClientRect();
         const y = next ? target.top - 4 : target.bottom + 4;
-        placeholder.style.left = '8px';
-        placeholder.style.right = '8px';
-        placeholder.style.top = `${y - rect.top - root.clientTop + root.scrollTop - 4}px`;
-        placeholder.hidden = false;
+        setStyle(placeholder, 'left', '8px');
+        setStyle(placeholder, 'right', '8px');
+        setStyle(placeholder, 'top', `${y - rect.top - root.clientTop + root.scrollTop - 4}px`);
+        if (placeholder.hidden) placeholder.hidden = false;
     };
     const focusHandle = id => {
         for (const row of rows()) {
@@ -62,29 +66,61 @@ export function initialize(owner, root, callback) {
             return;
         }
     };
-    const move = async (id, before) => {
+    const move = async (id, value, method = "MoveFile") => {
         if (pending || !canReorder()) return;
         pending = true;
         try {
-            await callback.invokeMethodAsync('MoveFile', id, before);
+            await callback.invokeMethodAsync(method, id, value);
             if (!controller.signal.aborted) focusHandle(id);
         } catch (error) {
             if (!controller.signal.aborted) console.error('File drop zone reorder failed.', error);
         } finally { pending = false; }
+    };
+    const setStyle = (element, property, value) => {
+        if (element.style[property] !== value) element.style[property] = value;
+    };
+    const scheduleDrag = () => {
+        if (drag?.active && !frame) frame = requestAnimationFrame(renderDrag);
+    };
+    const observeDragLayout = () => {
+        resizeObserver = new ResizeObserver(scheduleDrag);
+        resizeObserver.observe(root);
+        resizeObserver.observe(document.documentElement);
+        for (const row of rows()) resizeObserver.observe(row);
+        mutationObserver = new MutationObserver(records => {
+            if (!drag?.active) return;
+            if (!root.isConnected || !canReorder()) { clear(); return; }
+            // Ignore our overlay writes; observe application changes to row content and layout.
+            if (!records.some(record => record.target !== placeholder && record.target !== ghost)) return;
+            for (const row of rows()) resizeObserver.observe(row);
+            scheduleDrag();
+        });
+        mutationObserver.observe(root, { childList: true, characterData: true, subtree: true,
+            attributes: true, attributeFilter: ['class', 'style', 'hidden', 'data-can-reorder'] });
+        // Ancestor removal and surrounding content changes can move the drop target.
+        mutationObserver.observe(document.documentElement, { childList: true, subtree: true });
     };
     const renderDrag = () => {
         frame = 0;
         if (!drag?.active) return;
         if (!canReorder() || !drag.row.isConnected) { clear(); return; }
         const items = rows();
-        drag.before = insertionTarget(items, drag.y, drag.id);
-        showTarget(drag.before, drag.id, items);
-        ghost.style.left = `${Math.max(8, Math.min(innerWidth - ghost.offsetWidth - 8, drag.x + 12))}px`;
-        ghost.style.top = `${Math.max(8, Math.min(innerHeight - ghost.offsetHeight - 8, drag.y + 12))}px`;
-        if (drag.y < 48) window.scrollBy(0, -12);
-        else if (drag.y > innerHeight - 48) window.scrollBy(0, 12);
-        frame = requestAnimationFrame(renderDrag);
+        const before = insertionTarget(items, drag.y, drag.id);
+        const left = `${Math.max(8, Math.min(innerWidth - ghost.offsetWidth - 8, drag.x + 12))}px`;
+        const top = `${Math.max(8, Math.min(innerHeight - ghost.offsetHeight - 8, drag.y + 12))}px`;
+        showTarget(before, drag.id, items);
+        setStyle(ghost, 'left', left);
+        setStyle(ghost, 'top', top);
+        const scroll = drag.y < 48 ? -12 : drag.y > innerHeight - 48 ? 12 : 0;
+        if (scroll) {
+            const previous = window.scrollY;
+            window.scrollBy(0, scroll);
+            // Continue only while autoscroll moves. Scroll events also cover smooth scrolling.
+            if (window.scrollY !== previous) scheduleDrag();
+        }
     };
+    listen(window, 'scroll', scheduleDrag, { capture: true, passive: true });
+    listen(window, 'resize', scheduleDrag);
     listen(root, 'pointerdown', event => {
         const handle = event.target.closest?.('[data-file-drag-handle]');
         if (!handle || !root.contains(handle) || !canReorder() || pending || event.button !== 0) return;
@@ -97,6 +133,10 @@ export function initialize(owner, root, callback) {
     });
     listen(document, 'pointermove', event => {
         if (!drag || event.pointerId !== drag.pointerId) return;
+        if (drag.x === event.clientX && drag.y === event.clientY) {
+            if (drag.active) event.preventDefault();
+            return;
+        }
         drag.x = event.clientX; drag.y = event.clientY;
         if (!drag.active && Math.hypot(drag.x - drag.startX, drag.y - drag.startY) >= 6) {
             drag.active = true;
@@ -105,9 +145,9 @@ export function initialize(owner, root, callback) {
             ghost.textContent = drag.handle.getAttribute('aria-label')?.replace(/^Reorder /, '') ?? 'File';
             ghost.style.width = `${Math.min(drag.row.getBoundingClientRect().width, 280)}px`;
             ghost.hidden = false;
-            frame = requestAnimationFrame(renderDrag);
+            observeDragLayout();
         }
-        if (drag.active) event.preventDefault();
+        if (drag.active) { event.preventDefault(); scheduleDrag(); }
     }, { passive: false });
     listen(document, 'pointerup', event => {
         if (!drag || event.pointerId !== drag.pointerId) return;
@@ -118,26 +158,17 @@ export function initialize(owner, root, callback) {
         clear();
         if (completed.active && inside) void move(completed.id, before);
     });
-    listen(document, 'pointercancel', clear);
+    listen(document, 'pointercancel', event => { if (drag?.pointerId === event.pointerId) clear(); });
     listen(window, 'blur', clear);
     listen(document, 'keydown', event => {
         if (event.key === 'Escape' && (drag || external)) { event.preventDefault(); clear(); return; }
         const handle = event.target.closest?.('[data-file-drag-handle]');
         if (!handle || !root.contains(handle) || !canReorder() || pending || drag || event.altKey || event.ctrlKey || event.metaKey) return;
-        const items = rows(), row = handle.closest('[data-slot="file-drop-zone-file"]');
-        let index = -1;
-        for (let i = 0; i < items.length; i++) {
-            if (items[i] === row) { index = i; break; }
-        }
-        let target = index;
-        if (event.key === 'ArrowUp') target = Math.max(0, index - 1);
-        else if (event.key === 'ArrowDown') target = Math.min(items.length - 1, index + 1);
-        else if (event.key === 'Home') target = 0;
-        else if (event.key === 'End') target = items.length - 1;
-        else return;
+        if (event.isComposing || (event.key !== 'ArrowUp' && event.key !== 'ArrowDown' && event.key !== 'Home' && event.key !== 'End')) return;
+        const row = handle.closest('[data-slot="file-drop-zone-file"]');
+        if (!row) return;
         event.preventDefault();
-        if (target === index || index < 0) return;
-        void move(row.dataset.fileId, items[target >= index ? target + 1 : target]?.dataset.fileId ?? null);
+        void move(row.dataset.fileId, event.key, 'MoveFileByKey');
     });
     configureFileDrop(root, {
         onActive: active => {

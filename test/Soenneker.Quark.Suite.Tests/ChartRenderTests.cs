@@ -30,6 +30,37 @@ public sealed class ChartRenderTests : BunitContext
     }
 
     [Test]
+    public void Large_charts_bound_marks_and_keep_all_data_accessible_by_page()
+    {
+        var cut = Render<Chart>(p => p.Add(c => c.Labels, Enumerable.Range(0, 3000).Select(i => i.ToString()).ToArray())
+            .Add(c => c.Series, new ChartSeries[] { new("Values", Enumerable.Range(0, 3000).Select(i => (double)i).ToArray()) })
+            .Add(c => c.Options, new ChartOptions { MaximumVisiblePoints = 200, AccessiblePageSize = 50, ShowPoints = true }));
+        cut.FindAll("table tbody tr").Should().HaveCount(50);
+        cut.Find("nav[aria-label='Chart range']").TextContent.Should().Contain("2801").And.Contain("3000");
+        cut.Find("nav[aria-label='Chart range'] button").Click();
+        cut.Find("nav[aria-label='Chart range']").TextContent.Should().Contain("2601");
+        cut.FindAll("nav[aria-label='Chart data pages'] button")[1].Click();
+        cut.Find("table tbody tr th").TextContent.Should().Be("50");
+        cut.FindAll("table tbody tr").Should().HaveCount(50);
+    }
+
+    [Test]
+    public void Large_radial_charts_aggregate_overflow_and_bound_keyboard_navigation()
+    {
+        var cut = Render<Chart>(p => p.Add(c => c.Type, ChartType.Pie)
+            .Add(c => c.Labels, Enumerable.Range(0, 1000).Select(i => $"Value {i}").ToArray())
+            .Add(c => c.Series, new ChartSeries[] { new("Values", Enumerable.Repeat(1d, 1000).ToArray()) })
+            .Add(c => c.Options, new ChartOptions { MaximumVisibleSlices = 8, AccessiblePageSize = 25 }));
+        cut.FindAll("[data-slot=chart-slice]").Should().HaveCount(7);
+        cut.Find("[data-slot=chart-other-slice]").GetAttribute("aria-label").Should().Contain("993 values");
+        cut.FindAll("table tbody tr").Should().HaveCount(25);
+        cut.Find("[data-slot=chart-slice]").KeyDown(Key.End);
+        cut.Find(".quark-chart-tooltip-label").TextContent.Should().Contain("Value 6");
+        cut.FindAll("[data-slot=chart-slice]")[6].KeyDown(new KeyboardEventArgs { Key = "ArrowRight" });
+        cut.Find(".quark-chart-tooltip-label").TextContent.Should().Contain("Value 6");
+    }
+
+    [Test]
     public void Legend_filters_multiple_series_and_can_restore_all_results()
     {
         var cut = Render<Chart>(p => p.Add(c => c.Labels, Labels)

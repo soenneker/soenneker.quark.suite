@@ -1,0 +1,71 @@
+@namespace Soenneker.Quark
+@using System.Text.Json
+
+@if (Value.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+{
+    <details class="json-node @(Tools is not null ? "json-with-tools" : null)" open="@_expanded">
+        <summary aria-label="@(Name is null ? "Toggle JSON" : $"Toggle {Name}")" @onclick="Toggle" @onclick:preventDefault>
+            <span class="json-caret" aria-hidden="true"></span>@if (Name is not null) { <span class="json-key">@Quote(Name): </span> }
+            <span>@Opening</span><span class="json-collapsed"> … <span class="json-count">@_count items</span> @Closing@(Comma ? "," : "")</span>
+        </summary>
+        @if (Tools is not null) { <div class="json-tools">@Tools</div> }
+        @if (_expanded)
+        {
+            <div class="json-children">
+                @if (Value.ValueKind == JsonValueKind.Object)
+                {
+                    var index = _page * PageSize;
+                    @foreach (var property in Value.EnumerateObject().Skip(index).Take(PageSize))
+                    {
+                        <ConsoleJsonNode @key="index" Value="property.Value" Name="@property.Name" Comma="@(++index < _count)" />
+                    }
+                }
+                else
+                {
+                    @for (int index = _page * PageSize; index < Math.Min(_count, (_page + 1) * PageSize); index++)
+                    {
+                        <ConsoleJsonNode @key="index" Value="Value[index]" Comma="@(index + 1 < _count)" />
+                    }
+                }
+                @if (_count > PageSize)
+                {
+                    <nav aria-label="JSON items">
+                        <button type="button" disabled="@(_page == 0)" @onclick="() => _page--">Previous</button>
+                        <span>@(_page * PageSize + 1)–@Math.Min(_count, (_page + 1) * PageSize) of @_count</span>
+                        <button type="button" disabled="@((_page + 1) * PageSize >= _count)" @onclick="() => _page++">Next</button>
+                    </nav>
+                }
+            </div>
+            <div class="json-closing">@Closing@(Comma ? "," : "")</div>
+        }
+    </details>
+}
+else
+{
+    <div class="json-leaf">@if (Name is not null) { <span class="json-key">@Quote(Name): </span> }<span class="@ValueClass">@Value.GetRawText()</span>@(Comma ? "," : "")</div>
+}
+@code {
+    [Parameter] public JsonElement Value { get; set; }
+    [Parameter] public string? Name { get; set; }
+    [Parameter] public bool Comma { get; set; }
+    [Parameter] public RenderFragment? Tools { get; set; }
+    private const int PageSize = 100;
+    private JsonElement _previous;
+    private bool _expanded;
+    private int _page, _count;
+    private string Opening => Value.ValueKind == JsonValueKind.Object ? "{" : "[";
+    private string Closing => Value.ValueKind == JsonValueKind.Object ? "}" : "]";
+    private string ValueClass => Value.ValueKind switch
+    {
+        JsonValueKind.String => "json-string", JsonValueKind.Number => "json-number",
+        JsonValueKind.True => "json-true", JsonValueKind.False => "json-false", JsonValueKind.Null => "json-null", _ => "json-undefined"
+    };
+    protected override void OnParametersSet()
+    {
+        if (_previous.Equals(Value)) return;
+        _previous = Value; _page = 0; _expanded = false;
+        _count = Value.ValueKind == JsonValueKind.Array ? Value.GetArrayLength() : Value.ValueKind == JsonValueKind.Object ? Value.EnumerateObject().Count() : 0;
+    }
+    private void Toggle() => _expanded = !_expanded;
+    private static string Quote(string value) => "\"" + JsonEncodedText.Encode(value).ToString() + "\"";
+}

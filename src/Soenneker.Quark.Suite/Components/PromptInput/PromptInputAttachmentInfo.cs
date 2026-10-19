@@ -7,10 +7,22 @@ namespace Soenneker.Quark;
 /// </summary>
 public sealed record PromptInputAttachmentInfo
 {
+    /// <summary>Creates attachment metadata with a unique identifier.</summary>
+    public PromptInputAttachmentInfo() => Id = BlazorIdGenerator.New("prompt-input-attachment");
+
+    internal PromptInputAttachmentInfo(string name, long size, string? type, long lastModified, string? id = null)
+    {
+        Id = string.IsNullOrEmpty(id) ? BlazorIdGenerator.New("prompt-input-attachment") : id;
+        Name = name;
+        Size = size;
+        Type = type;
+        LastModified = lastModified;
+    }
+
     /// <summary>
     /// Gets or sets id.
     /// </summary>
-    public string Id { get; init; } = BlazorIdGenerator.New("prompt-input-attachment");
+    public string Id { get; init; }
 
     /// <summary>
     /// Gets or sets name.

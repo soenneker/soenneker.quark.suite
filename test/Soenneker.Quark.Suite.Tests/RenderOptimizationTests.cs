@@ -20,6 +20,37 @@ public sealed class RenderOptimizationTests : BunitContext
     }
 
     [Test]
+    public void Dynamic_presets_observe_captured_state_with_the_same_token()
+    {
+        CssValue<WidthBuilder> width = "w-1";
+        var preset = new QuarkPresetToken("dynamic", context => context.Width = width);
+        var cut = Render<Div>(p => p.Add(c => c.Preset, preset));
+        width = "w-2";
+        cut.Render(p => p.Add(c => c.Preset, preset));
+        cut.Find("div").GetAttribute("class").Should().Contain("w-2");
+    }
+
+    [Test]
+    public void Distinct_strings_with_the_same_hash_still_update_markup()
+    {
+        var seen = new Dictionary<int, string>();
+        string first = "", second = "";
+        for (int i = 0; i < 1_000_000; i++)
+        {
+            string value = "collision-" + i;
+            if (seen.TryGetValue(value.GetHashCode(), out var previous))
+            {
+                first = previous; second = value; break;
+            }
+            seen.Add(value.GetHashCode(), value);
+        }
+        second.Should().NotBeEmpty();
+        var cut = Render<Div>(p => p.Add(c => c.Title, first));
+        cut.Render(p => p.Add(c => c.Title, second));
+        cut.Find("div").GetAttribute("title").Should().Be(second);
+    }
+
+    [Test]
     public void Forwarded_child_content_keeps_identity_and_observes_captured_state_changes()
     {
         var text = "first";
@@ -98,7 +129,7 @@ public sealed class RenderOptimizationTests : BunitContext
         model.Value = 2;
         cut.Render(p => p.Add(c => c.Value, model).Add(c => c.ChildContent, content));
         cut.Markup.Should().Contain(">2<");
-        cut.FindComponent<MutableCascadeRenderProbe>().Instance.KeyCount.Should().BeGreaterThan(0);
+        cut.FindComponent<MutableCascadeRenderProbe>().Instance.KeyCount.Should().Be(0);
     }
 
     [Test]
@@ -188,7 +219,7 @@ public sealed class RenderOptimizationTests : BunitContext
     }
 
     [Test]
-    public void Default_render_suppression_skips_an_unchanged_complex_parameter()
+    public void Mutable_parameters_render_without_relying_on_a_lossy_hash()
     {
         RenderCountingProbe.RenderCount = 0;
         var model = new RenderProbeModel { Value = 1 };
@@ -196,7 +227,7 @@ public sealed class RenderOptimizationTests : BunitContext
 
         cut.Render(parameters => parameters.Add(component => component.Model, model));
 
-        RenderCountingProbe.RenderCount.Should().Be(1);
+        RenderCountingProbe.RenderCount.Should().Be(2);
     }
 
     [Test]

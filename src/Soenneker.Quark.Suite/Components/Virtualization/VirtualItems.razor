@@ -44,6 +44,8 @@ else
     [Parameter] public IReadOnlyList<string> DisabledKeys { get; set; } = [];
     private HashSet<string> _disabledKeys = [];
     private IReadOnlyList<string>? _validatedKeys;
+    private bool _viewportDirty = true;
+    private (bool Follow, bool Before, bool After, bool Parent) _viewportOptions;
     private ElementReference _initializedElement;
     [Parameter] public bool Enabled { get; set; } = true;
     [Parameter] public IReadOnlyList<string> ItemKeys { get; set; } = [];
@@ -119,23 +121,30 @@ else
     {
         base.OnParametersSet();
         if (VirtualColumnCount < 1) throw new ArgumentOutOfRangeException(nameof(VirtualColumnCount));
-        if (!ReferenceEquals(_validatedKeys, ItemKeys))
+        if (_validatedKeys is null || !_validatedKeys.SequenceEqual(ItemKeys))
         {
+            _viewportDirty = true;
+            var keyIndexes = new Dictionary<string, int>(StringComparer.Ordinal);
+            for (int i = 0; i < ItemKeys.Count; i++)
+                if (ItemKeys[i] is null || !keyIndexes.TryAdd(ItemKeys[i], i)) throw new ArgumentException("Virtual item keys must be non-null and unique.", nameof(ItemKeys));
             if (_validatedKeys is not null)
             {
                 string? firstKey = _start < _validatedKeys.Count ? _validatedKeys[_start] : null;
                 string? pinnedKey = _pinned >= 0 && _pinned < _validatedKeys.Count ? _validatedKeys[_pinned] : null;
-                var nextKeys = ItemKeys.ToList();
-                if (firstKey is not null && nextKeys.IndexOf(firstKey) is var nextStart && nextStart >= 0) _start = nextStart;
-                if (pinnedKey is not null) _pinned = nextKeys.IndexOf(pinnedKey);
+                if (firstKey is not null && keyIndexes.TryGetValue(firstKey, out var nextStart)) _start = nextStart;
+                if (pinnedKey is not null) _pinned = keyIndexes.GetValueOrDefault(pinnedKey, -1);
             }
-            var keys = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var key in ItemKeys)
-                if (key is null || !keys.Add(key)) throw new ArgumentException("Virtual item keys must be non-null and unique.", nameof(ItemKeys));
-            _validatedKeys = ItemKeys;
+            _validatedKeys = ItemKeys.ToArray();
         }
-        _disabledKeys = DisabledKeys.ToHashSet(StringComparer.Ordinal);
+        if (!_disabledKeys.SetEquals(DisabledKeys))
+        {
+            _disabledKeys = DisabledKeys.ToHashSet(StringComparer.Ordinal);
+            _viewportDirty = true;
+        }
+        var options = (FollowEnd, HasBefore, HasAfter, ParentScroll || TableBody);
+        if (_viewportOptions != options) { _viewportOptions = options; _viewportDirty = true; }
     }
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -158,7 +167,11 @@ else
         if (Enabled)
         {
             _receiver ??= DotNetObjectReference.Create(this);
-            await ViewportInterop.Update(ElementRef, _receiver, ItemKeys, FollowEnd, HasBefore, HasAfter, ParentScroll || TableBody, DisabledKeys);
+            if (!_initialized || _viewportDirty)
+            {
+                _viewportDirty = false;
+                await ViewportInterop.Update(ElementRef, _receiver, ItemKeys, FollowEnd, HasBefore, HasAfter, ParentScroll || TableBody, DisabledKeys);
+            }
             if (_disposed) { await ViewportInterop.Destroy(ElementRef); return; }
             _initializedElement = ElementRef;
             _initialized = true;

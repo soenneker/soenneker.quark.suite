@@ -72,10 +72,7 @@ export function registerAttachments(input, dotNetReference, globalDrop) {
     const addFiles = files => {
         if (input.disabled) return;
 
-        const acceptedFiles = Array.from(files || []).filter(file => acceptsFile(input.accept, file));
-        if (!input.multiple && acceptedFiles.length > 1) acceptedFiles.length = 1;
-        const attachments = acceptedFiles.map(file => ({
-            id: `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2)}`,
+        const attachments = Array.from(files || [], file => ({
             name: file.name,
             size: file.size,
             type: file.type || null,
@@ -86,20 +83,7 @@ export function registerAttachments(input, dotNetReference, globalDrop) {
             return;
         }
 
-        input.__quarkPromptInputLastAttachments = attachments;
-        dotNetReference.invokeMethodAsync("AddAttachments", attachments)
-            .then(() => {
-                input.__quarkPromptInputAttachmentDone = true;
-            })
-            .catch(error => {
-                input.__quarkPromptInputAttachmentError = String(error);
-                console.error(error);
-            });
-    };
-
-    const change = event => {
-        addFiles(event.target.files);
-        event.target.value = "";
+        dotNetReference.invokeMethodAsync("AddAttachments", attachments).catch(console.error);
     };
 
     const dragOver = event => {
@@ -119,17 +103,11 @@ export function registerAttachments(input, dotNetReference, globalDrop) {
         addFiles(event.dataTransfer.files);
     };
 
-    if (input.dataset.quarkBlazorInputFile !== "true")
-        input.addEventListener("change", change);
-
     const dropTarget = useGlobalDrop ? document : promptInput;
     dropTarget?.addEventListener("dragover", dragOver);
     dropTarget?.addEventListener("drop", drop);
 
-    attachmentRegistrations.set(input, { change, dragOver, drop, dropTarget });
-    input.__quarkPromptInputAttachmentsRegistered = true;
-    input.__quarkPromptInputGlobalDrop = useGlobalDrop;
-    input.__quarkPromptInputHandleDrop = drop;
+    attachmentRegistrations.set(input, { dragOver, drop, dropTarget });
 }
 
 export function unregisterAttachments(input) {
@@ -143,13 +121,9 @@ export function unregisterAttachments(input) {
         return;
     }
 
-    input.removeEventListener("change", registration.change);
     registration.dropTarget?.removeEventListener("dragover", registration.dragOver);
     registration.dropTarget?.removeEventListener("drop", registration.drop);
     attachmentRegistrations.delete(input);
-    delete input.__quarkPromptInputAttachmentsRegistered;
-    delete input.__quarkPromptInputGlobalDrop;
-    delete input.__quarkPromptInputHandleDrop;
 }
 
 function hasFiles(event) {
@@ -161,17 +135,4 @@ function hasFiles(event) {
     if (!types) return false;
     for (let index = 0; index < types.length; index++) if (types[index] === "Files") return true;
     return false;
-}
-
-function acceptsFile(accept, file) {
-    if (!accept?.trim()) return true;
-    const name = file.name.toLowerCase();
-    const type = (file.type || "").toLowerCase();
-    return accept.split(",").some(value => {
-        const rule = value.trim().toLowerCase();
-        if (!rule) return false;
-        if (rule.startsWith(".")) return name.endsWith(rule);
-        if (rule.endsWith("/*")) return type.startsWith(rule.slice(0, -1));
-        return type === rule;
-    });
 }

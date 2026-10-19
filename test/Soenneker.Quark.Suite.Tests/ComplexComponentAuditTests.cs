@@ -252,6 +252,69 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
+    public async Task Audit_prompt_picker_and_drop_share_accept_and_selection_policy()
+    {
+        IReadOnlyList<PromptInputAttachmentInfo>? attachments = null;
+        var cut = Render<PromptInput>(p => p.Add(c => c.Multiple, true)
+            .Add(c => c.Accept, " , IMAGE/*, .PDF, ")
+            .Add(c => c.AttachmentsChanged, value => attachments = value)
+            .Add(c => c.ChildContent, (RenderFragment)(builder =>
+            {
+                builder.OpenComponent<PromptInputActionAddAttachments>(0);
+                builder.AddAttribute(1, "Multiple", false);
+                builder.CloseComponent();
+            })));
+        var action = cut.FindComponent<PromptInputActionAddAttachments>();
+        action.FindComponent<InputFile>().UploadFiles(
+            InputFileContent.CreateFromText("bad", "bad.txt", contentType: "text/plain"),
+            InputFileContent.CreateFromText("pdf", "paper.PDF", contentType: ""),
+            InputFileContent.CreateFromText("image", "photo.png", contentType: "image/png"));
+        attachments.Should().ContainSingle().Which.Name.Should().Be("paper.PDF");
+        await cut.InvokeAsync(() => action.Instance.AddAttachmentsFromJson(System.Text.Json.JsonDocument.Parse(
+            """[{"name":"bad.txt","size":3,"type":"text/plain"},{"name":"photo.png","size":5,"type":"image/png"},{"name":"last.pdf","size":2}]""").RootElement));
+        attachments.Should().HaveCount(2);
+        attachments![1].Name.Should().Be("photo.png");
+        attachments[1].Id.Should().NotBeNullOrEmpty();
+        await cut.InvokeAsync(() => action.Instance.AddAttachments([new() { Name = "photo.png", Size = 5, Type = "image/png" }]));
+        attachments.Should().HaveCount(2);
+        var instance = action.Instance;
+        await cut.InvokeAsync(async () => await instance.DisposeAsync());
+        await cut.InvokeAsync(() => instance.AddAttachments([new() { Name = "disposed.pdf" }]));
+        attachments.Should().HaveCount(2);
+    }
+
+    [Test]
+    public async Task Audit_prompt_drop_preserves_metadata_and_skips_rejected_batches()
+    {
+        var notifications = 0;
+        IReadOnlyList<PromptInputAttachmentInfo>? attachments = null;
+        var cut = Render<PromptInput>(p => p.Add(c => c.Multiple, true).Add(c => c.Accept, ".pdf")
+            .Add(c => c.AttachmentsChanged, value => { notifications++; attachments = value; })
+            .Add(c => c.ChildContent, (RenderFragment)(builder =>
+            {
+                builder.OpenComponent<PromptInputActionAddAttachments>(0);
+                builder.CloseComponent();
+            })));
+        var action = cut.FindComponent<PromptInputActionAddAttachments>();
+        using var rejected = System.Text.Json.JsonDocument.Parse("""[{"name":"bad.txt","size":1}]""");
+        await cut.InvokeAsync(() => action.Instance.AddAttachmentsFromJson(rejected.RootElement));
+        notifications.Should().Be(0);
+        using var accepted = System.Text.Json.JsonDocument.Parse(
+            """[{"name":"one.pdf","size":123,"type":"application/pdf","lastModified":42,"id":"provided"},{"name":"two.pdf","size":2},{"name":"bad.txt"}]""");
+        await cut.InvokeAsync(() => action.Instance.AddAttachmentsFromJson(accepted.RootElement));
+        notifications.Should().Be(1);
+        attachments.Should().HaveCount(2);
+        attachments![0].Id.Should().Be("provided");
+        attachments[0].Size.Should().Be(123);
+        attachments[0].LastModified.Should().Be(42);
+        attachments[1].Id.Should().NotBeNullOrEmpty().And.NotBe("provided");
+        attachments[1].Type.Should().BeNull();
+        action.Render(p => p.Add(c => c.Disabled, true));
+        await cut.InvokeAsync(() => action.Instance.AddAttachmentsFromJson(default));
+        notifications.Should().Be(1);
+    }
+
+    [Test]
     public void Audit_console_keeps_custom_actions_when_builtin_actions_are_hidden()
     {
         Services.AddQuarkConsolePanelAsScoped();

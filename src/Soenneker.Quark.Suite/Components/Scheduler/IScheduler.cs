@@ -7,6 +7,9 @@ namespace Soenneker.Quark;
 /// <summary>A timezone-aware appointment scheduler with month, agenda, day and resource-lane week views.</summary>
 public interface IScheduler : IElement
 {
+    /// <summary>Maximum resource lanes displayed per page. Defaults to eight.</summary>
+    int MaximumVisibleResources { get; set; }
+
     /// <summary>Events in the loaded range, identified by unique stable IDs.</summary>
     IReadOnlyList<SchedulerEvent> Events { get; set; }
     /// <summary>Receives a replacement list after a successful create, edit, move, resize or delete.</summary>

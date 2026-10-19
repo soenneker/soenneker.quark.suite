@@ -19,6 +19,13 @@ namespace Soenneker.Quark;
 /// </remarks>
 public sealed class ChartOptions
 {
+    /// <summary>Maximum Cartesian samples displayed at once. Larger datasets expose window navigation. Minimum two; defaults to 2000.</summary>
+    public int MaximumVisiblePoints { get; init; } = 2000;
+    /// <summary>Maximum pie or donut slices. Excess values are summed into an Other slice; all original values remain in the accessible table.</summary>
+    public int MaximumVisibleSlices { get; init; } = 64;
+    /// <summary>Maximum rows in each accessible data-table page. Defaults to 100.</summary>
+    public int AccessiblePageSize { get; init; } = 100;
+
     /// <summary>Gets whether timestamped line and area charts scroll retained samples horizontally when their X domain advances. Defaults to false.</summary>
     /// <remarks>
     /// Supply XValues and advance Chart.DataVersion when mutating data. Keep the visible X span and Y bounds stable for scrolling;

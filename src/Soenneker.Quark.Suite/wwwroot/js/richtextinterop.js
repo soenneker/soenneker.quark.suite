@@ -29,7 +29,7 @@ export function sanitize(html) {
 }
 export function mount(element, callback) {
     unmount(element);
-    const state = { callback, range: null, alive: true, last: "", pending: null, sending: false, composing: false, format: "" };
+    const state = { callback, range: null, alive: true, last: "", dirty: false, sending: false, composing: false, format: "" };
     const format = () => {
         if (state.composing || !state.alive) return;
         const node = state.range?.startContainer;
@@ -48,12 +48,15 @@ export function mount(element, callback) {
     };
     const emit = async () => {
         if (state.composing) return;
-        state.pending = sanitize(element.innerHTML);
+        state.dirty = true;
         if (state.sending) return;
         state.sending = true;
         try {
-            while (state.pending !== null && state.alive) {
-                const html = state.pending; state.pending = null; state.last = html;
+            while (state.dirty && state.alive && !state.composing) {
+                state.dirty = false;
+                const html = sanitize(element.innerHTML);
+                if (html === state.last) continue;
+                state.last = html;
                 await callback.invokeMethodAsync("OnContentChanged", html);
             }
         } catch { /* A disposed circuit cannot receive editor updates. */ }

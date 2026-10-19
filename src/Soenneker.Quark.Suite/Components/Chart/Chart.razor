@@ -75,7 +75,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
                         }
                         @if (IsRadial && Series.Count > 0 && Series[0].SliceGradients is not null)
                         {
-                            @for (var sliceIndex = 0; sliceIndex < PointCount; sliceIndex++)
+                            @for (var sliceIndex = 0; sliceIndex <= VisibleEnd; sliceIndex++)
                             {
                                 var sliceGradient = SliceGradient(sliceIndex);
                                 if (sliceGradient is not null)
@@ -112,6 +112,12 @@ data requires proportional horizontal spacing instead of categorical spacing.
                             }
 
                             angle += sweep;
+                        }
+
+                        @if (HasOtherSlice && angle < 270 && total > 0)
+                        {
+                            var otherPath = ArcPath(cx, cy, radius, angle, 270 - angle, Type == ChartType.Donut ? radius * (1 - Math.Clamp(Options.DonutThickness, 0.08, 0.92)) : 0);
+                            <path d="@otherPath" fill="currentColor" fill-opacity="0.35" data-slot="chart-other-slice" role="img" aria-label="@($"Other: {PointCount - VisibleEnd - 1} values; inspect the data table for individual values")"><title>Other</title></path>
                         }
 
                         @if (Type == ChartType.Donut && DonutContent is not null)
@@ -330,6 +336,26 @@ data requires proportional horizontal spacing instead of categorical spacing.
             }
         </div>
 
+        @if (HasOtherSlice)
+        {
+            <p>Other combines @(PointCount - VisibleEnd - 1) values. Individual values are available in the data table.</p>
+        }
+        @if (HasWindows)
+        {
+            <nav aria-label="Chart range">
+                <button type="button" disabled="@(VisibleStart == 0)" @onclick="() => MoveWindow(-1)">Previous range</button>
+                <span>Points @(VisibleStart + 1)–@(VisibleEnd + 1) of @PointCount</span>
+                <button type="button" disabled="@(VisibleEnd >= PointCount - 1)" @onclick="() => MoveWindow(1)">Next range</button>
+            </nav>
+        }
+        @if (PointCount > DataPageSize)
+        {
+            <nav class="sr-only focus-within:not-sr-only" aria-label="Chart data pages">
+                <button type="button" disabled="@(DataPageStart == 0)" @onclick="() => MoveDataPage(-1)">Previous data rows</button>
+                <span>Rows @(DataPageStart + 1)–@Math.Min(PointCount, DataPageStart + DataPageSize) of @PointCount</span>
+                <button type="button" disabled="@(DataPageStart + DataPageSize >= PointCount)" @onclick="() => MoveDataPage(1)">Next data rows</button>
+            </nav>
+        }
         <ChartRenderBoundary Version="_geometryVersion">
             <table class="quark-chart-sr-only sr-only">
                 <caption>@(AriaLabel ?? "Chart data")</caption>
@@ -344,7 +370,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
                     </tr>
                 </thead>
                 <tbody>
-                    @for (var index = VisibleStart; index <= VisibleEnd; index++)
+                    @for (var index = DataPageStart; index < Math.Min(PointCount, DataPageStart + DataPageSize); index++)
                     {
                         <tr @key="(_useContinuousX ? XValues![index] : index)">
                             <th>@LabelAt(index)</th>
@@ -402,8 +428,27 @@ data requires proportional horizontal spacing instead of categorical spacing.
     private bool ClipPlot => Options.ClipPlot || RealtimeScrollingEnabled || IsZoomed;
     private int? _zoomStartIndex;
     private int? _zoomEndIndex;
-    private int VisibleStart => IsRadial ? 0 : _zoomStartIndex ?? 0;
-    private int VisibleEnd => IsRadial ? PointCount - 1 : _zoomEndIndex ?? PointCount - 1;
+    private int? _windowStart;
+    private int _accessiblePage;
+    private int WindowSize => Math.Max(2, Options.MaximumVisiblePoints);
+    private int DataPageSize => Math.Clamp(Options.AccessiblePageSize, 1, 1000);
+    private int DataPageStart => Math.Min(_accessiblePage, Math.Max(0, (PointCount - 1) / DataPageSize)) * DataPageSize;
+    private bool HasWindows => !IsRadial && PointCount > WindowSize;
+    private int VisibleStart => IsRadial ? 0 : _zoomStartIndex ?? (HasWindows ? Math.Clamp(_windowStart ?? Math.Max(0, PointCount - WindowSize), 0, Math.Max(0, PointCount - WindowSize)) : 0);
+    private int SliceLimit => Math.Max(2, Options.MaximumVisibleSlices);
+    private bool HasOtherSlice => IsRadial && PointCount > SliceLimit;
+    private int VisibleEnd => IsRadial ? (HasOtherSlice ? SliceLimit - 2 : PointCount - 1) : Math.Min(_zoomEndIndex ?? PointCount - 1, VisibleStart + WindowSize - 1);
+    private void MoveWindow(int direction)
+    {
+        _windowStart = Math.Clamp(VisibleStart + direction * WindowSize, 0, Math.Max(0, PointCount - WindowSize));
+        _zoomStartIndex = _zoomEndIndex = null;
+        ClearHover(); ClearRangeSelection(); Recalculate(); Refresh();
+    }
+    private void MoveDataPage(int direction)
+    {
+        _accessiblePage = Math.Clamp(_accessiblePage + direction, 0, Math.Max(0, (PointCount - 1) / DataPageSize));
+        IncrementGeometryVersion(); Refresh();
+    }
     private int VisibleCount => Math.Max(0, VisibleEnd - VisibleStart + 1);
 
     /// <summary>Gets whether a selected range is currently expanded to fill the chart.</summary>
@@ -967,7 +1012,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
             }
         }
 
-        var legendCount = IsRadial ? _pointCount : Series.Count;
+        var legendCount = IsRadial ? Math.Min(_pointCount, HasOtherSlice ? SliceLimit - 1 : SliceLimit) : Series.Count;
         if (_legendNames.Length != legendCount)
             Array.Resize(ref _legendNames, legendCount);
         for (var index = 0; index < _legendNames.Length; index++)
@@ -1132,7 +1177,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
     {
         if (!_useContinuousX)
         {
-            if (IsZoomed && !_hasBarSeries)
+            if ((IsZoomed || HasWindows) && !_hasBarSeries)
                 return PlotLeft + (index - VisibleStart) * PlotWidth / Math.Max(1, VisibleCount - 1);
             return PlotLeft + (index - VisibleStart + 0.5) * PlotWidth / Math.Max(1, VisibleCount);
         }
@@ -1224,7 +1269,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
     private (string? Id, string? Fill) GradientReference(int index, bool slice)
     {
         ref var references = ref (slice ? ref _sliceGradientReferences : ref _seriesGradientReferences);
-        int count = slice ? PointCount : Series.Count;
+        int count = slice ? VisibleEnd + 1 : Series.Count;
         if (references.Length != count)
             Array.Resize(ref references, count);
         ref var reference = ref references[index];
@@ -1428,11 +1473,11 @@ data requires proportional horizontal spacing instead of categorical spacing.
                     }
                 }
             }
-            var snapshot = new ScrollSample[predecessorCount + PointCount];
+            var snapshot = new ScrollSample[predecessorCount + VisibleCount];
             if (predecessorCount == 2) snapshot[0] = firstPredecessor;
             if (predecessorCount > 0) snapshot[predecessorCount - 1] = lastPredecessor;
-            for (var index = 0; index < PointCount; index++)
-                snapshot[predecessorCount + index] = new ScrollSample(XValues![index], ValueAt(Series[seriesIndex], index));
+            for (var index = VisibleStart; index <= VisibleEnd; index++)
+                snapshot[predecessorCount + index - VisibleStart] = new ScrollSample(XValues![index], ValueAt(Series[seriesIndex], index));
             samples[seriesIndex] = snapshot;
         }
         var names = sameNames ? previous!.Names : new string[Series.Count];
@@ -1810,13 +1855,13 @@ data requires proportional horizontal spacing instead of categorical spacing.
 
     private int FindSlice(int start, int direction)
     {
-        for (var index = start + direction; index >= 0 && index < PointCount; index += direction)
+        for (var index = Math.Clamp(start + direction, 0, Math.Max(0, VisibleEnd)); index >= 0 && index <= VisibleEnd; index += direction)
         {
             if (RadialValue(index) > 0)
                 return index;
         }
 
-        return Math.Clamp(start, 0, Math.Max(0, PointCount - 1));
+        return Math.Clamp(start, 0, Math.Max(0, VisibleEnd));
     }
 
     private void HoverAdjacentSeries(int point, int series, int direction)

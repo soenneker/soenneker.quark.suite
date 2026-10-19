@@ -1,0 +1,22 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
+const source = readFileSync(new URL('../../src/Soenneker.Quark.Suite/wwwroot/js/virtualviewport.js', import.meta.url), 'utf8').replaceAll('export function ', 'function ');
+const context = {};
+runInNewContext(source + '\nthis.heightIndex = { rebuildHeights, prefix, indexAt, measure };', context);
+const { rebuildHeights, prefix, indexAt, measure } = context.heightIndex;
+test('large height index preserves offsets across measurements and prepends', () => {
+    const state = { keys: Array.from({length: 100000}, (_, i) => String(i)), heights: new Map(), estimate: 24 };
+    rebuildHeights(state);
+    assert.equal(prefix(state, 100000), 2400000);
+    measure(state, '50000', 80);
+    assert.equal(prefix(state, 50001), 50001 * 24 + 56);
+    assert.equal(indexAt(state, 50000 * 24 + 79), 50000);
+    assert.equal(indexAt(state, 50000 * 24 + 80), 50001);
+    state.keys.unshift('new'); rebuildHeights(state);
+    assert.equal(state.indexes.get('50000'), 50001);
+    assert.equal(prefix(state, 100001), 100001 * 24 + 56);
+    measure(state, '50000', 24);
+    assert.equal(prefix(state, 100001), 100001 * 24);
+});

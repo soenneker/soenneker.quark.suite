@@ -58,9 +58,11 @@ public sealed partial class RenderedShadcnParityTests
         string formatted = cut.Find(".console-message").TextContent;
         formatted.Should().Be("[Debug] Request: { \u2026 } LeadId: \"abc\"");
         cut.Find("details").HasAttribute("open").Should().BeFalse();
+        cut.FindAll(".json-children").Should().BeEmpty();
+        cut.Find("summary").Click();
         cut.Find(".console-json-payload").TextContent.Should().Contain("\"items\": [");
         cut.FindAll(".json-node").Should().HaveCount(2);
-        cut.Find(".json-children .json-node").HasAttribute("open").Should().BeTrue();
+        cut.Find(".json-children .json-node").HasAttribute("open").Should().BeFalse();
         cut.FindAll("unsafe").Should().BeEmpty();
         cut.Render(p => p.Add(c => c.FormatJson, false));
         cut.Find(".console-message").TextContent.Should().Be(text);
@@ -73,6 +75,9 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<ConsoleLogEntry>(p => p.Add(c => c.Text, text).Add(c => c.FormatJson, true));
         cut.Find(".console-message").TextContent.Should().Be("[Information] {invalid} { \u2026 } then [ \u2026 ]");
         cut.FindAll(".console-json-payload").Should().HaveCount(2);
+        cut.FindAll(".console-json-payload")[0].QuerySelector("summary")!.Click();
+        cut.FindAll(".console-json-payload")[0].QuerySelector(".json-children summary")!.Click();
+        cut.FindAll(".console-json-payload")[1].QuerySelector("summary")!.Click();
         cut.FindAll(".console-json-payload")[0].TextContent.Should().Contain("a } [ b");
         cut.FindAll(".console-json-payload")[1].QuerySelectorAll(".json-leaf").Should().HaveCount(2);
         const string malformed = """Request: "{\"broken\":}" [Debug] done""";

@@ -9,6 +9,8 @@ public sealed class DataTableData<TItem> : DataTableData
 {
     /// <summary>Local records. Replace this collection after edits or external updates.</summary>
     public IReadOnlyList<TItem> Items { get; set; } = [];
+    /// <summary>Optional revision for Items and Columns. Increment after in-place changes to enable cached preparation. Null observes mutations on every delivery.</summary>
+    public long? DataVersion { get; set; }
     /// <summary>Column definitions with unique keys.</summary>
     public required IReadOnlyList<DataTableColumn<TItem>> Columns { get; init; }
     /// <summary>Stable unique identity of a record.</summary>
@@ -44,6 +46,7 @@ public sealed class DataTableData<TItem> : DataTableData
         builder.AddAttribute(16, "SearchDebounceMilliseconds", owner.SearchDebounceMilliseconds);
         builder.AddAttribute(17, "RootAttributes", owner.DataAttributes());
         builder.AddAttribute(18, "Owner", owner);
+        builder.AddAttribute(19, "DataVersion", DataVersion);
         builder.CloseComponent();
     };
 }

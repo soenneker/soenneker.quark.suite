@@ -33,6 +33,8 @@ public interface IFileDropZone : IElement
     bool AllowReorder { get; set; }
     /// <summary>Moves a file before another stable file key, or to the end when beforeId is null. Does not restart uploads.</summary>
     Task MoveFile(string fileId, string? beforeId);
+    /// <summary>Moves a file using ArrowUp, ArrowDown, Home, or End against the current file order.</summary>
+    Task MoveFileByKey(string fileId, string key);
     /// <summary>Sets the insertion point for the next browser drop. Called by the drop zone interop.</summary>
     Task SetDropTarget(string? beforeId);
     /// <summary>The drop target's prompt, followed by the underlined Browse action.</summary>

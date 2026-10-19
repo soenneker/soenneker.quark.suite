@@ -94,3 +94,139 @@ test('FileDropZone decorates shared drops with insertion position and cleans up 
     await handlers.get('drop')(event);
     assert.deepEqual(order, ['change']);
 });
+
+
+test('keyboard reorder delegates intent, gates pending calls, restores focus and removes listeners', async t => {
+    const originals = { document: globalThis.document, window: globalThis.window };
+    const calls = [], focus = [];
+    let complete;
+    const row = { dataset: { fileId: 'b' }, querySelector: () => handle };
+    const handle = { closest: selector => selector === '[data-file-drag-handle]' ? handle : row,
+        focus: () => focus.push('b') };
+    const root = Object.assign(new EventTarget(), {
+        dataset: { canReorder: 'true' }, contains: target => target === handle,
+        querySelector: () => ({ hidden: true }), querySelectorAll: () => [row]
+    });
+    const handlers = new Map();
+    globalThis.document = { addEventListener(name, handler, options) {
+        handlers.set(name, handler);
+        options.signal.addEventListener('abort', () => handlers.delete(name));
+    } };
+    globalThis.window = new EventTarget();
+    t.after(() => { dispose('keyboard'); Object.assign(globalThis, originals); });
+    initialize('keyboard', root, { invokeMethodAsync(...args) {
+        calls.push(args); return new Promise(resolve => complete = resolve);
+    } });
+    let prevented = 0;
+    const key = (value, extra = {}) => handlers.get('keydown')({ key: value, target: handle,
+        preventDefault() { prevented++; }, ...extra });
+    key('ArrowDown', { isComposing: true });
+    key('ArrowDown', { ctrlKey: true });
+    key('Tab');
+    assert.equal(calls.length, 0);
+    key('ArrowDown');
+    assert.deepEqual(calls, [['MoveFileByKey', 'b', 'ArrowDown']]);
+    assert.equal(prevented, 1);
+    key('Home');
+    assert.equal(calls.length, 1);
+    complete();
+    await Promise.resolve();
+    assert.deepEqual(focus, ['b']);
+    root.dataset.canReorder = 'false';
+    key('End');
+    assert.equal(calls.length, 1);
+    root.dataset.canReorder = 'true';
+    key('Home');
+    dispose('keyboard');
+    complete();
+    await Promise.resolve();
+    assert.deepEqual(focus, ['b']);
+    assert.equal(handlers.size, 0);
+});
+
+
+test('drag frames sleep when stationary, coalesce invalidations, autoscroll and cancel cleanly', t => {
+    const names = ['document', 'window', 'innerWidth', 'innerHeight', 'ResizeObserver', 'MutationObserver', 'requestAnimationFrame', 'cancelAnimationFrame'];
+    const originals = Object.fromEntries(names.map(name => [name, globalThis[name]]));
+    const frames = new Map(), observers = [], handlers = new Map();
+    let nextFrame = 0, measurements = 0, writes = 0;
+    const style = () => new Proxy({}, { set(target, key, value) { writes++; target[key] = value; return true; } });
+    const placeholder = { hidden: true, style: style() };
+    const ghost = { hidden: true, style: style(), offsetWidth: 100, offsetHeight: 40 };
+    const handle = { closest: selector => selector === '[data-file-drag-handle]' ? handle : row,
+        focus() {}, setPointerCapture() {}, hasPointerCapture: () => false,
+        setAttribute() {}, removeAttribute() {}, getAttribute: () => 'Reorder file' };
+    const row = { dataset: { fileId: 'a' }, style: style(), isConnected: true,
+        getBoundingClientRect() { measurements++; return { top: 100, bottom: 160, height: 60, width: 200 }; } };
+    const other = { dataset: { fileId: 'b' }, getBoundingClientRect() {
+        measurements++; return { top: 160, bottom: 220, height: 60, width: 200 };
+    } };
+    const surface = prefix => ({ addEventListener(name, fn, options) {
+        handlers.set(prefix + name, fn);
+        options.signal.addEventListener('abort', () => handlers.delete(prefix + name));
+    } });
+    const root = Object.assign(surface('root:'), {
+        isConnected: true, dataset: { canReorder: 'true' }, clientTop: 0, scrollTop: 0,
+        contains: target => target === handle,
+        querySelector: selector => selector.includes('placeholder') ? placeholder : ghost,
+        querySelectorAll: () => [row, other],
+        getBoundingClientRect() { measurements++; return { top: 90, bottom: 240, left: 0, right: 300 }; }
+    });
+    globalThis.document = Object.assign(surface('doc:'), { documentElement: {} });
+    globalThis.window = Object.assign(surface('win:'), { scrollY: 50, scrollBy(x, y) { this.scrollY = Math.max(0, this.scrollY + y); } });
+    globalThis.innerWidth = 800; globalThis.innerHeight = 600;
+    globalThis.ResizeObserver = globalThis.MutationObserver = class {
+        constructor(callback) { this.callback = callback; this.disconnected = false; observers.push(this); }
+        observe() {} disconnect() { this.disconnected = true; }
+    };
+    globalThis.requestAnimationFrame = callback => { frames.set(++nextFrame, callback); return nextFrame; };
+    globalThis.cancelAnimationFrame = id => frames.delete(id);
+    const flush = () => { const pending = [...frames.values()]; frames.clear(); pending.forEach(callback => callback()); };
+    const pointer = (name, x, y, id = 1) => handlers.get(name)({ target: handle, button: 0, pointerId: id,
+        clientX: x, clientY: y, preventDefault() {} });
+    t.after(() => { dispose('frames'); Object.assign(globalThis, originals); });
+    initialize('frames', root, { invokeMethodAsync: () => Promise.resolve() });
+    assert.equal(observers.length, 0);
+    pointer('root:pointerdown', 100, 130);
+    pointer('doc:pointermove', 110, 140);
+    pointer('doc:pointermove', 120, 150);
+    assert.equal(frames.size, 1);
+    flush();
+    assert.equal(frames.size, 0);
+    const idleMeasurements = measurements, idleWrites = writes;
+    pointer('doc:pointermove', 120, 150);
+    assert.equal(frames.size, 0);
+    assert.equal(measurements, idleMeasurements);
+    handlers.get('win:scroll')(); observers[0].callback();
+    assert.equal(frames.size, 1);
+    flush();
+    assert.ok(measurements > idleMeasurements);
+    assert.equal(writes, idleWrites);
+    observers[1].callback([{ target: placeholder }, { target: ghost }]);
+    assert.equal(frames.size, 0);
+    observers[1].callback([{ target: other }]);
+    assert.equal(frames.size, 1);
+    flush();
+    pointer('doc:pointermove', 120, 10);
+    flush();
+    assert.equal(window.scrollY, 38);
+    assert.equal(frames.size, 1);
+    while (frames.size) flush();
+    assert.equal(window.scrollY, 0);
+    pointer('doc:pointermove', 130, 150);
+    pointer('doc:pointercancel', 130, 150, 2);
+    assert.equal(frames.size, 1);
+    pointer('doc:pointercancel', 130, 150);
+    assert.equal(frames.size, 0);
+    assert.ok(observers.every(observer => observer.disconnected));
+    assert.equal(ghost.hidden, true);
+    assert.equal(placeholder.hidden, true);
+    pointer('root:pointerdown', 100, 130);
+    pointer('doc:pointermove', 110, 140);
+    root.isConnected = false;
+    observers.at(-1).callback([{ target: document.documentElement }]);
+    assert.equal(frames.size, 0);
+    assert.ok(observers.every(observer => observer.disconnected));
+    dispose('frames');
+    assert.equal(handlers.size, 0);
+});

@@ -305,9 +305,9 @@
     }
 
     [JSInvokable]
-    public async Task MoveFile(string fileId, string? beforeId)
+    public Task MoveFile(string fileId, string? beforeId)
     {
-        if (_disposed.Value || Disabled || ReadOnly || !AllowReorder || fileId == beforeId) return;
+        if (_disposed.Value || Disabled || ReadOnly || !AllowReorder || fileId == beforeId) return Task.CompletedTask;
         var sourceIndex = -1;
         var targetIndex = beforeId is null ? Files.Count : -1;
         for (var i = 0; i < Files.Count; i++)
@@ -315,16 +315,43 @@
             if (Files[i].Id == fileId) sourceIndex = i;
             if (Files[i].Id == beforeId) targetIndex = i;
         }
-        if (sourceIndex < 0 || targetIndex < 0) return;
-        var index = targetIndex > sourceIndex ? targetIndex - 1 : targetIndex;
-        if (index == sourceIndex) return;
+        if (sourceIndex < 0 || targetIndex < 0) return Task.CompletedTask;
+        return MoveFileToIndex(sourceIndex, targetIndex > sourceIndex ? targetIndex - 1 : targetIndex);
+    }
+
+    private Task MoveFileToIndex(int sourceIndex, int index)
+    {
+        if (index == sourceIndex) return Task.CompletedTask;
         var file = Files[sourceIndex];
-        var reordered = new List<FileDropZoneFile>(Files.Count);
+        var reordered = new FileDropZoneFile[Files.Count];
+        for (var i = 0; i < reordered.Length; i++)
+        {
+            if (i == index) reordered[i] = file;
+            else if (sourceIndex < index && i >= sourceIndex && i < index) reordered[i] = Files[i + 1];
+            else if (sourceIndex > index && i > index && i <= sourceIndex) reordered[i] = Files[i - 1];
+            else reordered[i] = Files[i];
+        }
+        _reorderAnnouncement = $"{file.Name} moved to position {index + 1} of {reordered.Length}.";
+        return SetFiles(reordered);
+    }
+
+    [JSInvokable]
+    public Task MoveFileByKey(string fileId, string key)
+    {
+        if (_disposed.Value || Disabled || ReadOnly || !AllowReorder) return Task.CompletedTask;
+        var index = -1;
         for (var i = 0; i < Files.Count; i++)
-            if (i != sourceIndex) reordered.Add(Files[i]);
-        reordered.Insert(index, file);
-        _reorderAnnouncement = $"{file.Name} moved to position {index + 1} of {reordered.Count}.";
-        await SetFiles(reordered);
+            if (Files[i].Id == fileId) { index = i; break; }
+        if (index < 0) return Task.CompletedTask;
+        var target = key switch
+        {
+            "ArrowUp" => Math.Max(0, index - 1),
+            "ArrowDown" => Math.Min(Files.Count - 1, index + 1),
+            "Home" => 0,
+            "End" => Files.Count - 1,
+            _ => index
+        };
+        return MoveFileToIndex(index, target);
     }
 
     [JSInvokable]
@@ -447,21 +474,7 @@
         }
     }
 
-    private bool Accepts(IBrowserFile file)
-    {
-        if (string.IsNullOrWhiteSpace(Accept)) return true;
-        ReadOnlySpan<char> accept = Accept.AsSpan();
-        foreach (var range in accept.Split(','))
-        {
-            ReadOnlySpan<char> type = accept[range].Trim();
-            if (type.IsEmpty) continue;
-            if (type[0] == '.' ? file.Name.AsSpan().EndsWith(type, StringComparison.OrdinalIgnoreCase) :
-                type.EndsWith("/*", StringComparison.Ordinal) ? file.ContentType.AsSpan().StartsWith(type[..^1], StringComparison.OrdinalIgnoreCase) :
-                file.ContentType.AsSpan().Equals(type, StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-        return false;
-    }
+    private bool Accepts(IBrowserFile file) => FileAcceptFilter.Matches(Accept, file.Name, file.ContentType);
 
     private async Task UploadFile(string id)
     {

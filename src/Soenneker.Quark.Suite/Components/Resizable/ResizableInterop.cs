@@ -21,14 +21,13 @@ public sealed class ResizableInterop : IResizableInterop
         _moduleImportUtil = moduleImportUtil;
     }
 
-public async ValueTask Initialize(CancellationToken cancellationToken = default)
+    public async ValueTask Initialize(CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
         using (source)
         {
-            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("initialize", linked);
+            await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
         }
     }
 

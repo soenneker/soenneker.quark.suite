@@ -75,7 +75,7 @@ public sealed partial class RenderedShadcnParityTests
         cut.FindAll("button")[0].GetAttribute("aria-pressed").Should().Be("true");
         await cut.FindAll("button")[1].ClickAsync();
         cut.FindAll("button")[1].GetAttribute("aria-pressed").Should().Be("true");
-        cut.FindAll("time")[0].ParentElement!.ParentElement!.ClassList.Should().Contain("basis-[12rem]");
+        cut.FindAll("time")[0].ParentElement!.ParentElement!.ClassList.Should().Contain("basis-[6.5rem]").And.Contain("md:basis-[12rem]");
     }
 
     [Test]

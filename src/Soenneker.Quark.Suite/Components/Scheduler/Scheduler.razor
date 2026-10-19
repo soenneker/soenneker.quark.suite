@@ -48,7 +48,8 @@
     else if (View == SchedulerView.Agenda)
     {
         <div class="divide-y rounded border">
-            @foreach (var appointment in Events.Where(e => e.End > StartInstant(Date) && e.Start < StartInstant(Date.AddDays(31))).OrderBy(e => e.Start))
+            @{ var agendaStart = StartInstant(Date); var agendaEnd = StartInstant(Date.AddDays(31)); }
+            @foreach (var appointment in Events.Where(e => e.End > agendaStart && e.Start < agendaEnd).OrderBy(e => e.Start))
             {
                 <button @key="appointment.Id" type="button" class="block w-full p-3 text-start" @onclick="() => Edit(appointment)">
                     <strong>@appointment.Title</strong> <span>@TimeZoneInfo.ConvertTime(appointment.Start, TimeZone).ToString("g", Text.Culture) – @TimeZoneInfo.ConvertTime(appointment.End, TimeZone).ToString("g", Text.Culture)</span>
@@ -59,13 +60,21 @@
     }
     else
     {
+        @if (Resources.Count + 1 > ResourcePageSize)
+        {
+            <nav aria-label="Scheduler resources">
+                <button type="button" disabled="@(_resourcePage == 0)" @onclick="() => _resourcePage--">Previous resources</button>
+                <span>Resources @(_resourcePage * ResourcePageSize + 1)–@Math.Min(Resources.Count + 1, (_resourcePage + 1) * ResourcePageSize) of @(Resources.Count + 1)</span>
+                <button type="button" disabled="@((_resourcePage + 1) * ResourcePageSize >= Resources.Count + 1)" @onclick="() => _resourcePage++">Next resources</button>
+            </nav>
+        }
         <div class="max-h-[40rem] overflow-auto rounded border">
             <div class="flex" style="min-width:max-content">
                 @foreach (var day in VisibleDays())
                 {
                     @foreach (var resource in Lanes())
                     {
-                        var appointments = SchedulerLayout.Arrange(DayEvents(day).Where(e => resource is null || e.ResourceId == resource.Id || (resource.Id == "" && !Resources.Any(r => r.Id == e.ResourceId))), day, TimeZone);
+                        var appointments = LaneEvents(day, resource);
                         <div class="relative border-e" style="width:240px;flex:1 0 240px">
                             <div class="sticky top-0 z-10 border-b bg-background p-2 font-medium">@day.ToString("ddd d", Text.Culture) @resource?.Label</div>
                             <div class="relative" style="height:960px" data-scheduler-lane="@day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" data-resource="@resource?.Id">
@@ -130,9 +139,46 @@
     private DateOnly WeekStart => SchedulerDates.WeekStart(Date, Text.Culture.DateTimeFormat.FirstDayOfWeek);
     private IEnumerable<DateOnly> VisibleDays() => View == SchedulerView.Day ? [Date] : Enumerable.Range(0, 7).Select(WeekStart.AddDays);
     private IEnumerable<DateOnly> MonthDays() { var first = SchedulerDates.WeekStart(new(Date.Year, Date.Month, 1), Text.Culture.DateTimeFormat.FirstDayOfWeek); return Enumerable.Range(0, 42).Select(first.AddDays); }
-    private IEnumerable<SchedulerResource?> Lanes() => Resources.Count == 0 ? new SchedulerResource?[] { null } : Resources.Cast<SchedulerResource?>().Append(new("", Text["NoResource"]));
+    [Parameter] public int MaximumVisibleResources { get; set; } = 8;
+    private int _resourcePage;
+    private int ResourcePageSize => Math.Max(1, MaximumVisibleResources);
+    private IReadOnlyList<SchedulerEvent>? _cachedEvents;
+    private readonly Dictionary<DateOnly, SchedulerEvent[]> _dayEvents = [];
+    private readonly HashSet<DateOnly> _preparedLaneDays = [];
+    private readonly Dictionary<(DateOnly, string), IReadOnlyList<SchedulerEventPlacement>> _laneEvents = [];
+    private HashSet<string> _resourceIds = [];
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        _dayEvents.Clear(); _laneEvents.Clear(); _preparedLaneDays.Clear();
+        _resourceIds = Resources.Select(r => r.Id).ToHashSet(StringComparer.Ordinal);
+        _resourcePage = Math.Clamp(_resourcePage, 0, Resources.Count / ResourcePageSize);
+    }
+    private IEnumerable<SchedulerResource?> Lanes() => Resources.Count == 0 ? new SchedulerResource?[] { null } :
+        Resources.Cast<SchedulerResource?>().Append(new("", Text["NoResource"])).Skip(_resourcePage * ResourcePageSize).Take(ResourcePageSize);
+    private IReadOnlyList<SchedulerEventPlacement> LaneEvents(DateOnly day, SchedulerResource? resource)
+    {
+        EnsureEventCache();
+        var key = (day, resource?.Id ?? "");
+        if (_laneEvents.TryGetValue(key, out var cached)) return cached;
+        if (!_preparedLaneDays.Add(day)) return _laneEvents[key] = [];
+        var groups = DayEvents(day).GroupBy(e => Resources.Count == 0 || e.ResourceId is null || !_resourceIds.Contains(e.ResourceId) ? "" : e.ResourceId);
+        foreach (var group in groups) _laneEvents[(day, group.Key)] = SchedulerLayout.Arrange(group, day, TimeZone);
+        return _laneEvents.TryGetValue(key, out cached) ? cached : _laneEvents[key] = [];
+    }
+    private void EnsureEventCache()
+    {
+        if (ReferenceEquals(_cachedEvents, Events)) return;
+        _cachedEvents = Events; _dayEvents.Clear(); _laneEvents.Clear(); _preparedLaneDays.Clear();
+    }
     private DateTimeOffset StartInstant(DateOnly day) => SchedulerDates.ToInstant(day.ToDateTime(TimeOnly.MinValue), TimeZone) ?? SchedulerDates.ToInstant(day.ToDateTime(new TimeOnly(1, 0)), TimeZone) ?? throw new InvalidOperationException("The selected date has no valid start in this timezone.");
-    private IEnumerable<SchedulerEvent> DayEvents(DateOnly day) => Events.Where(e => e.End > StartInstant(day) && e.Start < StartInstant(day.AddDays(1))).OrderBy(e => e.Start);
+    private IEnumerable<SchedulerEvent> DayEvents(DateOnly day)
+    {
+        EnsureEventCache();
+        if (_dayEvents.TryGetValue(day, out var cached)) return cached;
+        var start = StartInstant(day); var end = StartInstant(day.AddDays(1));
+        return _dayEvents[day] = Events.Where(e => e.End > start && e.Start < end).OrderBy(e => e.Start).ToArray();
+    }
     private string ResourceLabel(string? id) => Resources.FirstOrDefault(r => r.Id == id)?.Label ?? Text["NoResource"];
     private string TimeLabel(SchedulerEvent e) => TimeZoneInfo.ConvertTime(e.Start, TimeZone).ToString("t", Text.Culture);
     private static string SlotStyle(int minute) => FormattableString.Invariant($"top:{minute * 2d / 3}px;height:20px;");

@@ -31,8 +31,6 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         var module = JSInterop.SetupModule("./_content/Soenneker.Bradix.Suite/js/bradix.js");
         module.SetupVoid("mountPortal", _ => true).SetVoidResult();
         module.SetupVoid("unmountPortal", _ => true).SetVoidResult();
-        module.SetupVoid("registerAvatarImageLoadingStatus", _ => true).SetVoidResult();
-        module.SetupVoid("unregisterAvatarImageLoadingStatus", _ => true).SetVoidResult();
         module.SetupVoid("registerDelegatedInteraction", _ => true).SetVoidResult();
         module.SetupVoid("unregisterDelegatedInteraction", _ => true).SetVoidResult();
         module.SetupVoid("registerLabelTextSelectionGuard", _ => true).SetVoidResult();

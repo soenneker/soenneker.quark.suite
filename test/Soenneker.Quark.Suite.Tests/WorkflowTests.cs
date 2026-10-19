@@ -263,6 +263,7 @@ public sealed class WorkflowTests : BunitContext
     }
 
     [Test]
+    [NotInParallel] // This verifies a real 40 ms debounce window; concurrent renderer stress changes the input interval.
     public async Task DataTable_debounces_server_search_and_exposes_mixed_selection()
     {
         var queries = new List<string>();

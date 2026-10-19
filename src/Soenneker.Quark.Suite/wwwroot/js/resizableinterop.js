@@ -222,9 +222,6 @@ function disposeHandleRegistration(handleElement) {
   handleRegistrations.delete(handleElement);
 }
 
-export function initialize() {
-}
-
 export function startDrag(groupElement, pointerId, clientX, clientY, orientation, dotNetRef, handleIndex) {
   if (!groupElement) {
     return;

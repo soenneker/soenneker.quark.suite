@@ -36,13 +36,22 @@
     private string[] _keys = [];
     private VirtualItems? _virtualItems;
     private string? _lastSearch;
+    private SelectOption[] _optionSnapshot = [];
+    private string? _filterSearch;
+    private bool _filterOptions;
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
+        if (_filterSearch != ParentCombobox?.Search || _filterOptions != FilterOptions || !_optionSnapshot.SequenceEqual(Options ?? []))
+        {
+        _optionSnapshot = Options?.ToArray() ?? [];
+        _filterSearch = ParentCombobox?.Search;
+        _filterOptions = FilterOptions;
         _filtered = Options?.Where(option => !FilterOptions || string.IsNullOrWhiteSpace(ParentCombobox?.Search) ||
             OptionNavigation.Matches(option.Label, option.Value, ParentCombobox.Search)).ToList() ?? [];
         _keys = _filtered.Select(option => option.Value).ToArray();
+        }
         if (Virtualize && Options is not null) ParentCombobox?.SetVirtualOptions(this, _filtered);
         else ParentCombobox?.ClearVirtualOptions(this);
     }
