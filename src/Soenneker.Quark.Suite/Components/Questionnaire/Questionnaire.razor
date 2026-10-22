@@ -1,13 +1,31 @@
+@using System.Threading
+@implements IAutoSaveInput<IReadOnlyDictionary<string, IReadOnlyList<string>>>
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 
 <CascadingValue Value="@this" IsFixed="false">
     <form @onsubmit="(_cachedHandleSubmitDelegate ??= HandleSubmit)" @onsubmit:preventDefault @onreset="(_cachedHandleResetDelegate ??= HandleReset)" @onkeydown="(_cachedHandleKeyDownDelegate ??= HandleKeyDown)" @attributes="BuildAttributes()">
         @ChildContent
+        <AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
+                        Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                        SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
     </form>
 </CascadingValue>
 
 @code {
+    [Parameter] public bool AutoSave { get; set; }
+    [Parameter] public int AutoSaveDelay { get; set; } = 750;
+    [Parameter] public bool ShowAutoSaveStatus { get; set; } = true;
+    [Parameter] public Func<IReadOnlyDictionary<string, IReadOnlyList<string>>, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+    [Parameter] public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+    [Parameter] public string? AutoSaveStatusClass { get; set; }
+    [Parameter] public string? AutoSaveSavingClass { get; set; }
+    [Parameter] public string? AutoSaveSavedClass { get; set; }
+    [Parameter] public string? AutoSaveFailedClass { get; set; }
+    private AutoSaveController<IReadOnlyDictionary<string, IReadOnlyList<string>>> _autoSave;
+    private Func<Task>? _autoSaveRefresh;
+    private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);
+
     private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
     private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;
@@ -225,24 +243,40 @@
         if (!OnSubmit.HasDelegate)
             return;
 
+        await _autoSave.Flush(CreateAnswerSnapshot(), AutoSave, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+        await OnSubmit.InvokeAsync(new QuestionnaireSubmitEventArgs(CreateAnswerSnapshot()));
+    }
+
+    private IReadOnlyDictionary<string, IReadOnlyList<string>> CreateAnswerSnapshot()
+    {
         var answers = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
         foreach (var item in _items)
         {
             if (item.Disabled || item.Status == QuestionnaireItemStatus.Skipped)
                 continue;
-
             var values = item.GetAnswers();
             if (values.Count > 0)
                 answers[item.Name] = values;
         }
+        return answers;
+    }
 
-        await OnSubmit.InvokeAsync(new QuestionnaireSubmitEventArgs(answers));
+    internal Task NotifyAnswersChanged() => _autoSave.NotifyValueChanged(
+        AutoSave && OnAutoSave is not null ? CreateAnswerSnapshot() : null!,
+        AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+
+    public override async ValueTask DisposeAsync()
+    {
+        await _autoSave.DisposeAsync();
+        await base.DisposeAsync();
     }
 
     private async Task HandleReset()
     {
         foreach (var item in _items.ToArray())
             await item.Reset();
+
+        await NotifyAnswersChanged();
 
         var first = FindEnabled(DefaultItem) ?? GetEnabledItemAt(0);
         if (first is not null)
@@ -310,6 +344,15 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AutoSave);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(OnAutoSave);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
+        hc.Add(_autoSave.State);
+        hc.Add(_autoSave.HasSaved);
         hc.Add(DefaultItem);
         hc.Add(Item);
         hc.Add(_currentItem);

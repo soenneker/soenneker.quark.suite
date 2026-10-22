@@ -1,3 +1,5 @@
+@using System.Threading
+@implements IAutoSaveInput<string[]>
 @using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @inject IInputInterop InputInterop
@@ -56,9 +58,29 @@
             }
         </div>
     }
+    <AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
+                    Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                    SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
 </div>
 
 @code {
+    [Parameter] public bool AutoSave { get; set; }
+    [Parameter] public int AutoSaveDelay { get; set; } = 750;
+    [Parameter] public bool ShowAutoSaveStatus { get; set; } = true;
+    [Parameter] public Func<string[], CancellationToken, ValueTask>? OnAutoSave { get; set; }
+    [Parameter] public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+    [Parameter] public string? AutoSaveStatusClass { get; set; }
+    [Parameter] public string? AutoSaveSavingClass { get; set; }
+    [Parameter] public string? AutoSaveSavedClass { get; set; }
+    [Parameter] public string? AutoSaveFailedClass { get; set; }
+    private AutoSaveController<string[]> _autoSave;
+    private Func<Task>? _autoSaveRefresh;
+    private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);
+
+    private Task NotifyAutoSave() => _autoSave.NotifyValueChanged(
+        AutoSave && OnAutoSave is not null ? (string[])Values.Clone() : Values,
+        AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+
     private Func<ChangeEventArgs, Task>? _inputHandleInputCallback;
     private Func<KeyboardEventArgs, Task>? _inputHandleKeyDownCallback;
     private Func<FocusEventArgs, Task>? _inputHandleFocusCallback;
@@ -524,6 +546,7 @@
         _inputValue = string.Empty;
         _activeAutocompleteIndex = -1;
         await ValuesChanged.InvokeAsync(Values);
+        await NotifyAutoSave();
         if (added is not null)
         {
             foreach (var tag in added)
@@ -655,6 +678,7 @@
 
         Values = nextValues;
         await ValuesChanged.InvokeAsync(Values);
+        await NotifyAutoSave();
         if (OnTagRemove.HasDelegate)
             await OnTagRemove.InvokeAsync(removed);
 
@@ -708,6 +732,7 @@
         Values = [];
         _inputValue = string.Empty;
         await ValuesChanged.InvokeAsync(Values);
+        await NotifyAutoSave();
         await SetActiveTagIndex(null);
         if (OnClearAll.HasDelegate)
             await OnClearAll.InvokeAsync();
@@ -803,6 +828,15 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AutoSave);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(OnAutoSave);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
+        hc.Add(_autoSave.State);
+        hc.Add(_autoSave.HasSaved);
         hc.Add(_inputValue);
         hc.Add(_activeTagIndexInternal);
         hc.Add(_activeAutocompleteIndex);
@@ -865,6 +899,7 @@
             return;
         try
         {
+            await _autoSave.DisposeAsync();
             if (_keysRegistered.Value)
                 await InputInterop.UnregisterComboboxKeys(_registeredInput);
         }

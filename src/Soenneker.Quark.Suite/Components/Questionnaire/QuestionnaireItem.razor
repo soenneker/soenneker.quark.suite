@@ -138,9 +138,11 @@
 
         await NotifyStatusChanged();
         ParentQuestionnaire?.RequestRefresh();
+        if (ParentQuestionnaire is not null)
+            await ParentQuestionnaire.NotifyAnswersChanged();
     }
 
-    internal async Task SetInputValue(string? value)
+    internal async Task SetInputValue(string? value, bool notifyAutoSave = false)
     {
         _skipped = false;
         _showError = false;
@@ -151,6 +153,8 @@
 
         await NotifyStatusChanged();
         ParentQuestionnaire?.RequestRefresh();
+        if (notifyAutoSave && ParentQuestionnaire is not null)
+            await ParentQuestionnaire.NotifyAnswersChanged();
     }
 
     internal async Task<bool> Validate()
@@ -172,6 +176,8 @@
         _showError = false;
         await NotifyStatusChanged();
         ParentQuestionnaire?.RequestRefresh();
+        if (ParentQuestionnaire is not null)
+            await ParentQuestionnaire.NotifyAnswersChanged();
     }
 
     internal async Task Reset()
