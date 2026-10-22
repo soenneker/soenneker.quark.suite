@@ -1,3 +1,5 @@
+@using System.Threading
+@implements IAutoSaveInput<bool>
 @using Soenneker.Atomics.ValueBools
 @using System.Linq.Expressions
 @using Soenneker.Blazor.Utils.Ids
@@ -8,6 +10,23 @@
 @implements Soenneker.Quark.IValidationInput
 @implements IRadio
 
+@if (AutoSave && ShowAutoSaveStatus && ParentRadioGroup is null)
+{
+    <Div Display="Soenneker.Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Soenneker.Quark.Gap.Is2" MinWidth="Soenneker.Quark.MinWidth.Is0">
+        @RenderAutoSaveControl()
+        <AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
+                Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+    </Div>
+}
+else
+{
+    @RenderAutoSaveControl()
+}
+
+
+@code {
+    private RenderFragment RenderAutoSaveControl() => @<text>
 @if (ParentRadioGroup is not null)
 {
     @if (HasInlineLabel)
@@ -86,8 +105,22 @@ else
         }
     </Div>
 }
+    </text>;
 
-@code {
+    [Parameter] public bool AutoSave { get; set; } = false;
+    [Parameter] public int AutoSaveDelay { get; set; } = 750;
+    [Parameter] public bool ShowAutoSaveStatus { get; set; } = true;
+    [Parameter] public Func<bool, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+    [Parameter] public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+    [Parameter] public string? AutoSaveStatusClass { get; set; }
+    [Parameter] public string? AutoSaveSavingClass { get; set; }
+    [Parameter] public string? AutoSaveSavedClass { get; set; }
+    [Parameter] public string? AutoSaveFailedClass { get; set; }
+    private AutoSaveController<bool> _autoSave;
+    private Func<Task>? _autoSaveRefresh;
+    private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);
+    private Task NotifyAutoSave(bool value) => _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+
     private (string? Size, string? Validation) _itemClassKey;
     private string? _itemClass;
 
@@ -336,6 +369,7 @@ else
         {
             Checked = true;
             await CheckedChanged.InvokeAsync(true);
+            await NotifyAutoSave(true);
             InvalidateRender();
         }
 
@@ -446,6 +480,18 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(OnAutoSave);
+        hc.Add(AutoSaveStateChanged);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
+        hc.Add(_autoSave.State);
+        hc.Add(_autoSave.HasSaved);
+
         hc.Add(Checked);
         hc.Add(Disabled);
         hc.Add(Name);
@@ -457,6 +503,8 @@ else
 
     public override async ValueTask DisposeAsync()
     {
+        await _autoSave.DisposeAsync();
+
         if (!_validationDisposed.TrySetTrue())
             return;
         if (_subscribedValidation is not null)

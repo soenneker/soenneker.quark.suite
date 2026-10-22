@@ -5,7 +5,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Defines the input group textarea contract.
 /// </summary>
-public interface IInputGroupTextarea : IElement
+public interface IInputGroupTextarea : IElement, IAutoSaveInput<string?>
 {
     /// <summary>
     /// Gets or sets value.

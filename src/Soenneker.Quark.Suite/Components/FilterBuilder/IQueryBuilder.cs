@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 namespace Soenneker.Quark;
 /// <summary>Edits nested typed predicates without executing application queries.</summary>
-public interface IQueryBuilder : IElement
+public interface IQueryBuilder : IElement, IAutoSaveInput<FilterGroup>
 {
     /// <summary>Allowed fields and choices. Keys must be unique.</summary>
     IReadOnlyList<FilterField> Fields { get; set; }

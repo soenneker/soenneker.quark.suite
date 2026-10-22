@@ -9,7 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Defines the searchable select component.
 /// </summary>
-public interface ISearchableSelect
+public interface ISearchableSelect : IMultipleAutoSaveInput<string?, IReadOnlyList<string>>
 {
     /// <summary>Optional remote provider. When supplied, replaces local Choices filtering. Continuation tokens must advance.</summary>
     Func<SelectSearchRequest, CancellationToken, ValueTask<SelectSearchResult>>? LoadOptions { get; set; }
@@ -21,9 +21,9 @@ public interface ISearchableSelect
     IReadOnlyList<string> Values { get; set; }
     /// <summary>Raised when multiple selection changes.</summary>
     EventCallback<IReadOnlyList<string>> ValuesChanged { get; set; }
-    /// <summary>Remote search debounce delay in milliseconds, clamped to 0–10000.</summary>
+    /// <summary>Remote search debounce delay in milliseconds, clamped to 0â€“10000.</summary>
     int DebounceMilliseconds { get; set; }
-    /// <summary>Requested remote page size, clamped to 1–1000.</summary>
+    /// <summary>Requested remote page size, clamped to 1â€“1000.</summary>
     int PageSize { get; set; }
 
     /// <summary>Renders only a measured window of matching options. Keyboard navigation still covers all choices.</summary>

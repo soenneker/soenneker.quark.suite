@@ -1,3 +1,5 @@
+@using System.Threading
+@implements ICalendarAutoSave
 @using Soenneker.Atomics.ValueBools
 @using System.Globalization
 @using Microsoft.JSInterop
@@ -7,6 +9,23 @@
 @namespace Soenneker.Quark
 @inherits LocalizedFormControlElement
 
+@if (AutoSave && ShowAutoSaveStatus)
+{
+    <Div Display="Soenneker.Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Soenneker.Quark.Gap.Is2" MinWidth="Soenneker.Quark.MinWidth.Is0">
+        @RenderAutoSaveControl()
+        <AutoSaveStatus State="@(IsRangeMode ? _autoSaveRange.State : IsMultipleMode ? _autoSaveMultiple.State : _autoSave.State)" HasSaved="@(IsRangeMode ? _autoSaveRange.HasSaved : IsMultipleMode ? _autoSaveMultiple.HasSaved : _autoSave.HasSaved)" Visible="@(AutoSave && ShowAutoSaveStatus && (IsRangeMode ? OnAutoSaveRange is not null : IsMultipleMode ? OnAutoSaveMultiple is not null : OnAutoSave is not null))"
+                Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+    </Div>
+}
+else
+{
+    @RenderAutoSaveControl()
+}
+
+
+@code {
+    private RenderFragment RenderAutoSaveControl() => @<text>
 @{
     BeginDayRender();
     var canNavigatePrevious = CanNavigatePrevious();
@@ -133,8 +152,27 @@
         }
     </Div>
 </div>
+    </text>;
 
-@code {
+    [Parameter] public bool AutoSave { get; set; } = false;
+    [Parameter] public int AutoSaveDelay { get; set; } = 750;
+    [Parameter] public bool ShowAutoSaveStatus { get; set; } = true;
+    [Parameter] public Func<DateOnly?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+    [Parameter] public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+    [Parameter] public string? AutoSaveStatusClass { get; set; }
+    [Parameter] public string? AutoSaveSavingClass { get; set; }
+    [Parameter] public string? AutoSaveSavedClass { get; set; }
+    [Parameter] public string? AutoSaveFailedClass { get; set; }
+    [Parameter] public Func<CalendarDateRange?, CancellationToken, ValueTask>? OnAutoSaveRange { get; set; }
+    private AutoSaveController<CalendarDateRange?> _autoSaveRange;
+    private AutoSaveController<DateOnly?> _autoSave;
+    private Func<Task>? _autoSaveRefresh;
+    private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);
+    private Task NotifyAutoSave(DateOnly? value) => _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+    [Parameter] public Func<DateOnly[], CancellationToken, ValueTask>? OnAutoSaveMultiple { get; set; }
+    private AutoSaveController<DateOnly[]> _autoSaveMultiple;
+    private Task NotifyAutoSaveMultiple(DateOnly[] value) => _autoSaveMultiple.NotifyValueChanged(value.ToArray(), AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+
     protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
     {
         base.BuildDefaultClasses(ref cls);
@@ -610,6 +648,7 @@
             var nextRange = BuildNextRange(date);
             SelectedRange = nextRange;
             await SelectedRangeChanged.InvokeAsync(nextRange);
+            await _autoSaveRange.NotifyValueChanged(nextRange, AutoSave, AutoSaveDelay, OnAutoSaveRange, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
             Refresh();
             return;
         }
@@ -618,6 +657,7 @@
         {
             SelectedDates = ToggleSelectedDate(date);
             await SelectedDatesChanged.InvokeAsync(SelectedDates);
+        await NotifyAutoSaveMultiple(SelectedDates);
             Refresh();
             return;
         }
@@ -626,6 +666,7 @@
         DateOnlyValue = date;
         await SelectedDateChanged.InvokeAsync(SelectedDate);
         await ValueChanged.InvokeAsync(DateOnlyValue);
+        await NotifyAutoSave(DateOnlyValue);
         Refresh();
     }
 
@@ -1302,6 +1343,20 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(OnAutoSave);
+        hc.Add(AutoSaveStateChanged);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
+        hc.Add((IsRangeMode ? _autoSaveRange.State : IsMultipleMode ? _autoSaveMultiple.State : _autoSave.State));
+        hc.Add((IsRangeMode ? _autoSaveRange.HasSaved : IsMultipleMode ? _autoSaveMultiple.HasSaved : _autoSave.HasSaved));
+        hc.Add(OnAutoSaveMultiple);
+        hc.Add(OnAutoSaveRange);
+
         hc.Add(SelectedDate);
         hc.Add(Mode);
         hc.Add(SelectedRange?.From);

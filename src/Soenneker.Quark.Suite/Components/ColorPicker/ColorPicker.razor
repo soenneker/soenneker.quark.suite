@@ -1,3 +1,5 @@
+@using System.Threading
+@implements IAutoSaveInput<string?>
 @using Soenneker.Atomics.ValueBools
 @namespace Soenneker.Quark
 @using System.Globalization
@@ -8,6 +10,23 @@
 @inherits Soenneker.Quark.FormControlElementBase
 @inject IColorPickerInterop ColorPickerInterop
 
+@if (AutoSave && ShowAutoSaveStatus)
+{
+    <Div Display="Soenneker.Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Soenneker.Quark.Gap.Is2" MinWidth="Soenneker.Quark.MinWidth.Is0">
+        @RenderAutoSaveControl()
+        <AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
+                Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+    </Div>
+}
+else
+{
+    @RenderAutoSaveControl()
+}
+
+
+@code {
+    private RenderFragment RenderAutoSaveControl() => @<text>
 @if (Inline)
 {
     <div @ref="_rootRef" @attributes="BuildRootAttributes()">
@@ -49,8 +68,22 @@ else
         </Popover>
     </div>
 }
+    </text>;
 
-@code {
+    [Parameter] public bool AutoSave { get; set; } = false;
+    [Parameter] public int AutoSaveDelay { get; set; } = 750;
+    [Parameter] public bool ShowAutoSaveStatus { get; set; } = true;
+    [Parameter] public Func<string?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+    [Parameter] public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+    [Parameter] public string? AutoSaveStatusClass { get; set; }
+    [Parameter] public string? AutoSaveSavingClass { get; set; }
+    [Parameter] public string? AutoSaveSavedClass { get; set; }
+    [Parameter] public string? AutoSaveFailedClass { get; set; }
+    private AutoSaveController<string?> _autoSave;
+    private Func<Task>? _autoSaveRefresh;
+    private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);
+    private Task NotifyAutoSave(string? value) => _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+
     private static readonly CssValue<WidthBuilder> _renderCss0 = Quark.Width.Token("[220px]");
     private static readonly CssValue<JustifyBuilder> _renderCss1 = Quark.Justify.Start;
     private static readonly CssValue<GapBuilder> _renderCss2 = Quark.Gap.Is2;
@@ -629,6 +662,7 @@ else
         Value = next;
         _lastValue = next;
         await ValueChanged.InvokeIfHasDelegate(next);
+        await NotifyAutoSave(next);
         Refresh();
     }
 
@@ -917,6 +951,18 @@ else
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(OnAutoSave);
+        hc.Add(AutoSaveStateChanged);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
+        hc.Add(_autoSave.State);
+        hc.Add(_autoSave.HasSaved);
+
         hc.Add(Value);
         hc.Add(Format);
         hc.Add(_format);
@@ -952,6 +998,8 @@ else
 
     public override async ValueTask DisposeAsync()
     {
+        await _autoSave.DisposeAsync();
+
         if (!_disposed.TrySetTrue())
             return;
         _dotNetRef?.Dispose();

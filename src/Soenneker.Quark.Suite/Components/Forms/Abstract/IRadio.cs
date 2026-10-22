@@ -7,7 +7,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a radio button input component.
 /// </summary>
-public interface IRadio : IElement
+public interface IRadio : IElement, IAutoSaveInput<bool>
 {
     /// <summary>
     /// Gets or sets whether the radio button is checked.

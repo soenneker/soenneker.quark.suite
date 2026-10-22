@@ -1,3 +1,5 @@
+@using System.Threading
+@implements IAutoSaveInput<DateTime?>
 @using Soenneker.Atomics.ValueBools
 @using System.Globalization
 @using System.Linq.Expressions
@@ -10,6 +12,23 @@
 @implements IValidationInput
 @implements IDateTimePicker
 
+@if (AutoSave && ShowAutoSaveStatus)
+{
+    <Div Display="Soenneker.Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Soenneker.Quark.Gap.Is2" MinWidth="Soenneker.Quark.MinWidth.Is0">
+        @RenderAutoSaveControl()
+        <AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
+                Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+    </Div>
+}
+else
+{
+    @RenderAutoSaveControl()
+}
+
+
+@code {
+    private RenderFragment RenderAutoSaveControl() => @<text>
 <Popover Open="@_open" OpenChanged="(_cachedHandleOpenChangedDelegate ??= HandleOpenChanged)">
     <Div @attributes="GetContainerAttributes()">
         <PopoverAnchor>
@@ -45,8 +64,22 @@
         </PopoverContent>
     </Div>
 </Popover>
+    </text>;
 
-@code {
+    [Parameter] public bool AutoSave { get; set; } = false;
+    [Parameter] public int AutoSaveDelay { get; set; } = 750;
+    [Parameter] public bool ShowAutoSaveStatus { get; set; } = true;
+    [Parameter] public Func<DateTime?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+    [Parameter] public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+    [Parameter] public string? AutoSaveStatusClass { get; set; }
+    [Parameter] public string? AutoSaveSavingClass { get; set; }
+    [Parameter] public string? AutoSaveSavedClass { get; set; }
+    [Parameter] public string? AutoSaveFailedClass { get; set; }
+    private AutoSaveController<DateTime?> _autoSave;
+    private Func<Task>? _autoSaveRefresh;
+    private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);
+    private Task NotifyAutoSave(DateTime? value) => _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+
     private static readonly CssValue<BorderBuilder> _calendarBorder = Quark.Border.Is0;
     private static readonly CssValue<PaddingBuilder> _calendarPadding = Quark.Padding.Is0;
     private static readonly CssValue<FlexBuilder> _timeFlex = Quark.Flex.Wrap;
@@ -258,7 +291,10 @@
         _lastSyncedValue = next;
         SyncPanel();
         if (valueChanged)
+        {
             await SelectedDateTimeChanged.InvokeIfHasDelegate(SelectedDateTime);
+            await NotifyAutoSave(SelectedDateTime);
+        }
 
         if (ParentValidation is not null)
             await ParentValidation.NotifyInputChanged(SelectedDateTime);
@@ -319,6 +355,8 @@
 
     public override async ValueTask DisposeAsync()
     {
+        await _autoSave.DisposeAsync();
+
         if (_subscribedValidation is not null)
         {
             _subscribedValidation.ValidationStatusChanged -= OnValidationStatusChanged;
@@ -419,6 +457,7 @@
             SelectedDateTime = dt;
             SyncSelection();
             await SelectedDateTimeChanged.InvokeAsync(SelectedDateTime);
+        await NotifyAutoSave(SelectedDateTime);
         }
 
         SyncSelection();
@@ -520,6 +559,18 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(OnAutoSave);
+        hc.Add(AutoSaveStateChanged);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
+        hc.Add(_autoSave.State);
+        hc.Add(_autoSave.HasSaved);
+
         hc.Add(SelectedDateTime);
         hc.Add(_inputText);
         hc.Add(Placeholder);

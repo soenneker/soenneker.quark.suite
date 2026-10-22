@@ -1,3 +1,5 @@
+@using System.Threading
+@implements IAutoSaveInput<FilterGroup>
 @namespace Soenneker.Quark
 @inherits LocalizedComponentBase
 @implements IQueryBuilder
@@ -53,19 +55,44 @@
             <button type="button" class="rounded border px-3 py-1" @onclick="() => Publish(Value with { Rules = [], Groups = [] })">@Text["Clear"]</button>
         </div>
     </fieldset>
+<AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
+                Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
 </div>
+
+
+
 @code {
+    [Parameter] public bool AutoSave { get; set; } = false;
+    [Parameter] public int AutoSaveDelay { get; set; } = 750;
+    [Parameter] public bool ShowAutoSaveStatus { get; set; } = true;
+    [Parameter] public Func<FilterGroup, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+    [Parameter] public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+    [Parameter] public string? AutoSaveStatusClass { get; set; }
+    [Parameter] public string? AutoSaveSavingClass { get; set; }
+    [Parameter] public string? AutoSaveSavedClass { get; set; }
+    [Parameter] public string? AutoSaveFailedClass { get; set; }
+    private AutoSaveController<FilterGroup> _autoSave;
+    private Func<Task>? _autoSaveRefresh;
+    private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);
+    private Task NotifyAutoSave(FilterGroup value) => _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+
     [Parameter] public IReadOnlyList<FilterField> Fields { get; set; } = [];
     [Parameter] public FilterGroup Value { get; set; } = new();
     [Parameter] public EventCallback<FilterGroup> ValueChanged { get; set; }
     [Parameter] public bool Disabled { get; set; }
     [Parameter] public int MaxDepth { get; set; } = 4;
     [Parameter] public int Depth { get; set; }
-    private async Task Publish(FilterGroup value) { if (Disabled) return; Value = value; await ValueChanged.InvokeAsync(value); }
+    private async Task Publish(FilterGroup value) { if (Disabled) return; Value = value; await ValueChanged.InvokeAsync(value); await NotifyAutoSave(value); }
     private Task Replace(FilterRule rule) => Publish(Value with { Rules = Value.Rules.Select(x => x.Id == rule.Id ? rule : x).ToArray() });
     private Task ReplaceGroup(FilterGroup group) => Publish(Value with { Groups = Value.Groups.Select(x => x.Id == group.Id ? group : x).ToArray() });
     private Task ChangeJunction(ChangeEventArgs e) => Enum.TryParse<FilterJunction>(e.Value?.ToString(), out var junction) ? Publish(Value with { Junction = junction }) : Task.CompletedTask;
     private Task ChangeOperator(FilterRule rule, string? value) => Enum.TryParse<FilterOperator>(value, out var op) ? Replace(rule with { Operator = op }) : Task.CompletedTask;
     private Task ChangeField(FilterRule rule, string? value) => Replace(rule with { Field = value ?? "", Operator = FilterOperator.Equals, Value = "" });
     private Task AddRule() => Fields.Count == 0 ? Task.CompletedTask : Publish(Value with { Rules = Value.Rules.Append(new FilterRule { Field = Fields[0].Key, Value = "" }).ToArray() });
+    public override async ValueTask DisposeAsync()
+    {
+        await _autoSave.DisposeAsync();
+        await base.DisposeAsync();
+    }
 }

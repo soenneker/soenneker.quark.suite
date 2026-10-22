@@ -460,6 +460,11 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
     private sealed class FakeCodeEditorInterop : ICodeEditorInterop
     {
+        public ValueTask ObserveVisibility(ElementReference container, DotNetObjectReference<CodeEditor> receiver,
+            CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
+        public ValueTask UnobserveVisibility(ElementReference container, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+
         public List<(bool ReadOnly, bool WordWrap, bool Minimap, bool AutoHeight, int? MinLines, int? MaxLines, string? AriaLabel)> OptionUpdates { get; } = [];
         public int ThemeRegistrations { get; private set; }
         public int ThemeUnregistrations { get; private set; }

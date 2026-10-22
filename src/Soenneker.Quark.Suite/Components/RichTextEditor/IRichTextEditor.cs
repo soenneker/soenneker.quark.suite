@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 namespace Soenneker.Quark;
 /// <summary>An HTML rich-text editor with a restricted browser rendering allowlist. Validate and sanitize content on the server before publishing it elsewhere.</summary>
-public interface IRichTextEditor : IElement
+public interface IRichTextEditor : IElement, IAutoSaveInput<string>
 {
     /// <summary>Controlled HTML content. Unsupported tags and attributes are removed when rendered.</summary>
     string Value { get; set; }

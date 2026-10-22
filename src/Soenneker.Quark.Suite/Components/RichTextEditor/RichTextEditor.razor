@@ -1,3 +1,4 @@
+@implements IAutoSaveInput<string>
 @namespace Soenneker.Quark
 @inherits LocalizedComponentBase
 @implements IRichTextEditor
@@ -40,8 +41,28 @@
     <div @ref="_editor" role="@(ReadOnly ? "document" : "textbox")" aria-multiline="@(!ReadOnly ? "true" : null)" aria-readonly="@(ReadOnly ? "true" : "false")" aria-label="@(Label ?? Text["Editor"])" tabindex="0" class="min-h-32 p-3 outline-none [&_a]:underline [&_ul]:list-disc [&_ul]:ps-6 [&_ol]:list-decimal [&_ol]:ps-6"></div>
     @if (_uploading) { <div role="status">@Text["Loading"]</div> }
     @if (_error is not null) { <div role="alert" class="p-2 text-destructive">@Text[_error]</div> }
+<AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
+                Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
 </div>
+
+
+
 @code {
+    [Parameter] public bool AutoSave { get; set; } = false;
+    [Parameter] public int AutoSaveDelay { get; set; } = 750;
+    [Parameter] public bool ShowAutoSaveStatus { get; set; } = true;
+    [Parameter] public Func<string, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+    [Parameter] public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+    [Parameter] public string? AutoSaveStatusClass { get; set; }
+    [Parameter] public string? AutoSaveSavingClass { get; set; }
+    [Parameter] public string? AutoSaveSavedClass { get; set; }
+    [Parameter] public string? AutoSaveFailedClass { get; set; }
+    private AutoSaveController<string> _autoSave;
+    private Func<Task>? _autoSaveRefresh;
+    private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);
+    private Task NotifyAutoSave(string value) => _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+
     [Parameter] public string Value { get; set; } = "";
     [Parameter] public EventCallback<string> ValueChanged { get; set; }
     [Parameter] public bool ReadOnly { get; set; }
@@ -68,7 +89,7 @@
         if (!IsDisposed) await EditorInterop.SetContent(_editor, Value ?? "", ReadOnly);
     }
     [JSInvokable]
-    public async Task OnContentChanged(string html) { if (ReadOnly || IsDisposed) return; Value = html; await ValueChanged.InvokeAsync(html); }
+    public async Task OnContentChanged(string html) { if (ReadOnly || IsDisposed || Value == html) return; Value = html; await ValueChanged.InvokeAsync(html); await NotifyAutoSave(html); }
     private async Task Command(string command) { if (!ReadOnly && _mounted) await EditorInterop.Execute(_editor, command); }
     private async Task InsertLink()
     {
@@ -98,6 +119,8 @@
     public override void Dispose() { if (IsDisposed) return; base.Dispose(); _lifetime.Cancel(); _lifetime.Dispose(); }
     public override async ValueTask DisposeAsync()
     {
+        await _autoSave.DisposeAsync();
+
         Dispose();
         try { if (_mounted) await EditorInterop.Unmount(_editor); }
         catch (JSDisconnectedException) { }

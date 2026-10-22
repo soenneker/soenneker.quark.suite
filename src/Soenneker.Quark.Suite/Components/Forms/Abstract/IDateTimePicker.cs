@@ -7,7 +7,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a date-time picker component with calendar and time selection dropdowns.
 /// </summary>
-public interface IDateTimePicker : IElement
+public interface IDateTimePicker : IElement, IAutoSaveInput<DateTime?>
 {
     /// <summary>
     /// Gets or sets the selected date-time value.

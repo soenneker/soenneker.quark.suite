@@ -26,6 +26,16 @@
                 Attributes="@CopyButtonAttributes"
                 OnCopySuccess="@OnCopySuccess"
                 OnCopyError="@OnCopyError" />
+    @if (!string.IsNullOrWhiteSpace(ActionHref) || OnAction.HasDelegate)
+    {
+        <Button Type="@ButtonType.Button" Href="@ActionHref" OnClick="@OnAction"
+                Variant="@ButtonVariant.Ghost" ButtonSize="@_staticCss0"
+                Disabled="@(Disabled || ActionDisabled)" AriaLabel="@ActionLabel" Title="@ActionLabel"
+                Class="shrink-0 size-6! p-0! text-muted-foreground hover:bg-transparent hover:text-foreground active:translate-y-0"
+                DataSlot="copyable-text-action">
+            <span aria-hidden="true"><Icon Name="@ActionIcon" Size="Soenneker.Quark.Size.Is4" /></span>
+        </Button>
+    }
 </span>
 
 @code {
@@ -102,6 +112,12 @@
     [Parameter] public bool FieldAppearance { get; set; }
     [Parameter] public QuarkPresetToken? TextPreset { get; set; }
     [Parameter] public QuarkPresetToken? CopyButtonPreset { get; set; }
+    [Parameter] public string? ActionHref { get; set; }
+    [Parameter] public LucideIcon ActionIcon { get; set; } = LucideIcon.ExternalLink;
+    [Parameter] public string ActionLabel { get; set; } = "Open";
+    [Parameter] public bool ActionDisabled { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnAction { get; set; }
+
     private string DisplayText => Text ?? Placeholder ?? string.Empty;
     private string? ResolvedCopyText => CopyText ?? Text;
     private bool CopyDisabled => Disabled || (DisableCopyWhenEmpty && string.IsNullOrEmpty(ResolvedCopyText));
@@ -159,6 +175,11 @@
     protected override void ComputeRenderKeyCore(ref HashCode hashCode)
     {
         base.ComputeRenderKeyCore(ref hashCode);
+        hashCode.Add(ActionHref);
+        hashCode.Add(ActionIcon);
+        hashCode.Add(ActionLabel);
+        hashCode.Add(ActionDisabled);
+        hashCode.Add(OnAction);
         hashCode.Add(Placeholder);
         hashCode.Add(DisableCopyWhenEmpty);
         hashCode.Add(FieldAppearance);

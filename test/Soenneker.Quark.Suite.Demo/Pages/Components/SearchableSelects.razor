@@ -1,3 +1,4 @@
+@using System.Threading
 @page "/components/searchable-select"
 
 <QuarkSeoHead Title="Blazor Searchable Select: Labels &amp; Values | Quark Suite" Description="Filter choices in Blazor with Quark SearchableSelect. Keep display labels separate from stored values and compare search, selection, and disabled examples." />
@@ -9,6 +10,9 @@
             <Paragraph>Selected value: @_choice</Paragraph>
         </Grid>
     </DemoSection>
+    <DemoSection Title="Autosave" Description="Search without saving; selecting a team saves its stored value and shows progress." Code="@AutoSaveExample" CodeLanguage="razor">
+        <SearchableSelect Choices="@Choices" @bind-Value="_autoSaveChoice" AutoSave="true" OnAutoSave="SaveChoice" aria-label="Autosaved team" />
+    </DemoSection>
     <DemoSection Title="Disabled" Description="Keep the selected label visible when editing is unavailable." Code="@Example1" CodeLanguage="razor" PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
         <SearchableSelect Choices="@Choices" Value="design" Disabled="true" aria-label="Disabled team" />
     </DemoSection>
@@ -17,6 +21,24 @@
 <RemoteSelectExample />
 
 @code {
+    private string? _autoSaveChoice = "primary";
+    private static async ValueTask SaveChoice(string? value, CancellationToken cancellationToken)
+    {
+        await Task.Delay(400, cancellationToken);
+    }
+    private const string AutoSaveExample = """
+        <SearchableSelect Choices="@Choices" @bind-Value="_autoSaveChoice"
+                          AutoSave="true" OnAutoSave="SaveChoice" aria-label="Autosaved team" />
+
+        @code {
+            private string? _autoSaveChoice = "primary";
+            private static async ValueTask SaveChoice(string? value, CancellationToken cancellationToken)
+            {
+                await Task.Delay(400, cancellationToken);
+            }
+        }
+        """;
+
     private string? _choice = "primary";
     private static readonly IReadOnlyList<SelectOption> Choices =
     [

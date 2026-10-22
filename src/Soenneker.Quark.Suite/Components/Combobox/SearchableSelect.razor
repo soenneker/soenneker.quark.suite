@@ -1,3 +1,5 @@
+@implements IAsyncDisposable
+@implements IMultipleAutoSaveInput<string?, IReadOnlyList<string>>
 @namespace Soenneker.Quark
 @implements ISearchableSelect
 @implements IValidationInput
@@ -6,6 +8,7 @@
 @using Microsoft.Extensions.DependencyInjection
 @using Microsoft.Extensions.Logging
 @inject IServiceProvider Services
+<Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2" Width="Width.IsFull" MinWidth="MinWidth.Is0">
 <Combobox Value="@EncodedValue" ValueChanged="HandleValueChanged" Multiple="@Multiple"
           Values="@EncodedValues" ValueChangedMultiple="HandleValuesChanged"
           Search="@_search" SearchChanged="SetSearch" Open="@_open" OpenChanged="SetOpen"
@@ -30,7 +33,30 @@
     </ComboboxContent>
 </Combobox>
 @if (_resolveError) { <Div role="alert">@Text["LoadError"] <Button OnClick="ResolveValues">@Text["Retry"]</Button></Div> }
+
+<AutoSaveStatus State="@(Multiple ? _autoSaveMultiple.State : _autoSave.State)" HasSaved="@(Multiple ? _autoSaveMultiple.HasSaved : _autoSave.HasSaved)" Visible="@(AutoSave && ShowAutoSaveStatus && (Multiple ? OnAutoSaveMultiple is not null : OnAutoSave is not null))"
+                Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+
+</Div>
 @code {
+    [Parameter] public bool AutoSave { get; set; } = false;
+    [Parameter] public int AutoSaveDelay { get; set; } = 750;
+    [Parameter] public bool ShowAutoSaveStatus { get; set; } = true;
+    [Parameter] public Func<string?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+    [Parameter] public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+    [Parameter] public string? AutoSaveStatusClass { get; set; }
+    [Parameter] public string? AutoSaveSavingClass { get; set; }
+    [Parameter] public string? AutoSaveSavedClass { get; set; }
+    [Parameter] public string? AutoSaveFailedClass { get; set; }
+    private AutoSaveController<string?> _autoSave;
+    private Func<Task>? _autoSaveRefresh;
+    private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);
+    private Task NotifyAutoSave(string? value) => _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+    [Parameter] public Func<IReadOnlyList<string>, CancellationToken, ValueTask>? OnAutoSaveMultiple { get; set; }
+    private AutoSaveController<IReadOnlyList<string>> _autoSaveMultiple;
+    private Task NotifyAutoSaveMultiple(IReadOnlyList<string> value) => _autoSaveMultiple.NotifyValueChanged(value.ToArray(), AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+
     [Parameter] public bool Virtualize { get; set; }
     [Parameter] public IReadOnlyList<SelectOption> Choices { get; set; } = [];
     [Parameter] public string? Value { get; set; }
@@ -187,23 +213,35 @@
         if (option is null) return;
         _labels[option.Value] = option;
         _selectionChanged = true;
+        if (Value == option.Value) return;
         Value = option.Value;
         PruneLabels();
         await ValueChanged.InvokeAsync(Value);
+        await NotifyAutoSave(Value);
         if (ParentValidation is not null) await ParentValidation.NotifyInputChanged(Value);
     }
     private async Task HandleValuesChanged(string[] encoded)
     {
         if (Disabled) return;
         foreach (var option in Options) _labels[option.Value] = option;
+        var previousValues = Values.ToArray();
         Values = encoded.Where(v => v.StartsWith("option:", StringComparison.Ordinal)).Select(v => v[7..]).ToArray();
         PruneLabels();
         await ValuesChanged.InvokeAsync(Values);
+        if (!previousValues.SequenceEqual(Values)) await NotifyAutoSaveMultiple(Values);
         if (ParentValidation is not null) await ParentValidation.NotifyInputChanged(Values);
     }
     public void Dispose()
     {
         if (IsDisposed) return;
+        _ = _autoSave.DisposeAsync();
+        _ = _autoSaveMultiple.DisposeAsync();
         IsDisposed = true; _version++; _resolveVersion++; _lifetime.Cancel(); _lifetime.Dispose();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        await _autoSave.DisposeAsync();
+        await _autoSaveMultiple.DisposeAsync();
+        Dispose();
     }
 }

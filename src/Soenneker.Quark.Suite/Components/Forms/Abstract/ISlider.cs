@@ -9,7 +9,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a range slider component for selecting a numeric value within a range.
 /// </summary>
-public interface ISlider
+public interface ISlider : IMultipleAutoSaveInput<double, double[]>
 {
     /// <summary>
     /// Gets or sets the current value of the slider.

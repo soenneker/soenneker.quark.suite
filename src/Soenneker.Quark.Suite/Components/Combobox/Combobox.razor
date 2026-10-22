@@ -1,8 +1,27 @@
+@using System.Threading
+@implements IMultipleAutoSaveInput<string?, string[]>
 @namespace Soenneker.Quark
 @using Soenneker.Blazor.Utils.Ids
 @inherits Soenneker.Quark.FormControlElement
 @implements IAsyncDisposable
 
+@if (AutoSave && ShowAutoSaveStatus)
+{
+    <Div Display="Soenneker.Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Soenneker.Quark.Gap.Is2" MinWidth="Soenneker.Quark.MinWidth.Is0">
+        @RenderAutoSaveControl()
+        <AutoSaveStatus State="@(Multiple ? _autoSaveMultiple.State : _autoSave.State)" HasSaved="@(Multiple ? _autoSaveMultiple.HasSaved : _autoSave.HasSaved)" Visible="@(AutoSave && ShowAutoSaveStatus && (Multiple ? OnAutoSaveMultiple is not null : OnAutoSave is not null))"
+                Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+    </Div>
+}
+else
+{
+    @RenderAutoSaveControl()
+}
+
+
+@code {
+    private RenderFragment RenderAutoSaveControl() => @<text>
 <CascadingValue Name="ParentCombobox" Value="@this">
     <Popover Open="@Open"
              OpenChanged="(_cachedHandlePopoverOpenChangedDelegate ??= HandlePopoverOpenChanged)">
@@ -11,8 +30,25 @@
         </div>
     </Popover>
 </CascadingValue>
+    </text>;
 
-@code {
+    [Parameter] public bool AutoSave { get; set; } = false;
+    [Parameter] public int AutoSaveDelay { get; set; } = 750;
+    [Parameter] public bool ShowAutoSaveStatus { get; set; } = true;
+    [Parameter] public Func<string?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+    [Parameter] public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+    [Parameter] public string? AutoSaveStatusClass { get; set; }
+    [Parameter] public string? AutoSaveSavingClass { get; set; }
+    [Parameter] public string? AutoSaveSavedClass { get; set; }
+    [Parameter] public string? AutoSaveFailedClass { get; set; }
+    private AutoSaveController<string?> _autoSave;
+    private Func<Task>? _autoSaveRefresh;
+    private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);
+    private Task NotifyAutoSave(string? value) => _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+    [Parameter] public Func<string[], CancellationToken, ValueTask>? OnAutoSaveMultiple { get; set; }
+    private AutoSaveController<string[]> _autoSaveMultiple;
+    private Task NotifyAutoSaveMultiple(string[] value) => _autoSaveMultiple.NotifyValueChanged(value.ToArray(), AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+
     private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
     private Func<bool, Task>? _cachedHandlePopoverOpenChangedDelegate;
 
@@ -157,11 +193,13 @@
             return;
         }
 
+        var selectionChanged = Value != v;
         Value = v;
         Search = "";
         Open = false;
         SetActiveValue(v);
         await ValueChanged.InvokeAsync(v);
+        if (selectionChanged) await NotifyAutoSave(v);
         await SearchChanged.InvokeAsync(Search);
         await OpenChanged.InvokeAsync(false);
         Refresh();
@@ -344,6 +382,7 @@
 
         Values = next;
         await ValueChangedMultiple.InvokeAsync(Values);
+        await NotifyAutoSaveMultiple(Values);
         EnsureActiveItem();
         Refresh();
     }
@@ -359,11 +398,13 @@
         {
             Values = [];
             await ValueChangedMultiple.InvokeAsync(Values);
+        await NotifyAutoSaveMultiple(Values);
         }
         else
         {
             Value = null;
             await ValueChanged.InvokeAsync(null);
+        await NotifyAutoSave(null);
         }
 
         Open = false;
@@ -472,6 +513,7 @@
         SetActiveValue(value);
 
         await ValueChangedMultiple.InvokeAsync(Values);
+        await NotifyAutoSaveMultiple(Values);
         await SearchChanged.InvokeAsync(Search);
         await OpenChanged.InvokeAsync(Open);
         Refresh();
@@ -621,6 +663,19 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(OnAutoSave);
+        hc.Add(AutoSaveStateChanged);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
+        hc.Add((Multiple ? _autoSaveMultiple.State : _autoSave.State));
+        hc.Add((Multiple ? _autoSaveMultiple.HasSaved : _autoSave.HasSaved));
+        hc.Add(OnAutoSaveMultiple);
+
         hc.Add(Value);
         hc.Add(Search);
         hc.Add(Open);
@@ -638,9 +693,12 @@
         }
     }
 
-    public override ValueTask DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
+        await _autoSave.DisposeAsync();
+        await _autoSaveMultiple.DisposeAsync();
+
         _hasTriggerElement = false;
-        return base.DisposeAsync();
+        await base.DisposeAsync();
     }
 }

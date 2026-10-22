@@ -1,3 +1,5 @@
+@using System.Threading
+@implements IAutoSaveInput<string?>
 @using Soenneker.Atomics.ValueBools
 @using Soenneker.Blazor.Extensions.EventCallback
 
@@ -11,7 +13,32 @@
        @onchange="(_cachedHandleChangeDelegate ??= HandleChange)"
        @attributes="BuildAttributes()" />
 
+
+<AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
+                Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+
 @code {
+    private async Task PublishAutoSaveValue(string? value)
+    {
+        await ValueChanged.InvokeIfHasDelegate(value);
+        await NotifyAutoSave(value);
+    }
+
+    [Parameter] public bool AutoSave { get; set; } = false;
+    [Parameter] public int AutoSaveDelay { get; set; } = 750;
+    [Parameter] public bool ShowAutoSaveStatus { get; set; } = true;
+    [Parameter] public Func<string?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+    [Parameter] public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+    [Parameter] public string? AutoSaveStatusClass { get; set; }
+    [Parameter] public string? AutoSaveSavingClass { get; set; }
+    [Parameter] public string? AutoSaveSavedClass { get; set; }
+    [Parameter] public string? AutoSaveFailedClass { get; set; }
+    private AutoSaveController<string?> _autoSave;
+    private Func<Task>? _autoSaveRefresh;
+    private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);
+    private Task NotifyAutoSave(string? value) => _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+
     private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
     private static readonly CssValue<HeightBuilder> _defaultHeight = Quark.Height.Is8;
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
@@ -85,7 +112,7 @@
         var value = e.Value?.ToString();
         if (string.Equals(Value, value, StringComparison.Ordinal)) return Task.CompletedTask;
         Value = value;
-        return ValueChanged.InvokeIfHasDelegate(value);
+        return PublishAutoSaveValue(value);
     }
 
     private Task HandleChange(ChangeEventArgs e)
@@ -100,7 +127,7 @@
         var value = e.Value?.ToString();
         if (string.Equals(Value, value, StringComparison.Ordinal)) return Task.CompletedTask;
         Value = value;
-        return ValueChanged.InvokeIfHasDelegate(value);
+        return PublishAutoSaveValue(value);
     }
 
     private void TrackPendingNativeTimeValue(ChangeEventArgs e)
@@ -119,7 +146,7 @@
             _hasPendingNativeTimeValue.Value = false;
             var value = _pendingNativeTimeValue;
             _pendingNativeTimeValue = null;
-            await ValueChanged.InvokeIfHasDelegate(value);
+            await PublishAutoSaveValue(value);
         }
 
         await OnBlur.InvokeIfHasDelegate(e);
@@ -172,11 +199,28 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(OnAutoSave);
+        hc.Add(AutoSaveStateChanged);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
+        hc.Add(_autoSave.State);
+        hc.Add(_autoSave.HasSaved);
+
         hc.Add(Value);
         hc.Add(Type);
         hc.Add(Placeholder);
         hc.Add(Disabled);
         hc.Add(ReadOnly);
         hc.Add(Required);
+    }
+    public override async ValueTask DisposeAsync()
+    {
+        await _autoSave.DisposeAsync();
+        await base.DisposeAsync();
     }
 }

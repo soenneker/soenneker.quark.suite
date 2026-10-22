@@ -1,8 +1,27 @@
+@using System.Threading
+@implements IAutoSaveInput<string?>
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Component
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Bradix
 
+@if (AutoSave && ShowAutoSaveStatus)
+{
+    <Div Display="Soenneker.Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Soenneker.Quark.Gap.Is2" MinWidth="Soenneker.Quark.MinWidth.Is0">
+        @RenderAutoSaveControl()
+        <AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
+                Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+    </Div>
+}
+else
+{
+    @RenderAutoSaveControl()
+}
+
+
+@code {
+    private RenderFragment RenderAutoSaveControl() => @<text>
 <Div Attributes="@BuildAttributes()">
     @if (ShowLabel)
     {
@@ -61,8 +80,28 @@
         </PopoverContent>
     </Popover>
 </Div>
+    </text>;
 
-@code {
+    private async Task PublishAutoSaveValue(string? value)
+    {
+        await ValueChanged.InvokeAsync(value);
+        await NotifyAutoSave(value);
+    }
+
+    [Parameter] public bool AutoSave { get; set; } = false;
+    [Parameter] public int AutoSaveDelay { get; set; } = 750;
+    [Parameter] public bool ShowAutoSaveStatus { get; set; } = true;
+    [Parameter] public Func<string?, CancellationToken, ValueTask>? OnAutoSave { get; set; }
+    [Parameter] public EventCallback<AutoSaveState> AutoSaveStateChanged { get; set; }
+    [Parameter] public string? AutoSaveStatusClass { get; set; }
+    [Parameter] public string? AutoSaveSavingClass { get; set; }
+    [Parameter] public string? AutoSaveSavedClass { get; set; }
+    [Parameter] public string? AutoSaveFailedClass { get; set; }
+    private AutoSaveController<string?> _autoSave;
+    private Func<Task>? _autoSaveRefresh;
+    private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);
+    private Task NotifyAutoSave(string? value) => _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+
     private static readonly CssValue<OpacityBuilder> _selectedOpacity = Quark.Opacity.Is100;
     private static readonly CssValue<OpacityBuilder> _unselectedOpacity = Quark.Opacity.Is0;
     private OptionView?[]? _optionViews;
@@ -219,7 +258,7 @@
             return Task.CompletedTask;
 
         Value = option.Value;
-        return ValueChanged.InvokeAsync(option.Value);
+        return PublishAutoSaveValue(option.Value);
     }
 
     private string GetTriggerClass()
@@ -241,6 +280,18 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(AutoSave);
+        hc.Add(AutoSaveDelay);
+        hc.Add(ShowAutoSaveStatus);
+        hc.Add(OnAutoSave);
+        hc.Add(AutoSaveStateChanged);
+        hc.Add(AutoSaveStatusClass);
+        hc.Add(AutoSaveSavingClass);
+        hc.Add(AutoSaveSavedClass);
+        hc.Add(AutoSaveFailedClass);
+        hc.Add(_autoSave.State);
+        hc.Add(_autoSave.HasSaved);
+
         hc.Add(Value);
         hc.Add(_open);
         hc.Add(Placeholder);
@@ -259,4 +310,9 @@
         }
     }
 
+    public override async ValueTask DisposeAsync()
+    {
+        await _autoSave.DisposeAsync();
+        await base.DisposeAsync();
+    }
 }

@@ -149,6 +149,9 @@ public partial class Calendar
     public override async ValueTask DisposeAsync()
     {
         if (!_calendarDisposed.TrySetTrue()) return;
+        await _autoSave.DisposeAsync();
+        await _autoSaveMultiple.DisposeAsync();
+        await _autoSaveRange.DisposeAsync();
         try
         {
             using (await _calendarLock.Lock())
