@@ -27,14 +27,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22
-
-      - name: Browser module regression tests
-        run: node --test test/js/*.test.mjs
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
@@ -57,6 +49,9 @@ jobs:
 
       # - name: Build Playwright tests
       #   run: dotnet build test/Soenneker.Quark.Suite.Playwrights.Tests/Soenneker.Quark.Suite.Playwrights.Tests.csproj --configuration Release --no-restore --verbosity minimal
+
+      - name: Browser module regression tests
+        run: node --test test/js/*.test.mjs
 
       - name: Test
         run: dotnet test --project test/Soenneker.Quark.Suite.Tests/Soenneker.Quark.Suite.Tests.csproj --configuration Release --no-build --no-restore --verbosity minimal
