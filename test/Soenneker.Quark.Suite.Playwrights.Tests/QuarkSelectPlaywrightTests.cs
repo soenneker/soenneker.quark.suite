@@ -21,9 +21,9 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/select",
-            static p => p.GetByRole(AriaRole.Combobox).First);
+            static p => p.GetByRole(AriaRole.Combobox, new() { IncludeHidden = true }).First);
 
-        var trigger = page.GetByRole(AriaRole.Combobox).First;
+        var trigger = page.GetByRole(AriaRole.Combobox, new() { IncludeHidden = true }).First;
         await trigger.ClickAsync();
 
         var listbox = page.Locator("[role='listbox']:visible").First;
@@ -63,9 +63,9 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/select",
-            static p => p.GetByRole(AriaRole.Combobox).First);
+            static p => p.GetByRole(AriaRole.Combobox, new() { IncludeHidden = true }).First);
 
-        var trigger = page.GetByRole(AriaRole.Combobox).First;
+        var trigger = page.GetByRole(AriaRole.Combobox, new() { IncludeHidden = true }).First;
         await trigger.ClickAsync();
 
         var listbox = page.Locator("[role='listbox']:visible").First;
@@ -93,9 +93,9 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/select",
-            static p => p.GetByRole(AriaRole.Combobox).First);
+            static p => p.GetByRole(AriaRole.Combobox, new() { IncludeHidden = true }).First);
 
-        var trigger = page.GetByRole(AriaRole.Combobox).First;
+        var trigger = page.GetByRole(AriaRole.Combobox, new() { IncludeHidden = true }).First;
 
         await Assertions.Expect(trigger).ToContainTextAsync("Select a fruit");
 
@@ -121,9 +121,9 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/select",
-            static p => p.GetByRole(AriaRole.Combobox).First);
+            static p => p.GetByRole(AriaRole.Combobox, new() { IncludeHidden = true }).First);
 
-        var trigger = page.GetByRole(AriaRole.Combobox).First;
+        var trigger = page.GetByRole(AriaRole.Combobox, new() { IncludeHidden = true }).First;
 
         await trigger.ClickAsync();
         await page.GetByRole(AriaRole.Option, new PageGetByRoleOptions { Name = "Banana", Exact = true }).ClickAsync();
@@ -142,9 +142,9 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/select",
-            static p => p.GetByRole(AriaRole.Combobox).First);
+            static p => p.GetByRole(AriaRole.Combobox, new() { IncludeHidden = true }).First);
 
-        var trigger = page.GetByRole(AriaRole.Combobox).First;
+        var trigger = page.GetByRole(AriaRole.Combobox, new() { IncludeHidden = true }).First;
         await trigger.ClickAsync();
 
         var contentId = await trigger.GetAttributeAsync("aria-controls");
@@ -171,7 +171,7 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
             static p => p.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use SelectGroup, SelectLabel, and SelectSeparator to organize items." }).First);
 
         var section = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use SelectGroup, SelectLabel, and SelectSeparator to organize items." }).First;
-        var trigger = section.GetByRole(AriaRole.Combobox).First;
+        var trigger = section.GetByRole(AriaRole.Combobox, new() { IncludeHidden = true }).First;
         await trigger.ClickAsync();
 
         var contentId = await trigger.GetAttributeAsync("aria-controls");

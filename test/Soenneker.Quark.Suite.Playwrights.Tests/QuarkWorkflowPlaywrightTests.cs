@@ -63,12 +63,16 @@ public sealed class QuarkWorkflowPlaywrightTests(QuarkPlaywrightHost host) : Qua
         var input = page.GetByRole(AriaRole.Combobox, new() { Name = "Contacts", Exact = true });
         await input.FillAsync("Contact 120");
         await Assertions.Expect(page.GetByRole(AriaRole.Option)).ToHaveCountAsync(1);
+        await input.ClickAsync();
+        await Assertions.Expect(input).ToHaveAttributeAsync("aria-expanded", "true");
         await input.PressAsync("Enter");
         await Assertions.Expect(page.Locator("[data-slot='combobox-chip']").Filter(new() { HasText = "Contact 120" })).ToBeVisibleAsync();
         await input.PressAsync("Escape");
         await Assertions.Expect(input).ToHaveAttributeAsync("aria-expanded", "false");
         await input.ClickAsync();
         await input.FillAsync("");
+        await Assertions.Expect(input).ToHaveValueAsync("");
+        await Assertions.Expect(input).ToHaveAttributeAsync("aria-expanded", "true");
         await Assertions.Expect(page.GetByRole(AriaRole.Option)).ToHaveCountAsync(10);
         await input.PressAsync("End");
         await Assertions.Expect(page.GetByRole(AriaRole.Option).Last).ToHaveAttributeAsync("data-highlighted", "");

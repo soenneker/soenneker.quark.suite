@@ -49,7 +49,9 @@ public sealed class QuarkStepperPlaywrightTests : QuarkPlaywrightTest
         await Assertions.Expect(stepper.Locator("[data-slot='stepper-item']")).ToHaveCountAsync(3);
         await Assertions.Expect(firstItem).ToHaveAttributeAsync("data-state", "active");
         await Assertions.Expect(activeTrigger).ToHaveAttributeAsync("data-state", "active");
-        await Assertions.Expect(activeTrigger).ToHaveAttributeAsync("aria-controls", "stepper-panel-1");
+        string? contentId = await activeContent.GetAttributeAsync("id");
+        contentId.Should().NotBeNullOrEmpty();
+        await Assertions.Expect(activeTrigger).ToHaveAttributeAsync("aria-controls", contentId!);
         await Assertions.Expect(activeTrigger).ToHaveAttributeAsync("tabindex", "0");
         await Assertions.Expect(firstIndicator).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bbg-primary\b"));
         await Assertions.Expect(firstSeparator).ToHaveCSSAsync("position", "absolute");

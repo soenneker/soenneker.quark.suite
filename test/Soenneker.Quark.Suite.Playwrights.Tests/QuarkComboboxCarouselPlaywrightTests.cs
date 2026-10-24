@@ -289,7 +289,7 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
 
         await page.GotoAndWaitForReady(
             $"{BaseUrl}components/carousel",
-            static p => p.GetByText("Slide 1 of 5", new PageGetByTextOptions { Exact = true }));
+            static p => p.GetByText("Slide 1 of 5", new PageGetByTextOptions { Exact = true }).And(p.Locator("div")));
 
         var apiSection = page.Locator("section").Filter(new LocatorFilterOptions { HasText = "Use a state and the setApi props to get an instance of the carousel API." }).First;
         var apiNext = apiSection.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Next slide", Exact = true });

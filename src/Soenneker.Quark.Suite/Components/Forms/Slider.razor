@@ -70,7 +70,7 @@ else
     private Task NotifyAutoSave(double value) => _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
     [Parameter] public Func<double[], CancellationToken, ValueTask>? OnAutoSaveMultiple { get; set; }
     private AutoSaveController<double[]> _autoSaveMultiple;
-    private Task NotifyAutoSaveMultiple(double[] value) => _autoSaveMultiple.NotifyValueChanged(value.ToArray(), AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+    private Task NotifyAutoSaveMultiple(double[] value) => _autoSaveMultiple.NotifyValueChanged(AutoSave && OnAutoSaveMultiple is not null ? value.ToArray() : value, AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
 
     private static readonly CssValue<SliderSizeBuilder> _staticCss1 = SliderSizes.Default;
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.Center;

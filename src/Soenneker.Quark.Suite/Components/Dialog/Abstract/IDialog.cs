@@ -29,7 +29,7 @@ public interface IDialog : IElement
     bool BlurBackdrop { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the dialog should be vertically centered.
+    /// Gets or sets whether the dialog should be vertically centered. Defaults to true.
     /// </summary>
     bool Centered { get; set; }
 

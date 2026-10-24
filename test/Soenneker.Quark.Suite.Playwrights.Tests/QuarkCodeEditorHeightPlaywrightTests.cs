@@ -57,4 +57,23 @@ public sealed class QuarkCodeEditorHeightPlaywrightTests(QuarkPlaywrightHost hos
         await Assertions.Expect(editor.Locator(".view-lines")).ToContainTextAsync("unchanged height");
         await Assertions.Expect(editor).ToHaveAttributeAsync("style", tallerStyle!);
     }
+    [Test]
+    public async ValueTask Repeated_copy_keeps_feedback_until_the_latest_copy_expires(CancellationToken cancellationToken)
+    {
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
+        var page = session.Page;
+        await page.Context.GrantPermissionsAsync(["clipboard-read", "clipboard-write"]);
+        await page.GotoAndWaitForReady($"{BaseUrl}components/codeeditors",
+            static p => p.Locator("[data-slot='code-editor'] .monaco-editor").First);
+        var copy = page.Locator("[class~='group/code-editor']").First.GetByRole(AriaRole.Button);
+        await copy.ClickAsync();
+        await Assertions.Expect(copy).ToHaveAttributeAsync("aria-label", "Copied!");
+        await Task.Delay(1000, cancellationToken);
+        await copy.ClickAsync();
+        // Cross the first copy's reset deadline while the second is still active.
+        await Task.Delay(800, cancellationToken);
+        await Assertions.Expect(copy).ToHaveAttributeAsync("aria-label", "Copied!");
+        await Assertions.Expect(copy).ToHaveAttributeAsync("aria-label", "Copy");
+    }
+
 }

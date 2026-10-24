@@ -7,6 +7,32 @@ namespace Soenneker.Quark.Suite.Tests;
 
 public sealed class AutoSaveControllerTests
 {
+
+    [Test]
+    public async Task Superseded_save_does_not_write_after_async_state_notification()
+    {
+        var controller = new AutoSaveController<int>();
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var saves = new System.Collections.Generic.List<int>();
+        var stateChanged = Microsoft.AspNetCore.Components.EventCallback.Factory.Create<AutoSaveState>(this, async state =>
+        {
+            if (state == AutoSaveState.Saving)
+            {
+                entered.TrySetResult();
+                await release.Task;
+            }
+        });
+        Func<int, CancellationToken, ValueTask> save = (value, _) => { saves.Add(value); return ValueTask.CompletedTask; };
+        var first = controller.SaveNow(1, true, save, stateChanged, static () => Task.CompletedTask);
+        await entered.Task;
+        await controller.SaveNow(2, true, save, default, static () => Task.CompletedTask);
+        release.SetResult();
+        await first;
+        saves.Should().Equal(2);
+        await controller.DisposeAsync();
+    }
+
     [Test]
     public void Disabled_autosave_has_no_per_input_allocation()
     {

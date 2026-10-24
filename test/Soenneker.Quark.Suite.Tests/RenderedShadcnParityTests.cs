@@ -10,6 +10,24 @@ namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
+
+    [Test]
+    public void Dialog_layout_honors_top_alignment_and_fullscreen_sizes()
+    {
+        var cut = Render<Dialog>(p => p.Add(c => c.Visible, true).Add(c => c.Centered, false)
+            .AddChildContent<DialogContent>());
+        cut.Find("[role=dialog]").ClassList.Should().Contain("top-4").And.NotContain("top-1/2");
+        cut.Render(p => p.Add(c => c.Centered, true).Add(c => c.DialogSize, DialogSize.Fullscreen));
+        var classes = cut.Find("[role=dialog]").ClassList;
+        classes.Should().Contain("top-0!").And.Contain("h-dvh!").And.Contain("max-w-none!");
+        cut.Render(p => p.Add(c => c.DialogSize, DialogSize.FullscreenMdDown));
+        classes = cut.Find("[role=dialog]").ClassList;
+        classes.Should().Contain("max-md:h-dvh!").And.NotContain("h-dvh!");
+        cut.Render(p => p.Add(c => c.DialogSize, DialogSize.Large));
+        classes = cut.Find("[role=dialog]").ClassList;
+        classes.Should().Contain("sm:max-w-2xl").And.NotContain("sm:max-w-sm");
+    }
+
     [Test]
     public void Composition_searchable_select_preserves_explicit_input_id_for_labels()
     {

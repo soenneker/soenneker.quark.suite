@@ -29,19 +29,26 @@
     protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
     {
         base.BuildDefaultClasses(ref cls);
-        AppendClass(ref cls, "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 sm:max-w-sm");
+        AppendClass(ref cls, "left-1/2 -translate-x-1/2 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95");
+        AppendClass(ref cls, Centered && (ParentDialog?.Centered ?? true) ? "top-1/2 -translate-y-1/2" : "top-4");
         if (ParentDialog?.Scrollable == true)
-            AppendClass(ref cls, "max-h-[90vh] overflow-y-auto overscroll-contain [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:color-mix(in_oklab,var(--muted-foreground)_38%,transparent)_transparent]");
-        if (ParentDialog?.DialogSize != null && ParentDialog.DialogSize.Value.HasContent())
+            AppendClass(ref cls, "max-h-[90dvh] overflow-y-auto overscroll-contain [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:color-mix(in_oklab,var(--muted-foreground)_38%,transparent)_transparent]");
+        AppendClass(ref cls, ParentDialog?.DialogSize?.Value switch
         {
-            var size = ParentDialog.DialogSize.Value;
-            if (string.Equals(size, "sm", StringComparison.OrdinalIgnoreCase))
-                AppendClass(ref cls, "sm:max-w-sm");
-            else if (string.Equals(size, "lg", StringComparison.OrdinalIgnoreCase))
-                AppendClass(ref cls, "sm:max-w-2xl");
-            else if (string.Equals(size, "xl", StringComparison.OrdinalIgnoreCase))
-                AppendClass(ref cls, "sm:max-w-4xl");
-        }
+            "lg" => "sm:max-w-2xl",
+            "xl" => "sm:max-w-4xl",
+            _ => "sm:max-w-sm"
+        });
+        AppendClass(ref cls, ParentDialog?.DialogSize?.Value switch
+        {
+            "fullscreen" => "top-0! left-0! translate-none! h-dvh! max-h-dvh! w-full! max-w-none! rounded-none! content-start overflow-y-auto",
+            "fullscreen-sm-down" => "max-sm:top-0! max-sm:left-0! max-sm:translate-none! max-sm:h-dvh! max-sm:max-h-dvh! max-sm:w-full! max-sm:max-w-none! max-sm:rounded-none! max-sm:content-start max-sm:overflow-y-auto",
+            "fullscreen-md-down" => "max-md:top-0! max-md:left-0! max-md:translate-none! max-md:h-dvh! max-md:max-h-dvh! max-md:w-full! max-md:max-w-none! max-md:rounded-none! max-md:content-start max-md:overflow-y-auto",
+            "fullscreen-lg-down" => "max-lg:top-0! max-lg:left-0! max-lg:translate-none! max-lg:h-dvh! max-lg:max-h-dvh! max-lg:w-full! max-lg:max-w-none! max-lg:rounded-none! max-lg:content-start max-lg:overflow-y-auto",
+            "fullscreen-xl-down" => "max-xl:top-0! max-xl:left-0! max-xl:translate-none! max-xl:h-dvh! max-xl:max-h-dvh! max-xl:w-full! max-xl:max-w-none! max-xl:rounded-none! max-xl:content-start max-xl:overflow-y-auto",
+            "fullscreen-xxl-down" => "max-2xl:top-0! max-2xl:left-0! max-2xl:translate-none! max-2xl:h-dvh! max-2xl:max-h-dvh! max-2xl:w-full! max-2xl:max-w-none! max-2xl:rounded-none! max-2xl:content-start max-2xl:overflow-y-auto",
+            _ => string.Empty
+        });
     }
 
     private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Fixed;
@@ -65,7 +72,7 @@
     private OverlayLabelContext? Context { get; set; }
 
     [Parameter]
-    public bool Centered { get; set; }
+    public bool Centered { get; set; } = true;
 
     [Parameter]
     public bool ShowCloseButton { get; set; } = true;

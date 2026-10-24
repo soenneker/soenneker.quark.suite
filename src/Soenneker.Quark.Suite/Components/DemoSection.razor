@@ -359,13 +359,15 @@
             _copyButtonLabel = "Copied!";
             StateHasChanged();
             await Task.Delay(1500, cancellation.Token);
+            if (_disposed.Read() || cancellation.IsCancellationRequested)
+                return;
             _copyButtonLabel = "Copy";
             StateHasChanged();
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
         catch
         {
-            if (!_disposed.Read())
+            if (!_disposed.Read() && !cancellation.IsCancellationRequested)
                 _copyButtonLabel = "Copy";
         }
         finally

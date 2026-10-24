@@ -126,6 +126,10 @@ internal sealed class AutoSaveOperationController<TValue> : IAsyncDisposable
 
         _hasPendingValue.Value = false;
         await SetState(AutoSaveState.Saving, autoSaveStateChanged, refreshAsync);
+        // A consumer can yield while observing Saving. Do not start a superseded
+        // write after a newer edit or disposal completed during that callback.
+        if (!IsCurrent(version) || cancellationToken.IsCancellationRequested)
+            return;
         var savingStarted = Environment.TickCount64;
 
         try

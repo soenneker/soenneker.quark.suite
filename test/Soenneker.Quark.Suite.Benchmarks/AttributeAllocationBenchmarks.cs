@@ -17,20 +17,6 @@ public class BradixAttributeBenchmarks
     public object ParamsSpan() => _probe.BuildSpan();
 }
 
-public sealed class BradixAttributeProbe : BradixElement
-{
-    public object BuildArray() => BuildAttributes(new (string Key, object? Value)[]
-    {
-        ("role", "option"), ("aria-labelledby", "label"), ("aria-selected", "false"),
-        ("aria-disabled", null), ("data-value", "value"), ("data-state", "unchecked"),
-        ("data-highlighted", null), ("data-disabled", null), ("tabindex", "-1")
-    });
-
-    public object BuildSpan() => BuildAttributes(
-        ("role", "option"), ("aria-labelledby", "label"), ("aria-selected", "false"),
-        ("aria-disabled", null), ("data-value", "value"), ("data-state", "unchecked"),
-        ("data-highlighted", null), ("data-disabled", null), ("tabindex", "-1"));
-}
 
 [MemoryDiagnoser]
 public class QuarkAttributeBenchmarks

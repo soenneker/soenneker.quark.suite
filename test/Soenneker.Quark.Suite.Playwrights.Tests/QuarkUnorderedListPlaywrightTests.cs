@@ -36,7 +36,7 @@ public sealed class QuarkUnorderedListPlaywrightTests : QuarkPlaywrightTest
         var firstItem = firstList.Locator("[data-slot='unordered-list-item']").First;
 
         await Assertions.Expect(firstList).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bmy-6\b"));
-        await Assertions.Expect(firstList).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bml-6\b"));
+        await Assertions.Expect(firstList).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\bms-6\b"));
         await Assertions.Expect(firstList).ToHaveClassAsync(new System.Text.RegularExpressions.Regex(@"\blist-disc\b"));
         await Assertions.Expect(firstItem).ToBeVisibleAsync();
 

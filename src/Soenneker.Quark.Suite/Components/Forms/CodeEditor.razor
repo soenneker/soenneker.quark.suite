@@ -267,6 +267,7 @@
     private ValueAtomicBool _fileDropConfigured;
     private (bool ReadOnly, bool WordWrap, bool Minimap, bool AutoHeight, int? MinLines, int? MaxLines, string? AriaLabel)? _lastOptions;
     private string _copyButtonLabel = "Copy";
+    private int _copyVersion;
     private DotNetObjectReference<CodeEditor>? _themeCallbackRef;
     private DotNetObjectReference<CodeEditor>? _editorCallbackRef;
     private const string AutoDarkTheme = "vs-dark";
@@ -588,24 +589,25 @@
     {
         if (_disposed.Read())
             return;
+        int version = ++_copyVersion;
         try
         {
             var value = _initialized.Value
                 ? await CodeEditorInterop.GetValue(_container)
                 : Text;
 
-            if (string.IsNullOrEmpty(value))
+            if (_disposed.Read() || version != _copyVersion || string.IsNullOrEmpty(value))
                 return;
 
             await ClipboardUtil.WriteText(value);
-            if (_disposed.Read())
+            if (_disposed.Read() || version != _copyVersion)
                 return;
             _copyButtonLabel = "Copied!";
             _copyStateChanged.Value = true;
             StateHasChanged();
 
             await Task.Delay(1500, _disposeCts.Token);
-            if (_disposed.Read())
+            if (_disposed.Read() || version != _copyVersion)
                 return;
 
             _copyButtonLabel = "Copy";
@@ -614,6 +616,8 @@
         }
         catch
         {
+            if (_disposed.Read() || version != _copyVersion)
+                return;
             _copyButtonLabel = "Copy";
             _copyStateChanged.Value = true;
         }

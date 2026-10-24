@@ -47,7 +47,7 @@ else
     private Task NotifyAutoSave(string? value) => _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
     [Parameter] public Func<string[], CancellationToken, ValueTask>? OnAutoSaveMultiple { get; set; }
     private AutoSaveController<string[]> _autoSaveMultiple;
-    private Task NotifyAutoSaveMultiple(string[] value) => _autoSaveMultiple.NotifyValueChanged(value.ToArray(), AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+    private Task NotifyAutoSaveMultiple(string[] value) => _autoSaveMultiple.NotifyValueChanged(AutoSave && OnAutoSaveMultiple is not null ? value.ToArray() : value, AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
 
     private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
     private Func<bool, Task>? _cachedHandlePopoverOpenChangedDelegate;
@@ -238,6 +238,17 @@ else
             await SearchChanged.InvokeAsync(Search);
 
         Refresh();
+    }
+
+    internal Task SetSearchAndOpen(string value)
+    {
+        // Publish both transitions before either callback can yield. A late search
+        // completion must not reopen the popup after Escape or outside dismissal.
+        Task search = SetSearch(value);
+        Task opening = SetOpen(true);
+        if (search.IsCompletedSuccessfully) return opening;
+        if (opening.IsCompletedSuccessfully) return search;
+        return Task.WhenAll(search, opening);
     }
 
     internal async Task SetSearch(string? s)

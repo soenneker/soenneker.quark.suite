@@ -3,10 +3,22 @@
 @inherits Soenneker.Quark.TypographyElement
 @implements ILabel
 
+@if (SlotAttributeOverrides is null)
+{
 <BradixLabel For="@For"
              OnMouseDown="@OnMouseDown"
              AdditionalAttributes="@BuildAttributes()"
              ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+}
+else
+{
+    <CascadingValue TValue="IReadOnlyDictionary<string, object>" Name="@SlotAttributes.Name" Value="null" IsFixed="true">
+<BradixLabel For="@For"
+             OnMouseDown="@OnMouseDown"
+             AdditionalAttributes="@BuildAttributes()"
+             ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+    </CascadingValue>
+}
 
 @code {
     private string? _slotClass;

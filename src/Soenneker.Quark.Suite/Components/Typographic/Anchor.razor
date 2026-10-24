@@ -7,19 +7,43 @@
     <a @onclick="(_cachedHandleClickDelegate ??= HandleClick)"
        @onclick:preventDefault="PreventDefault"
        @attributes="BuildAttributes()">
-        @ChildContent
+        @if (SlotAttributeOverrides is null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            <CascadingValue TValue="IReadOnlyDictionary<string, object>" Name="@SlotAttributes.Name" Value="null" IsFixed="true"
+                            ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+        }
     </a>
 }
 else if (OnClick.HasDelegate)
 {
     <button type="button" @onclick="(_cachedHandleClickDelegate ??= HandleClick)" @attributes="BuildAttributes()">
-        @ChildContent
+        @if (SlotAttributeOverrides is null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            <CascadingValue TValue="IReadOnlyDictionary<string, object>" Name="@SlotAttributes.Name" Value="null" IsFixed="true"
+                            ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+        }
     </button>
 }
 else
 {
     <span @attributes="BuildAttributes()">
-        @ChildContent
+        @if (SlotAttributeOverrides is null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            <CascadingValue TValue="IReadOnlyDictionary<string, object>" Name="@SlotAttributes.Name" Value="null" IsFixed="true"
+                            ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+        }
     </span>
 }
 

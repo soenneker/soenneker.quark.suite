@@ -171,7 +171,7 @@ else
     private Task NotifyAutoSave(DateOnly? value) => _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
     [Parameter] public Func<DateOnly[], CancellationToken, ValueTask>? OnAutoSaveMultiple { get; set; }
     private AutoSaveController<DateOnly[]> _autoSaveMultiple;
-    private Task NotifyAutoSaveMultiple(DateOnly[] value) => _autoSaveMultiple.NotifyValueChanged(value.ToArray(), AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+    private Task NotifyAutoSaveMultiple(DateOnly[] value) => _autoSaveMultiple.NotifyValueChanged(AutoSave && OnAutoSaveMultiple is not null ? value.ToArray() : value, AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
 
     protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
     {

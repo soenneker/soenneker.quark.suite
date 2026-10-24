@@ -55,7 +55,7 @@
     private Task NotifyAutoSave(string? value) => _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
     [Parameter] public Func<IReadOnlyList<string>, CancellationToken, ValueTask>? OnAutoSaveMultiple { get; set; }
     private AutoSaveController<IReadOnlyList<string>> _autoSaveMultiple;
-    private Task NotifyAutoSaveMultiple(IReadOnlyList<string> value) => _autoSaveMultiple.NotifyValueChanged(value.ToArray(), AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
+    private Task NotifyAutoSaveMultiple(IReadOnlyList<string> value) => _autoSaveMultiple.NotifyValueChanged(AutoSave && OnAutoSaveMultiple is not null ? value.ToArray() : value, AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
 
     [Parameter] public bool Virtualize { get; set; }
     [Parameter] public IReadOnlyList<SelectOption> Choices { get; set; } = [];
@@ -83,8 +83,8 @@
     private bool _open, _loading, _error, _failedAppend, _resolveError, IsDisposed;
     private int _version, _resolveVersion;
     private bool _hasLoaded, _selectionChanged;
-    private IQuarkLocalizer Text => Services.GetService<IQuarkLocalizer>() ?? _fallback;
-    private readonly QuarkLocalizer _fallback = new();
+    private IQuarkLocalizer Text => Services.GetService<IQuarkLocalizer>() ?? (_fallback ??= new());
+    private QuarkLocalizer? _fallback;
     private IEnumerable<SelectOption> Options => LoadOptions is null ? Choices.Where(o => string.IsNullOrWhiteSpace(_search) || OptionNavigation.Matches(o.Label, o.Value, _search)) : _items;
     private SelectOption[] _choiceSnapshot = [];
     private string[] _valueSnapshot = [];
@@ -115,30 +115,58 @@
     }
     protected override async Task OnParametersSetAsync()
     {
-        if (!_choiceSnapshot.SequenceEqual(Choices) || !Equals(_encodedLoader, LoadOptions))
+        var providerChanged = !Equals(_encodedLoader, LoadOptions);
+        if (!_choiceSnapshot.SequenceEqual(Choices))
         {
             _choiceSnapshot = Choices.ToArray();
-            _encodedLoader = LoadOptions;
             _encodedOptions = null;
         }
+        if (providerChanged)
+        {
+            _encodedLoader = LoadOptions;
+            ResetSearchResults();
+            _labels.Clear();
+        }
         PruneLabels();
-        if (Disabled) { _open = false; _version++; _searchCancellation?.Cancel(); _loading = false; }
+        if (Disabled)
+        {
+            _open = false;
+            if (_loading) ResetSearchResults();
+        }
         await ResolveValues();
+        if (providerChanged && _open && !Disabled) await Load(false, false);
+    }
+    private void ResetSearchResults()
+    {
+        _version++;
+        _searchCancellation?.Cancel();
+        _loading = false;
+        _error = false;
+        _hasLoaded = false;
+        _items.Clear();
+        _continuation = null;
+        _encodedOptions = null;
     }
     private void PruneLabels()
     {
-        var selected = new HashSet<string>(Multiple ? Values : Value is null ? [] : new[] { Value }, StringComparer.Ordinal);
-        foreach (var key in _labels.Keys.ToArray())
-            if (!selected.Contains(key)) _labels.Remove(key);
+        if (_labels.Count == 0) return;
+        // Small selections need no temporary collection; large multi-selects retain linear lookup cost.
+        HashSet<string>? selected = Multiple && Values.Count > 8 && _labels.Count > 8
+            ? new HashSet<string>(Values, StringComparer.Ordinal) : null;
+        // Dictionary removal does not invalidate its enumerator on supported runtimes.
+        foreach (var key in _labels.Keys)
+            if (Multiple ? !(selected?.Contains(key) ?? Values.Contains(key)) : !string.Equals(Value, key, StringComparison.Ordinal))
+                _labels.Remove(key);
     }
     private async Task ResolveValues()
     {
         _resolveCancellation?.Cancel();
         var version = ++_resolveVersion;
+        _resolveError = false;
+        if (Resolve is null || IsDisposed) return;
         var selected = Multiple ? Values : Value is null ? [] : new[] { Value };
         var missing = selected.Where(v => !_labels.ContainsKey(v) && !Choices.Any(o => o.Value == v)).Distinct().ToArray();
-        _resolveError = false;
-        if (Resolve is null || missing.Length == 0 || IsDisposed) return;
+        if (missing.Length == 0) return;
         using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
         _resolveCancellation = cancellation;
         try

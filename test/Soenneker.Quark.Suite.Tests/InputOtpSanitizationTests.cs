@@ -14,6 +14,15 @@ public sealed class InputOtpSanitizationTests : BunitContext
     }
 
     [Test]
+    public void Controlled_null_clears_the_value_instead_of_restoring_the_default()
+    {
+        var cut = Render<InputOtp>(p => p.Add(c => c.DefaultOtpValue, "123456")
+            .Add(c => c.OtpValue, "654321").Add(c => c.OtpValueChanged, _ => { }));
+        cut.Render(p => p.Add(c => c.OtpValue, (string?)null));
+        cut.Find("input").GetAttribute("value").Should().BeNullOrEmpty();
+    }
+
+    [Test]
     [Arguments("123456", "123456")]
     [Arguments("a1b2c3", "123")]
     [Arguments("12a34b", "1234")]

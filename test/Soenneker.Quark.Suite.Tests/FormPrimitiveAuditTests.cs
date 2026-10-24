@@ -137,7 +137,7 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     public void Audit_CodeEditor_synchronizes_options_and_theme_subscriptions()
     {
-        var cut = Render<CodeEditor>(p => p.Add(c => c.Theme, "vs"));
+        var cut = Render<CodeEditor>(p => p.Add(c => c.Theme, "vs").Add(c => c.Lazy, false));
         var interop = (FakeCodeEditorInterop)Services.GetRequiredService<ICodeEditorInterop>();
         interop.OptionUpdates.Should().HaveCount(1);
         cut.Render();

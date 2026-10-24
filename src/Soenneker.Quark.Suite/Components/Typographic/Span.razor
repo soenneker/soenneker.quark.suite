@@ -6,8 +6,18 @@
 <span @ref="ElementRef"
       @onpointerdown:preventDefault="PreventPointerDownDefault"
       @attributes="BuildAttributes()">
-    <CascadingValue Name="TriggerContext" Value="@NoChildTriggerContext" IsFixed="true"
-                    ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+    @if (SlotAttributeOverrides is not null)
+    {
+        <CascadingValue TValue="IReadOnlyDictionary<string, object>" Name="@SlotAttributes.Name" Value="null" IsFixed="true">
+            <CascadingValue Name="TriggerContext" Value="@NoChildTriggerContext" IsFixed="true"
+                            ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+        </CascadingValue>
+    }
+    else
+    {
+        <CascadingValue Name="TriggerContext" Value="@NoChildTriggerContext" IsFixed="true"
+                        ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+    }
 </span>
 
 @code {

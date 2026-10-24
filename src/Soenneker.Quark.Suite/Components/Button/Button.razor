@@ -472,11 +472,13 @@ else
 
     private RenderFragment? RenderChildContent()
     {
-        if (TriggerContext is null || ChildContent is null)
+        if ((TriggerContext is null && SlotAttributeOverrides is null) || ChildContent is null)
             return ChildContent;
 
-        return _triggerChildContent ??= @<CascadingValue Name="TriggerContext" Value="@NoTriggerContext" IsFixed="true"
-                        ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />;
+        return _triggerChildContent ??= @<CascadingValue TValue="IReadOnlyDictionary<string, object>" Name="@SlotAttributes.Name" Value="null" IsFixed="true">
+            <CascadingValue Name="TriggerContext" Value="@NoTriggerContext" IsFixed="true"
+                            ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
+        </CascadingValue>;
     }
 
     protected override async Task HandleClick(MouseEventArgs args)

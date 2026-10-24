@@ -40,7 +40,7 @@
     private string? _cachedPattern;
     private Regex? _cachedPatternRegex;
 
-    private string CurrentValue => OtpValue ?? _uncontrolledValue;
+    private string CurrentValue => OtpValueChanged.HasDelegate ? OtpValue ?? string.Empty : OtpValue ?? _uncontrolledValue;
 
     /// <summary>
     /// Gets or sets the OTP value.
@@ -163,11 +163,10 @@
         if (OtpValue is null)
             _uncontrolledValue = sanitized;
 
-        var selection = await InputInterop.GetSelection(_inputRef);
-        if (_disposed.Value) return;
-        var index = selection is null ? sanitized.Length : Math.Min(selection.Start, sanitized.Length);
-        _context = CreateContext(sanitized, focused: true, index);
+        // Publish the value before interop can yield to a newer input event.
+        _context = CreateContext(sanitized, focused: true, sanitized.Length);
         await OtpValueChanged.InvokeAsync(sanitized);
+        await SyncSelection();
     }
 
     private async Task HandleOtpFocus(FocusEventArgs _)
@@ -184,9 +183,10 @@
     private async Task SyncSelection()
     {
         if (Disabled || !_context.Focused || _disposed.Value) return;
+        InputOtpContext context = _context;
         var selection = await InputInterop.GetSelection(_inputRef);
-        if (!_disposed.Value && selection is not null)
-            _context = CreateContext(CurrentValue, focused: true, activeIndex: selection.Start);
+        if (!_disposed.Value && selection is not null && ReferenceEquals(_context, context))
+            _context = CreateContext(context.Value, focused: true, activeIndex: selection.Start);
     }
 
     public override async ValueTask DisposeAsync()
