@@ -11,7 +11,7 @@ public sealed partial class RenderedShadcnParityTests
 {
     [Test]
     [Arguments(typeof(Anchor))]
-    [Arguments(typeof(QuarkLabel))]
+    [Arguments(typeof(QLabel))]
     [Arguments(typeof(Span))]
     public void Slotted_typographic_elements_do_not_forward_ids_to_descendants(System.Type type)
     {

@@ -6,7 +6,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a label element for form inputs.
 /// </summary>
-public interface IQuarkLabel : IElement
+public interface IQLabel : IElement
 {
     /// <summary>
     /// Name of the input element to which the label is connected.
