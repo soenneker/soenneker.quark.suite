@@ -31,7 +31,13 @@
     private bool _busy, _error, _loadError;
     private readonly CancellationTokenSource _lifetime = new();
     protected override async Task OnAfterRenderAsync(bool firstRender)
-    { if (StorageKey is not null && _loadedKey != StorageKey && !_busy) await Reload(); }
+    {
+        if (StorageKey is not null && _loadedKey != StorageKey && !_busy)
+        {
+            await Reload();
+            if (!IsDisposed) StateHasChanged();
+        }
+    }
     private async Task Reload()
     {
         if (StorageKey is null || _busy) return;
@@ -41,7 +47,7 @@
         try { var views = await Store.Load(key, _lifetime.Token); if (!IsDisposed && StorageKey == key) { Views = views; await ViewsChanged.InvokeAsync(views); } }
         catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
         catch (Exception exception) { ReportError(exception, "load saved views"); _error = true; }
-        finally { _busy = false; if (!IsDisposed) StateHasChanged(); }
+        finally { _busy = false; }
     }
     private static QuarkViewState Clone(QuarkViewState state) => JsonSerializer.Deserialize(JsonSerializer.Serialize(state, QuarkViewJsonContext.Default.QuarkViewState), QuarkViewJsonContext.Default.QuarkViewState)!;
     private async Task Choose(ChangeEventArgs e)

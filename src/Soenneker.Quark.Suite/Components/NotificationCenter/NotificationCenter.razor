@@ -6,7 +6,7 @@
 <section @attributes="@(WorkflowAttributes("notification-center", "space-y-3 rounded-md border p-3"))" aria-label="@Text["Notifications"]" aria-busy="@(_loading ? "true" : "false")">
     <header class="flex flex-wrap items-center justify-between gap-2">
         <strong>@Text["Notifications"] <span role="status">@Unread @Text["Unread"]</span></strong>
-        <button type="button" disabled="@(_loading || _marking)" @onclick="RefreshItems">@Text["Refresh"]</button>
+        <button type="button" disabled="@(_loading || _marking)" @onclick="OnRefreshClick">@Text["Refresh"]</button>
         <label><input type="checkbox" @bind="_unreadOnly" /> @Text["Unread"]</label>
         <button type="button" disabled="@(_marking || !Items.Any(n => !n.IsRead))" @onclick="() => Read(Items.Where(n => !n.IsRead).Select(n => n.Id).ToArray())">@Text["MarkAllRead"]</button>
     </header>
@@ -53,6 +53,7 @@
     private int _readRevision, _loadVersion;
     private bool _resetPending;
     private CancellationTokenSource? _pageCancellation;
+    private Task OnRefreshClick() => RefreshItems();
     public async Task RefreshItems()
     {
         if (IsDisposed || _marking) return;
