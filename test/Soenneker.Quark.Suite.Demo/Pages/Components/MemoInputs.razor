@@ -143,10 +143,10 @@ CodeLanguage="razor">
             <Paragraph Margin="Margin.Is0"><Strong>Form Status:</Strong> <Span class="@GetStatusClass()">@_formStatus</Span></Paragraph>
         </DemoSection>
 
-        <DemoSection Title="Character Counter" Description="MaxLength with counter display." Code="@(@"<MemoInput @bind-Value=""_counterValue"" MaxLength=""200"" OnInput=""OnCounterInput"" Placeholder=""Type to see character counter...""/>
+        <DemoSection Title="Character Counter" Description="MaxLength with counter display." Code="@(@"<MemoInput @bind-Value=""_counterValue"" MaxLength=""200"" Placeholder=""Type to see character counter...""/>
 <Div Class=""@($""char-counter {GetCounterClass()}"")"">@(_counterValue?.Length ?? 0)/200</Div>")"
 CodeLanguage="razor">
-            <MemoInput @bind-Value="_counterValue" MaxLength="200" OnInput="OnCounterInput" Placeholder="Type to see character counter..."/>
+            <MemoInput @bind-Value="_counterValue" MaxLength="200" Placeholder="Type to see character counter..."/>
             <Div Class="@($"char-counter {GetCounterClass()}")">@(_counterValue?.Length ?? 0)/200</Div>
         </DemoSection>
 
@@ -203,12 +203,6 @@ CodeLanguage="razor">
     {
         _lastInputTime = DateTime.Now;
         Logger.LogInformation("MemoInput input event fired at {Time}", _lastInputTime);
-    }
-
-    private void OnCounterInput(ChangeEventArgs e)
-    {
-        // This could be used for real-time validation or UI updates
-        StateHasChanged();
     }
 
     private void SubmitForm()

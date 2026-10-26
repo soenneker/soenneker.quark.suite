@@ -13,7 +13,7 @@
                 <FieldGroup MaxWidth="MaxWidth.IsSm">
                     <Field Orientation="@Orientation.Horizontal">
                         <Check Id="terms-checkbox" Name="terms-checkbox" />
-                        <Label For="terms-checkbox">Accept terms and conditions</Label>
+                        <QuarkLabel For="terms-checkbox">Accept terms and conditions</QuarkLabel>
                     </Field>
 
                     <Field Orientation="@Orientation.Horizontal">
@@ -67,12 +67,12 @@
                          PreviewClass="@CheckboxDefaultPreviewClass"
                          Code="@(@"<Field Orientation=""@Orientation.Horizontal"">
     <Check Id=""terms-checkbox-basic"" Name=""terms-checkbox-basic"" />
-    <Label For=""terms-checkbox-basic"">Accept terms and conditions</Label>
+    <QuarkLabel For=""terms-checkbox-basic"">Accept terms and conditions</QuarkLabel>
 </Field>")"
                          CodeLanguage="razor">
                 <Field Orientation="@Orientation.Horizontal">
                     <Check Id="terms-checkbox-basic" Name="terms-checkbox-basic" />
-                    <Label For="terms-checkbox-basic">Accept terms and conditions</Label>
+                    <QuarkLabel For="terms-checkbox-basic">Accept terms and conditions</QuarkLabel>
                 </Field>
             </DemoSection>
         </Section>
@@ -216,7 +216,7 @@
                     <FieldGroup MaxWidth="MaxWidth.IsSm">
                         <Field Orientation="@Orientation.Horizontal">
                             <Check Id="terms-checkbox-rtl" Name="terms-checkbox" />
-                            <Label For="terms-checkbox-rtl">قبول الشروط والأحكام</Label>
+                            <QuarkLabel For="terms-checkbox-rtl">قبول الشروط والأحكام</QuarkLabel>
                         </Field>
                         <Field Orientation="@Orientation.Horizontal">
                             <Check Id="terms-checkbox-2-rtl" Name="terms-checkbox-2" Checked="true" />
@@ -290,7 +290,6 @@
     private bool _itemRead = true;
     private bool _itemWrite;
     private bool _itemExecute;
-    private bool _showMultipleError;
     private string? _singleSubmitJson;
     private string? _multipleSubmitJson;
 
@@ -298,7 +297,7 @@
 @"<FieldGroup MaxWidth=""MaxWidth.IsSm"">
     <Field Orientation=""@Orientation.Horizontal"">
         <Check Id=""terms-checkbox"" Name=""terms-checkbox"" />
-        <Label For=""terms-checkbox"">Accept terms and conditions</Label>
+        <QuarkLabel For=""terms-checkbox"">Accept terms and conditions</QuarkLabel>
     </Field>
 
     <Field Orientation=""@Orientation.Horizontal"">
@@ -452,7 +451,7 @@
     <FieldGroup MaxWidth=""MaxWidth.IsSm"">
         <Field Orientation=""@Orientation.Horizontal"">
             <Check Id=""terms-checkbox-rtl"" Name=""terms-checkbox"" />
-            <Label For=""terms-checkbox-rtl"">قبول الشروط والأحكام</Label>
+            <QuarkLabel For=""terms-checkbox-rtl"">قبول الشروط والأحكام</QuarkLabel>
         </Field>
         <Field Orientation=""@Orientation.Horizontal"">
             <Check Id=""terms-checkbox-2-rtl"" Name=""terms-checkbox-2"" Checked=""true"" />
@@ -506,7 +505,6 @@
         else
             _multipleForm.Items.Remove(id);
 
-        _showMultipleError = false;
         return Task.CompletedTask;
     }
 
@@ -526,12 +524,10 @@
     {
         if (_multipleForm.Items.Count == 0)
         {
-            _showMultipleError = true;
             _multipleSubmitJson = null;
             return Task.CompletedTask;
         }
 
-        _showMultipleError = false;
         _multipleSubmitJson =
             $$"""
               {

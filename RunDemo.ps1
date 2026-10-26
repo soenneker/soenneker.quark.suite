@@ -128,7 +128,7 @@ function Stop-LingeringDemoProcesses {
 
             return $commandLine -match $escapedProject -or
                 $commandLine -match $escapedProjectDir -or
-                ($commandLine -match "Microsoft\.AspNetCore\.Components\.WebAssembly\.DevServer" -and $commandLine -match $escapedUrl)
+                ($commandLine -match "Microsoft\.AspNetCore\.Components\.Gateway" -and $commandLine -match $escapedUrl)
         }
 
     foreach ($process in $processes) {
