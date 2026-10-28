@@ -19,7 +19,7 @@ else
     <CascadingValue Value="@IsLoading" Name="IsLoading" >
 		@if (Visible)
 		{
-			<Div Id="@ElementId" Position="_renderCss0" Width="_renderCss1" MinWidth="_staticCss0">
+			<Div Id="@ElementId" Position="_renderCss0" Width="_renderCss1" MinWidth="_staticCss0" Style="display: flow-root;">
                 @TopContent
 
                 @if (SelectionEnabled && SelectedKeys.Count > 0)
@@ -35,15 +35,16 @@ else
                     </DataTableTopBar>
                 }
 
-                <Div Position="_renderCss0" Width="_renderCss1" MinWidth="_staticCss0" Style="@(IsLoading ? "min-height: 8rem;" : null)" OverflowX="_renderCss12" Height="@(Virtualize ? ViewportHeight : null)" OverflowY="@(Virtualize ? (CssValue<OverflowBuilder>?)Quark.Overflow.Auto : null)">
+                @* Give the 8px row blur three radii of paint space at the sides and bottom. The flow root contains the compensating bottom margin so the footer does not move. *@
+                <Div Position="_renderCss0" Width="_renderCss1" MinWidth="_staticCss0" Style="@(IsLoading ? "min-height: 8rem; padding-inline: 24px; padding-bottom: 24px; margin-inline: -24px; margin-bottom: -24px; width: calc(100% + 48px);" : null)" OverflowX="_renderCss12" Height="@(Virtualize ? ViewportHeight : null)" OverflowY="@(Virtualize ? (CssValue<OverflowBuilder>?)Quark.Overflow.Auto : null)">
                     @OverlayContent
                     @if (IsLoading && OverlayContent is null)
                     {
                         <Div data-slot="datatable-loading" Position="_renderCss13" Inset="_renderCss14" ZIndex="_renderCss15"
                              Display="_renderCss16" ItemsAlign="@(LoadingAtTop ? _loadingItemsStart : _loadingItemsCenter)" Justify="_renderCss17"
                              Padding="@(LoadingAtTop ? (CssValue<PaddingBuilder>?)_loadingPadding : null)"
-                             Style="background: color-mix(in srgb, var(--background) 60%, transparent);">
-                            <Spinner Size="_renderCss18" aria-label="@Localizer["LoadingData"]" />
+                             Style="background: transparent;">
+                            <Spinner MinimumArcLength="25" ShowTrack="true" Size="_renderCss18" aria-label="@Localizer["LoadingData"]" />
                         </Div>
                     }
 
@@ -446,7 +447,7 @@ else
         base.BuildAttributesCore(attributes);
         attributes["aria-busy"] = IsLoading ? "true" : "false";
 
-        PrependClassAttribute(attributes, "q-datatable caption-bottom", ref _lastPrependedClass);
+        PrependClassAttribute(attributes, "q-datatable caption-bottom [&[aria-busy=true]>tbody]:blur-sm [&[aria-busy=true]>tbody]:pointer-events-none", ref _lastPrependedClass);
 
         if (AdaptiveLayout)
             PrependClassAttribute(attributes, "[&>*>tr>td]:whitespace-normal [&>*>tr>td]:break-words [&>*>tr>td]:overflow-hidden [&>*>tr>th]:whitespace-normal [&>*>tr>th]:break-words [&>*>tr>th]:overflow-hidden", ref _lastPrependedClass2);

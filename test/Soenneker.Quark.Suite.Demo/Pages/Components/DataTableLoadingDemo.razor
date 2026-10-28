@@ -1,0 +1,62 @@
+<Section Space="Space.Y.Is4" MaxWidth="MaxWidth.Is4xl" Margin="Margin.FromTop.Is8">
+    <DemoSection Title="Loading overlay"
+                 Description="The header stays sharp while only the data rows blur behind the spinner. Toggle the overlay to compare loading and ready states."
+                 Code="@LoadingCode"
+                 CodeLanguage="razor"
+                 PreviewClass="preview w-full p-4 md:p-8"
+                 PreviewInnerClass="w-full">
+        <Div Space="Space.Y.Is4">
+            <Button Variant="ButtonVariant.Outline" OnClick="ToggleLoading">
+                @(_loading ? "Hide loading overlay" : "Show loading overlay")
+            </Button>
+            <DataTable IsLoading="@_loading">
+                <OverlayContent><DataTableLoader /></OverlayContent>
+                <TableContent>
+                    <Thead>
+                        <Tr><Th>Project</Th><Th>Status</Th><Th>Owner</Th></Tr>
+                    </Thead>
+                    <Tbody>
+                        <Tr><Td>Website refresh</Td><Td>In progress</Td><Td>Alex Morgan</Td></Tr>
+                        <Tr><Td>Customer portal</Td><Td>Review</Td><Td>Sam Rivera</Td></Tr>
+                        <Tr><Td>Reporting dashboard</Td><Td>Planned</Td><Td>Jordan Lee</Td></Tr>
+                        <Tr><Td>Mobile checkout</Td><Td>In progress</Td><Td>Taylor Chen</Td></Tr>
+                    </Tbody>
+                </TableContent>
+            </DataTable>
+        </Div>
+    </DemoSection>
+</Section>
+
+@code {
+    private bool _loading = true;
+
+    private void ToggleLoading() => _loading = !_loading;
+
+    private const string LoadingCode = """
+<Div Space="Space.Y.Is4">
+    <Button Variant="ButtonVariant.Outline" OnClick="ToggleLoading">
+        @(_loading ? "Hide loading overlay" : "Show loading overlay")
+    </Button>
+    <DataTable IsLoading="@_loading">
+        <OverlayContent><DataTableLoader /></OverlayContent>
+        <TableContent>
+            <Thead>
+                <Tr><Th>Project</Th><Th>Status</Th><Th>Owner</Th></Tr>
+            </Thead>
+            <Tbody>
+                <Tr><Td>Website refresh</Td><Td>In progress</Td><Td>Alex Morgan</Td></Tr>
+                <Tr><Td>Customer portal</Td><Td>Review</Td><Td>Sam Rivera</Td></Tr>
+                <Tr><Td>Reporting dashboard</Td><Td>Planned</Td><Td>Jordan Lee</Td></Tr>
+                <Tr><Td>Mobile checkout</Td><Td>In progress</Td><Td>Taylor Chen</Td></Tr>
+            </Tbody>
+        </TableContent>
+    </DataTable>
+</Div>
+
+@code {
+    private bool _loading = true;
+
+    private void ToggleLoading() => _loading = !_loading;
+}
+""";
+}
