@@ -37,8 +37,9 @@
             {
                 var option = filteredAutocompleteOptions[index];
                 var optionView = GetOptionView(option, index);
+                var preset = TagPresetSelector?.Invoke(option);
                 <button type="button" data-slot="tag-input-autocomplete-item" data-active="@(index == _activeAutocompleteIndex ? "true" : "false")" role="option" aria-selected="@(index == _activeAutocompleteIndex ? "true" : "false")" @onmousedown:preventDefault="true" class="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[active=true]:bg-accent data-[active=true]:text-accent-foreground" @onclick="optionView.Click">
-                    @option
+                    <Span @key="(option, preset)" DataSlot="tag-input-autocomplete-tag" Preset="preset" Class="@GetTagClass(preset is null)">@option</Span>
                 </button>
             }
         </div>
@@ -244,7 +245,7 @@
     public string? TagClass { get; set; }
 
     /// <summary>
-    /// Selects a preset for each tag value. A non-null preset replaces the shared variant colors;
+    /// Selects a preset for each tag value and its autocomplete pill. A non-null preset replaces the shared variant colors;
     /// tag sizing, interaction states, and TagClass still apply. Return null to use Variant.
     /// Use stable presets and a side-effect-free selector, which is also evaluated during render-key computation.
     /// </summary>
@@ -258,6 +259,9 @@
         var key = new HashCode();
         foreach (var value in Values)
             key.Add(TagPresetSelector?.Invoke(value));
+        if (EnableAutocomplete)
+            foreach (var option in AutocompleteOptions)
+                key.Add(TagPresetSelector?.Invoke(option));
         int nextKey = key.ToHashCode();
         if (nextKey != _tagPresetsKey)
         {
@@ -912,7 +916,12 @@
         hc.Add(TagListClass);
         hc.Add(AutocompleteClass);
         foreach (var delimiter in DelimiterList) hc.Add(delimiter);
-        foreach (var option in AutocompleteOptions) hc.Add(option);
+        foreach (var option in AutocompleteOptions)
+        {
+            hc.Add(option);
+            if (EnableAutocomplete)
+                hc.Add(TagPresetSelector?.Invoke(option));
+        }
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
