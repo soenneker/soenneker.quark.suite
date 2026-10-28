@@ -17,6 +17,15 @@ public sealed partial class RenderedShadcnParityTests
         cut.Find("[data-slot='datatable-loading']").ClassList.Should().Contain("items-center");
         cut.Find("table").GetAttribute("aria-busy").Should().Be("true");
         cut.Find("table").TextContent.Should().Contain("Cell");
+        cut.Instance.BlurWhileLoading.Should().BeFalse();
+        cut.Find("table").ClassList.Should().NotContain("[&[aria-busy=true]>tbody]:blur-sm")
+            .And.Contain("[&[aria-busy=true]>tbody]:pointer-events-none");
+        cut.Find("table").GetAttribute("aria-busy").Should().Be("true");
+        cut.Find("[data-slot='datatable-loading']");
+        cut.Render(p => p.Add(c => c.BlurWhileLoading, true));
+        cut.Find("table").ClassList.Should().Contain("[&[aria-busy=true]>tbody]:blur-sm");
+        cut.Render(p => p.Add(c => c.BlurWhileLoading, false));
+        cut.Find("table").ClassList.Should().NotContain("[&[aria-busy=true]>tbody]:blur-sm");
         cut.Render(p => p.Add(c => c.LoadingAtTop, true));
         cut.Find("[data-slot='datatable-loading']").ClassList.Should().Contain("items-start").And.Contain("pt-14");
         cut.Render(p => p.Add(c => c.LoadingAtTop, false));

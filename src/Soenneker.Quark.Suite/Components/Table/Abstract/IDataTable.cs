@@ -112,6 +112,10 @@ public interface IDataTable : ICancellableElement
     /// </summary>
     bool LoadingAtTop { get; set; }
 
+    /// <summary>Whether table rows blur while loading, including searches, sorting, and paging. Defaults to false.
+    /// Disabling blur preserves the loading indicator and prevents row interaction while loading.</summary>
+    bool BlurWhileLoading { get; set; }
+
     /// <summary>
     /// Gets or sets whether column widths use fixed table layout, preventing cell content changes from resizing columns.
     /// Widths come from column definitions or the first row; unspecified columns share the remaining space.

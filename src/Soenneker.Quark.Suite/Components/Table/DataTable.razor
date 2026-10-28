@@ -19,7 +19,7 @@ else
     <CascadingValue Value="@IsLoading" Name="IsLoading" >
 		@if (Visible)
 		{
-			<Div Id="@ElementId" Position="_renderCss0" Width="_renderCss1" MinWidth="_staticCss0" Style="display: flow-root;">
+			<Div Id="@ElementId" Position="_renderCss0" Width="_renderCss1" MinWidth="_staticCss0">
                 @TopContent
 
                 @if (SelectionEnabled && SelectedKeys.Count > 0)
@@ -35,8 +35,8 @@ else
                     </DataTableTopBar>
                 }
 
-                @* Give the 8px row blur three radii of paint space at the sides and bottom. The flow root contains the compensating bottom margin so the footer does not move. *@
-                <Div Position="_renderCss0" Width="_renderCss1" MinWidth="_staticCss0" Style="@(IsLoading ? "min-height: 8rem; padding-inline: 24px; padding-bottom: 24px; margin-inline: -24px; margin-bottom: -24px; width: calc(100% + 48px);" : null)" OverflowX="_renderCss12" Height="@(Virtualize ? ViewportHeight : null)" OverflowY="@(Virtualize ? (CssValue<OverflowBuilder>?)Quark.Overflow.Auto : null)">
+                @* Keep the scroll viewport the same width while loading; blur paint must not expand its layout. *@
+                <Div Position="_renderCss0" Width="_renderCss1" MinWidth="_staticCss0" Style="@(IsLoading ? "min-height: 8rem;" : null)" OverflowX="_renderCss12" Height="@(Virtualize ? ViewportHeight : null)" OverflowY="@(Virtualize ? (CssValue<OverflowBuilder>?)Quark.Overflow.Auto : null)">
                     @OverlayContent
                     @if (IsLoading && OverlayContent is null)
                     {
@@ -306,6 +306,9 @@ else
     public bool LoadingAtTop { get; set; }
 
     [Parameter]
+    public bool BlurWhileLoading { get; set; }
+
+    [Parameter]
     public RenderFragment? BottomContent { get; set; }
 
     [Parameter]
@@ -447,7 +450,9 @@ else
         base.BuildAttributesCore(attributes);
         attributes["aria-busy"] = IsLoading ? "true" : "false";
 
-        PrependClassAttribute(attributes, "q-datatable caption-bottom [&[aria-busy=true]>tbody]:blur-sm [&[aria-busy=true]>tbody]:pointer-events-none", ref _lastPrependedClass);
+        PrependClassAttribute(attributes, BlurWhileLoading
+            ? "q-datatable caption-bottom [&[aria-busy=true]>tbody]:blur-sm [&[aria-busy=true]>tbody]:pointer-events-none"
+            : "q-datatable caption-bottom [&[aria-busy=true]>tbody]:pointer-events-none", ref _lastPrependedClass);
 
         if (AdaptiveLayout)
             PrependClassAttribute(attributes, "[&>*>tr>td]:whitespace-normal [&>*>tr>td]:break-words [&>*>tr>td]:overflow-hidden [&>*>tr>th]:whitespace-normal [&>*>tr>th]:break-words [&>*>tr>th]:overflow-hidden", ref _lastPrependedClass2);
@@ -1095,6 +1100,7 @@ else
         hc.Add(ColumnSizing);
         hc.Add(IsLoading);
         hc.Add(LoadingAtTop);
+        hc.Add(BlurWhileLoading);
 
         hc.Add(CurrentPage);
         hc.Add(PageSize);
