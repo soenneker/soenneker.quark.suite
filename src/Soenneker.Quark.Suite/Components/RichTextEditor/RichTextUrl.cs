@@ -9,6 +9,7 @@ public static class RichTextUrl
         value = value.Trim();
         foreach (var c in value) if (char.IsControl(c) || c == '\\') return false;
         if (value.StartsWith("//", StringComparison.Ordinal)) return false;
+        if (value.StartsWith("/", StringComparison.Ordinal)) return true;
         if (Uri.TryCreate(value, UriKind.Absolute, out var uri)) return uri.Scheme is "http" or "https" or "mailto";
         return !value.Contains(':');
     }
