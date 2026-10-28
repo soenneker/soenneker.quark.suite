@@ -12,9 +12,14 @@
           @oninput="(_cachedHandleInputDelegate ??= HandleInput)"></textarea>
 
 
-<AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
+@if (AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)
+{
+    <span data-slot="input-group-autosave-status" class="ml-auto mr-3 inline-flex shrink-0">
+        <AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
                 Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
                 SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+    </span>
+}
 
 @code {
     private async Task PublishAutoSaveValue(string? value)

@@ -7,11 +7,60 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
+    [Test]
+    public void AutoSave_layout_keeps_tag_status_beside_input()
+    {
+        foreach (bool inline in new[] { false, true })
+        {
+            var cut = Render<TagInput>(p => p.Add(c => c.InlineTags, inline)
+                .Add(c => c.Values, new[] { "Existing" })
+                .Add(c => c.AutoSave, true)
+                .Add(c => c.OnAutoSave, (_, _) => ValueTask.CompletedTask));
+            var status = cut.Find("[data-slot='autosave-status']");
+            var row = status.ParentElement!;
+            row.GetAttribute("data-slot").Should().Be("tag-input-row");
+            row.ClassList.Should().Contain("flex");
+            row.QuerySelector("input").Should().NotBeNull();
+            row.LastElementChild!.GetAttribute("data-slot").Should().Be("autosave-status");
+        }
+    }
+
+    [Test]
+    public void AutoSave_layout_right_aligns_composite_status_rows()
+    {
+        Services.AddScoped<IRichTextEditorInterop, RichTextEditorInterop>();
+        var module = JSInterop.SetupModule("./_content/Soenneker.Quark.Suite/js/richtextinterop.js");
+        module.SetupVoid("mount", _ => true).SetVoidResult();
+        module.SetupVoid("setContent", _ => true).SetVoidResult();
+        module.SetupVoid("unmount", _ => true).SetVoidResult();
+        var query = Render<QueryBuilder>(p => p.Add(c => c.AutoSave, true)
+            .Add(c => c.OnAutoSave, (_, _) => ValueTask.CompletedTask));
+        var editor = Render<RichTextEditor>(p => p.Add(c => c.ReadOnly, true)
+            .Add(c => c.AutoSave, true).Add(c => c.OnAutoSave, (_, _) => ValueTask.CompletedTask));
+        var questionnaire = Render<Questionnaire>(p => p.Add(c => c.AutoSave, true)
+            .Add(c => c.OnAutoSave, (_, _) => ValueTask.CompletedTask));
+        foreach (var status in new[] { query.Find("[data-slot='autosave-status']"),
+                     editor.Find("[data-slot='autosave-status']"), questionnaire.Find("[data-slot='autosave-status']") })
+            status.ParentElement!.ClassList.Should().Contain("flex").And.Contain("justify-end");
+    }
+
+    [Test]
+    public void AutoSave_layout_input_group_status_aligns_right()
+    {
+        var input = Render<InputGroupInput>(p => p.Add(c => c.AutoSave, true)
+            .Add(c => c.OnAutoSave, (_, _) => ValueTask.CompletedTask));
+        var textarea = Render<InputGroupTextarea>(p => p.Add(c => c.AutoSave, true)
+            .Add(c => c.OnAutoSave, (_, _) => ValueTask.CompletedTask));
+        input.Find("[data-slot='autosave-status']").ParentElement!.ClassList.Should().Contain("ml-auto");
+        textarea.Find("[data-slot='autosave-status']").ParentElement!.ClassList.Should().Contain("ml-auto");
+    }
+
     [Test]
     public void AutoSaveStatus_saved_state_without_completed_save_reserves_silent_status_slot()
     {

@@ -13,7 +13,7 @@
 
     @if (!InlineTags && IsInputOnTop)
     {
-        @RenderInputContainer(shouldRenderAutocomplete)
+        @RenderInputRow(shouldRenderAutocomplete)
     }
 
     @if (!InlineTags)
@@ -23,11 +23,11 @@
 
     @if (InlineTags)
     {
-        @RenderInputContainer(shouldRenderAutocomplete)
+        @RenderInputRow(shouldRenderAutocomplete)
     }
     else if (!IsInputOnTop)
     {
-        @RenderInputContainer(shouldRenderAutocomplete)
+        @RenderInputRow(shouldRenderAutocomplete)
     }
 
     @if (shouldRenderAutocomplete)
@@ -58,9 +58,7 @@
             }
         </div>
     }
-    <AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
-                    Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
-                    SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+
 </div>
 
 @code {
@@ -334,6 +332,15 @@
         Position ??= _defaultPosition;
         Width ??= _defaultWidth;
     }
+
+    private RenderFragment RenderInputRow(bool autocomplete) => @<Div Display="Soenneker.Quark.Display.Flex" ItemsAlign="Items.Center" Gap="Soenneker.Quark.Gap.Is2" MinWidth="Soenneker.Quark.MinWidth.Is0" DataSlot="tag-input-row">
+        <Div Flex="Soenneker.Quark.Flex.Is1" MinWidth="Soenneker.Quark.MinWidth.Is0">
+            @RenderInputContainer(autocomplete)
+        </Div>
+        <AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
+                        Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                        SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+    </Div>;
 
     private RenderFragment RenderInputContainer(bool autocomplete) => autocomplete
         ? _inputWithAutocomplete ??= CreateInputContainer(true)

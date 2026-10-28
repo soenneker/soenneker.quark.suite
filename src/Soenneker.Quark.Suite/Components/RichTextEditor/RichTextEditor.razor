@@ -41,9 +41,14 @@
     <div @ref="_editor" role="@(ReadOnly ? "document" : "textbox")" aria-multiline="@(!ReadOnly ? "true" : null)" aria-readonly="@(ReadOnly ? "true" : "false")" aria-label="@(Label ?? Text["Editor"])" tabindex="0" class="min-h-32 p-3 outline-none [&_a]:underline [&_ul]:list-disc [&_ul]:ps-6 [&_ol]:list-decimal [&_ol]:ps-6"></div>
     @if (_uploading) { <div role="status">@Text["Loading"]</div> }
     @if (_error is not null) { <div role="alert" class="p-2 text-destructive">@Text[_error]</div> }
-<AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
-                Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
-                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+    @if (AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)
+    {
+        <Div Display="Soenneker.Quark.Display.Flex" Justify="Soenneker.Quark.Justify.End" DataSlot="autosave-status-row">
+            <AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved"
+                            Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                            SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+        </Div>
+    }
 </div>
 
 

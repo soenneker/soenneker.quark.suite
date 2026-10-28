@@ -55,9 +55,14 @@
             <button type="button" class="rounded border px-3 py-1" @onclick="() => Publish(Value with { Rules = [], Groups = [] })">@Text["Clear"]</button>
         </div>
     </fieldset>
-<AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
-                Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
-                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+    @if (AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)
+    {
+        <Div Display="Soenneker.Quark.Display.Flex" Justify="Soenneker.Quark.Justify.End" DataSlot="autosave-status-row">
+            <AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved"
+                            Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
+                            SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+        </Div>
+    }
 </div>
 
 
