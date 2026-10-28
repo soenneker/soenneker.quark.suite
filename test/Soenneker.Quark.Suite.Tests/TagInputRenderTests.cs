@@ -10,6 +10,41 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public async ValueTask TagInput_presets_color_individual_tags_and_preserve_removal(CancellationToken cancellationToken)
+    {
+        var red = new QuarkPresetToken("test-tag-red", context =>
+        {
+            context.BackgroundColor = BackgroundColor.Token("red-100");
+            context.TextColor = TextColor.Token("red-900");
+        });
+        var blue = new QuarkPresetToken("test-tag-blue", context =>
+        {
+            context.BackgroundColor = BackgroundColor.Token("blue-100");
+            context.TextColor = TextColor.Token("blue-900");
+        });
+        QuarkPresetToken? selectedPreset = red;
+        string[] values = ["Colored", "Default"];
+        var cut = Render<TagInput>(p => p.Add(c => c.Values, values)
+            .Add(c => c.TagPresetSelector, tag => tag == "Colored" ? selectedPreset : null)
+            .Add(c => c.ValuesChanged, next => values = next));
+
+        var tags = cut.FindAll("[data-slot='tag-input-tag']");
+        tags[0].ClassList.Should().Contain("bg-red-100").And.Contain("text-red-900");
+        tags[0].ClassList.Should().NotContain("bg-secondary");
+        tags[1].ClassList.Should().Contain("bg-secondary");
+
+        selectedPreset = blue;
+        cut.Render();
+        cut.Find("[data-slot='tag-input-tag']").ClassList.Should().Contain("bg-blue-100").And.NotContain("bg-red-100");
+
+        selectedPreset = null;
+        cut.Render();
+        cut.Find("[data-slot='tag-input-tag']").ClassList.Should().Contain("bg-secondary").And.NotContain("bg-blue-100");
+        await cut.Find("[aria-label='Remove Colored']").ClickAsync(new MouseEventArgs());
+        values.Should().Equal("Default");
+    }
+
+    [Test]
     public void TagInput_assigns_its_id_and_label_reference_only_to_the_input()
     {
         var cut = Render<TagInput>(p => p.Add(c => c.Id, "topics")

@@ -22,6 +22,15 @@
     </Section>
 
     <Section Space="Space.Y.Is4">
+        <DemoSection Title="Tag colors" Description="Select a typed preset for each tag. Return null to retain the shared variant colors." Code="@TagColorsCode">
+            <Field Width="Width.IsFull" MaxWidth="MaxWidth.IsMd">
+                <FieldLabel For="tag-input-colors">Topics</FieldLabel>
+                <TagInput Id="tag-input-colors" @bind-Values="_coloredTags" TagPresetSelector="SelectTagPreset" />
+            </Field>
+        </DemoSection>
+    </Section>
+
+    <Section Space="Space.Y.Is4">
         <DemoSection Title="Autocomplete"
                      Description="Autocomplete suggestions can be used as hints or as a strict tag source."
                      Code="@AutocompleteCode"
@@ -61,6 +70,48 @@
 </Div>
 
 @code {
+    private string[] _coloredTags = ["Design", "Photography", "Other"];
+    private static readonly QuarkPresetToken DesignTagPreset = new("demo-tag-design", context =>
+    {
+        context.BackgroundColor = BackgroundColor.Token("violet-100").OnDark.Token("violet-950");
+        context.TextColor = TextColor.Token("violet-900").OnDark.Token("violet-100");
+    });
+    private static readonly QuarkPresetToken PhotographyTagPreset = new("demo-tag-photography", context =>
+    {
+        context.BackgroundColor = BackgroundColor.Token("amber-100").OnDark.Token("amber-950");
+        context.TextColor = TextColor.Token("amber-900").OnDark.Token("amber-100");
+    });
+    private static QuarkPresetToken? SelectTagPreset(string tag) => tag switch
+    {
+        "Design" => DesignTagPreset,
+        "Photography" => PhotographyTagPreset,
+        _ => null
+    };
+
+    private const string TagColorsCode = """
+        <TagInput @bind-Values="_tags" TagPresetSelector="SelectTagPreset" />
+
+        @code {
+            private string[] _tags = ["Design", "Photography", "Other"];
+            private static readonly QuarkPresetToken DesignPreset = new("tag-design", context =>
+            {
+                context.BackgroundColor = BackgroundColor.Token("violet-100").OnDark.Token("violet-950");
+                context.TextColor = TextColor.Token("violet-900").OnDark.Token("violet-100");
+            });
+            private static readonly QuarkPresetToken PhotographyPreset = new("tag-photography", context =>
+            {
+                context.BackgroundColor = BackgroundColor.Token("amber-100").OnDark.Token("amber-950");
+                context.TextColor = TextColor.Token("amber-900").OnDark.Token("amber-100");
+            });
+            private static QuarkPresetToken? SelectTagPreset(string tag) => tag switch
+            {
+                "Design" => DesignPreset,
+                "Photography" => PhotographyPreset,
+                _ => null
+            };
+        }
+        """;
+
     private string[] _basicTags = ["Sports", "Programming", "Travel"];
     private string[] _autocompleteTags = ["Sports", "Programming", "Travel"];
     private string[] _listTags = ["Blazor", "Accessibility", "Design systems"];

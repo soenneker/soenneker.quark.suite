@@ -245,6 +245,30 @@
     [Parameter]
     public string? TagClass { get; set; }
 
+    /// <summary>
+    /// Selects a preset for each tag value. A non-null preset replaces the shared variant colors;
+    /// tag sizing, interaction states, and TagClass still apply. Return null to use Variant.
+    /// Use stable presets and a side-effect-free selector, which is also evaluated during render-key computation.
+    /// </summary>
+    [Parameter]
+    public Func<string, QuarkPresetToken?>? TagPresetSelector { get; set; }
+
+    private int _tagPresetsKey;
+
+    protected override void OnParametersSet()
+    {
+        var key = new HashCode();
+        foreach (var value in Values)
+            key.Add(TagPresetSelector?.Invoke(value));
+        int nextKey = key.ToHashCode();
+        if (nextKey != _tagPresetsKey)
+        {
+            _tagPresetsKey = nextKey;
+            InvalidateRender();
+        }
+        base.OnParametersSet();
+    }
+
     [Parameter]
     public string? TagListClass { get; set; }
 
@@ -363,41 +387,46 @@
         builder.AddAttribute(2, "role", "list");
         builder.AddAttribute(3, "class", GetTagListClass());
 
-        var tagClass = GetTagClass();
         for (var i = 0; i < Values.Length; i++)
         {
             var tag = Values[i];
-            var tagIndex = i;
+            var preset = TagPresetSelector?.Invoke(tag);
             var view = GetTagView(tag, i);
-            builder.OpenElement(4, "span");
+            builder.OpenComponent<Span>(4);
+            // Recreate the styled wrapper when its preset changes so removed preset values cannot persist.
+            builder.SetKey((i, preset));
             builder.AddAttribute(5, "data-slot", "tag-input-tag");
             builder.AddAttribute(6, "data-active", CurrentActiveTagIndex == i ? "true" : "false");
-            builder.AddAttribute(7, "role", "listitem");
-            builder.AddAttribute(8, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, view.Click));
-            builder.AddAttribute(9, "class", tagClass);
-
-            builder.OpenElement(10, "span");
-            builder.AddAttribute(11, "data-slot", "tag-input-tag-text");
-            builder.AddContent(12, view.GetText(TruncateTags, TruncateLength));
-            builder.CloseElement();
-
-            if (!ReadOnly && !Disabled)
+            builder.AddAttribute(7, nameof(Span.Role), "listitem");
+            builder.AddAttribute(8, nameof(Span.OnClick), EventCallback.Factory.Create<MouseEventArgs>(this, view.Click));
+            builder.AddAttribute(9, nameof(Span.Class), GetTagClass(preset is null));
+            builder.AddAttribute(10, nameof(Span.Preset), preset);
+            builder.AddAttribute(11, nameof(Span.ChildContent), (RenderFragment)(builder =>
             {
-                builder.OpenElement(13, "button");
-                builder.AddAttribute(14, "data-slot", "tag-input-tag-remove");
-                builder.AddAttribute(15, "type", "button");
-                builder.AddAttribute(15, "aria-label", view.RemoveLabel);
-                builder.AddEventStopPropagationAttribute(15, "onclick", true);
-                builder.AddAttribute(16, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, view.Remove));
-                builder.AddAttribute(17, "class", "-me-1 inline-flex size-4 items-center justify-center rounded-full text-current/70 outline-none hover:text-current focus-visible:ring-2 focus-visible:ring-ring");
-                builder.OpenComponent<Icon>(18);
-                builder.AddAttribute(19, nameof(Icon.Name), LucideIcon.X);
-                builder.AddAttribute(20, nameof(Class), "size-3");
-                builder.CloseComponent();
-                builder.CloseElement();
-            }
 
-            builder.CloseElement();
+                builder.OpenElement(10, "span");
+                builder.AddAttribute(11, "data-slot", "tag-input-tag-text");
+                builder.AddContent(12, view.GetText(TruncateTags, TruncateLength));
+                builder.CloseElement();
+
+                if (!ReadOnly && !Disabled)
+                {
+                    builder.OpenElement(13, "button");
+                    builder.AddAttribute(14, "data-slot", "tag-input-tag-remove");
+                    builder.AddAttribute(15, "type", "button");
+                    builder.AddAttribute(15, "aria-label", view.RemoveLabel);
+                    builder.AddEventStopPropagationAttribute(15, "onclick", true);
+                    builder.AddAttribute(16, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, view.Remove));
+                    builder.AddAttribute(17, "class", "-me-1 inline-flex size-4 items-center justify-center rounded-full text-current/70 outline-none hover:text-current focus-visible:ring-2 focus-visible:ring-ring");
+                    builder.OpenComponent<Icon>(18);
+                    builder.AddAttribute(19, nameof(Icon.Name), LucideIcon.X);
+                    builder.AddAttribute(20, nameof(Class), "size-3");
+                    builder.CloseComponent();
+                    builder.CloseElement();
+                }
+
+            }));
+            builder.CloseComponent();
         }
 
         builder.CloseElement();
@@ -770,10 +799,11 @@
         return cls;
     }
 
-    private string GetTagClass()
+    private string GetTagClass(bool useVariant)
     {
         var cls = "inline-flex max-w-full items-center gap-1 border font-medium transition-colors data-[active=true]:ring-2 data-[active=true]:ring-ring data-[active=true]:ring-offset-1";
-        cls = AppendToClass(cls, GetTagVariantClass(), ref _classPart4);
+        if (useVariant)
+            cls = AppendToClass(cls, GetTagVariantClass(), ref _classPart4);
         cls = AppendToClass(cls, GetTagSizeClass(), ref _classPart5);
         if (TagClass.HasContent())
             cls = AppendToClass(cls, TagClass!, ref _classPart6);
@@ -842,8 +872,12 @@
         hc.Add(_activeAutocompleteIndex);
         hc.Add(_isFocused);
         hc.Add(Values.Length);
+        hc.Add(TagPresetSelector);
         foreach (var value in Values)
+        {
             hc.Add(value);
+            hc.Add(TagPresetSelector?.Invoke(value));
+        }
         hc.Add(ActiveTagIndex);
         hc.Add(MaxTags);
         hc.Add(MinTags);
