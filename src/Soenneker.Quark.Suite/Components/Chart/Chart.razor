@@ -914,7 +914,8 @@ data requires proportional horizontal spacing instead of categorical spacing.
         if (Math.Abs(_maximum - _minimum) < 0.0000001)
         {
             var padding = Math.Abs(_maximum) < 1 ? 1 : Math.Abs(_maximum) * 0.1;
-            _minimum -= padding;
+            if (!Options.IncludeZero || _minimum != 0 || _maximum != 0)
+                _minimum -= padding;
             _maximum += padding;
         }
     }

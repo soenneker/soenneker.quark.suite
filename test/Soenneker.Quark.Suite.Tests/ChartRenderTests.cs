@@ -629,6 +629,24 @@ public sealed class ChartRenderTests : BunitContext
     }
 
     [Test]
+    public void All_zero_series_keep_the_baseline_at_the_bottom_when_including_zero()
+    {
+        var cut = Render<Chart>(p => p
+            .Add(c => c.Type, ChartType.Area)
+            .Add(c => c.Labels, Labels)
+            .Add(c => c.Series, new ChartSeries[] { new("Calls", new double[] { 0, 0, 0 }) })
+            .Add(c => c.Options, new ChartOptions { IncludeZero = true }));
+
+        cut.Find("[data-slot=chart]").GetAttribute("data-scroll-y-min").Should().Be("0");
+        cut.Find("[data-slot=chart]").GetAttribute("data-scroll-y-max").Should().Be("1");
+
+        cut.Render(p => p.Add(c => c.Options, new ChartOptions { IncludeZero = false }));
+
+        cut.Find("[data-slot=chart]").GetAttribute("data-scroll-y-min").Should().Be("-1");
+        cut.Find("[data-slot=chart]").GetAttribute("data-scroll-y-max").Should().Be("1");
+    }
+
+    [Test]
     public void Svg_numbers_keep_invariant_three_decimal_rounding_and_large_timestamps()
     {
         var cut = Render<Chart>(p => p.Add(c => c.Series, new ChartSeries[] { new("Activity", new double[] { 1, 2 }) }));
