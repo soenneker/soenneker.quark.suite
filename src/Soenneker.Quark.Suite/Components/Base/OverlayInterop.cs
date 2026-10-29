@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -38,7 +39,7 @@ public sealed class OverlayInterop : IOverlayInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("activate", linked, overlayId, container, trapFocus, lockScroll, initialFocusSelector);
+            await module.InvokeVoidWithContextAsync("activate", linked, overlayId, container, trapFocus, lockScroll, initialFocusSelector);
         }
     }
 
@@ -49,7 +50,7 @@ public sealed class OverlayInterop : IOverlayInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("activateScrollLock", linked, overlayId);
+            await module.InvokeVoidWithContextAsync("activateScrollLock", linked, overlayId);
         }
     }
 
@@ -60,7 +61,7 @@ public sealed class OverlayInterop : IOverlayInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("deactivate", linked, overlayId, unlockScroll);
+            await module.InvokeVoidWithContextAsync("deactivate", linked, overlayId, unlockScroll);
         }
     }
 
@@ -71,7 +72,7 @@ public sealed class OverlayInterop : IOverlayInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("releaseScrollLocks", linked);
+            await module.InvokeVoidWithContextAsync("releaseScrollLocks", linked);
         }
     }
 

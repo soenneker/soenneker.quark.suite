@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
@@ -53,7 +54,7 @@ public sealed class SonnerInterop : ISonnerInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("registerHotkey", linked, section, JsonSerializer.SerializeToElement(hotkey, QuarkInteropJsonContext.Default.IReadOnlyListString));
+            await module.InvokeVoidWithContextAsync("registerHotkey", linked, section, JsonSerializer.SerializeToElement(hotkey, QuarkInteropJsonContext.Default.IReadOnlyListString));
         }
     }
 
@@ -65,7 +66,7 @@ public sealed class SonnerInterop : ISonnerInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("unregisterHotkey", linked, section);
+            await module.InvokeVoidWithContextAsync("unregisterHotkey", linked, section);
         }
     }
 
@@ -77,7 +78,7 @@ public sealed class SonnerInterop : ISonnerInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeQuarkAsync<bool>("registerSwipeHandlers", linked, section, callbackReference);
+            return await module.InvokeWithContextAsync<bool>("registerSwipeHandlers", linked, section, callbackReference);
         }
     }
 
@@ -89,7 +90,7 @@ public sealed class SonnerInterop : ISonnerInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("unregisterSwipeHandlers", linked, section);
+            await module.InvokeVoidWithContextAsync("unregisterSwipeHandlers", linked, section);
         }
     }
 
@@ -101,7 +102,7 @@ public sealed class SonnerInterop : ISonnerInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            var payload = await module.InvokeQuarkAsync<JsonElement?>("measureToastHeights", linked, section);
+            var payload = await module.InvokeWithContextAsync<JsonElement?>("measureToastHeights", linked, section);
             return QuarkInteropJson.Deserialize(payload, QuarkInteropJsonContext.Default.DictionaryStringDouble)!;
         }
     }

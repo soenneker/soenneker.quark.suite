@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
@@ -56,7 +57,7 @@ public sealed class NodeEditorInterop : INodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            var payload = await module.InvokeQuarkAsync<JsonElement?>("clientToGraphPoint", linked, id, clientX, clientY);
+            var payload = await module.InvokeWithContextAsync<JsonElement?>("clientToGraphPoint", linked, id, clientX, clientY);
             return QuarkInteropJson.Deserialize(payload, QuarkInteropJsonContext.Default.NodeEditorGraphPoint)!;
         }
     }
@@ -72,7 +73,7 @@ public sealed class NodeEditorInterop : INodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync(identifier, linked, args);
+            await module.InvokeVoidWithContextAsync(identifier, linked, args);
         }
     }
 

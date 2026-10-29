@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 
 namespace Soenneker.Quark;
@@ -23,13 +24,13 @@ public sealed class TablesInterop : ITablesInterop
     public async ValueTask StartAdaptiveLayout(ElementReference element, ElementReference columns, TableColumnSizingOptions options, CancellationToken cancellationToken = default)
     {
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
-        await module.InvokeQuarkVoidAsync("initialize", cancellationToken, element, columns, JsonSerializer.SerializeToElement(options, QuarkInteropJsonContext.Default.TableColumnSizingOptions));
+        await module.InvokeVoidWithContextAsync("initialize", cancellationToken, element, columns, JsonSerializer.SerializeToElement(options, QuarkInteropJsonContext.Default.TableColumnSizingOptions));
     }
 
     public async ValueTask StopAdaptiveLayout(ElementReference element, CancellationToken cancellationToken = default)
     {
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
-        await module.InvokeQuarkVoidAsync("destroy", cancellationToken, element);
+        await module.InvokeVoidWithContextAsync("destroy", cancellationToken, element);
     }
 
     public async ValueTask DisposeAsync() => await _moduleImportUtil.DisposeContentModule(_modulePath);

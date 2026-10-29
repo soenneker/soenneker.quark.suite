@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -39,7 +40,7 @@ public sealed class ResizableInterop : IResizableInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("registerHandle", linked, handle, group, orientation, callbackReference, handleIndex);
+            await module.InvokeVoidWithContextAsync("registerHandle", linked, handle, group, orientation, callbackReference, handleIndex);
         }
     }
 
@@ -50,7 +51,7 @@ public sealed class ResizableInterop : IResizableInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("unregisterHandle", linked, handle);
+            await module.InvokeVoidWithContextAsync("unregisterHandle", linked, handle);
         }
     }
 
@@ -62,7 +63,7 @@ public sealed class ResizableInterop : IResizableInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("startDrag", linked, group, pointerId, clientX, clientY, orientation, callbackReference, handleIndex);
+            await module.InvokeVoidWithContextAsync("startDrag", linked, group, pointerId, clientX, clientY, orientation, callbackReference, handleIndex);
         }
     }
 
@@ -72,7 +73,7 @@ public sealed class ResizableInterop : IResizableInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("stopDrag", linked, group);
+            await module.InvokeVoidWithContextAsync("stopDrag", linked, group);
         }
     }
 
@@ -83,7 +84,7 @@ public sealed class ResizableInterop : IResizableInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("stopDrag", linked);
+            await module.InvokeVoidWithContextAsync("stopDrag", linked);
         }
     }
 

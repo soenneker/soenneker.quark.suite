@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -30,7 +31,7 @@ public sealed class CarouselInterop : ICarouselInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("initialize", linked, element, callbackReference, currentIndex, isVertical, align);
+            await module.InvokeVoidWithContextAsync("initialize", linked, element, callbackReference, currentIndex, isVertical, align);
         }
     }
 
@@ -42,7 +43,7 @@ public sealed class CarouselInterop : ICarouselInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeQuarkAsync<double>("measureOffset", linked, element, currentIndex, isVertical, align);
+            return await module.InvokeWithContextAsync<double>("measureOffset", linked, element, currentIndex, isVertical, align);
         }
     }
 
@@ -53,7 +54,7 @@ public sealed class CarouselInterop : ICarouselInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("dispose", linked, element);
+            await module.InvokeVoidWithContextAsync("dispose", linked, element);
         }
     }
 

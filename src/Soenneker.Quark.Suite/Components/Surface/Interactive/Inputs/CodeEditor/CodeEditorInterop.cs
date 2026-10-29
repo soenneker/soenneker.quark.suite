@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
@@ -66,19 +67,19 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         }
 
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
-        await module.InvokeQuarkVoidAsync("ensureConfigured", token, _localModulePath, JsonSerializer.SerializeToElement(_localWorkerUrls, QuarkInteropJsonContext.Default.IReadOnlyDictionaryStringString));
+        await module.InvokeVoidWithContextAsync("ensureConfigured", token, _localModulePath, JsonSerializer.SerializeToElement(_localWorkerUrls, QuarkInteropJsonContext.Default.IReadOnlyDictionaryStringString));
     }
 
     public async ValueTask ObserveVisibility(ElementReference container, DotNetObjectReference<CodeEditor> receiver, CancellationToken cancellationToken = default)
     {
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
-        await module.InvokeQuarkVoidAsync("observeVisibility", cancellationToken, container, receiver);
+        await module.InvokeVoidWithContextAsync("observeVisibility", cancellationToken, container, receiver);
     }
 
     public async ValueTask UnobserveVisibility(ElementReference container, CancellationToken cancellationToken = default)
     {
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
-        await module.InvokeQuarkVoidAsync("unobserveVisibility", cancellationToken, container);
+        await module.InvokeVoidWithContextAsync("unobserveVisibility", cancellationToken, container);
     }
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
@@ -97,7 +98,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("createEditor", linked, container, optionsJson);
+            await module.InvokeVoidWithContextAsync("createEditor", linked, container, optionsJson);
         }
     }
 
@@ -109,7 +110,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("layoutEditor", linked, container);
+            await module.InvokeVoidWithContextAsync("layoutEditor", linked, container);
         }
     }
 
@@ -120,7 +121,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("updateEditorOptions", linked, container, readOnly, wordWrap, minimap, autoHeight, minLines, maxLines, ariaLabel);
+            await module.InvokeVoidWithContextAsync("updateEditorOptions", linked, container, readOnly, wordWrap, minimap, autoHeight, minLines, maxLines, ariaLabel);
         }
     }
 
@@ -132,7 +133,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("setValue", linked, container, value);
+            await module.InvokeVoidWithContextAsync("setValue", linked, container, value);
         }
     }
 
@@ -144,7 +145,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeQuarkAsync<string?>("getValue", linked, container);
+            return await module.InvokeWithContextAsync<string?>("getValue", linked, container);
         }
     }
 
@@ -156,7 +157,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("setLanguage", linked, container, language);
+            await module.InvokeVoidWithContextAsync("setLanguage", linked, container, language);
         }
     }
 
@@ -168,7 +169,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("setTheme", linked, theme);
+            await module.InvokeVoidWithContextAsync("setTheme", linked, theme);
         }
     }
 
@@ -179,7 +180,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("disposeEditor", linked, container);
+            await module.InvokeVoidWithContextAsync("disposeEditor", linked, container);
         }
     }
 
@@ -191,7 +192,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("updateContentHeight", linked, container, minLines, maxLines);
+            await module.InvokeVoidWithContextAsync("updateContentHeight", linked, container, minLines, maxLines);
         }
     }
 
@@ -203,7 +204,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("addContentChangeListener", linked, container, minLines, maxLines);
+            await module.InvokeVoidWithContextAsync("addContentChangeListener", linked, container, minLines, maxLines);
         }
     }
 
@@ -216,7 +217,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("registerContentChangedCallback", linked, container, dotNetRef);
+            await module.InvokeVoidWithContextAsync("registerContentChangedCallback", linked, container, dotNetRef);
         }
     }
 
@@ -229,7 +230,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("configureFileDrop", linked, container, dropZone, inputId);
+            await module.InvokeVoidWithContextAsync("configureFileDrop", linked, container, dropZone, inputId);
         }
     }
 
@@ -240,7 +241,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("removeFileDrop", linked, container);
+            await module.InvokeVoidWithContextAsync("removeFileDrop", linked, container);
         }
     }
 
@@ -252,7 +253,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("insertTextAtDropPosition", linked, container, text);
+            await module.InvokeVoidWithContextAsync("insertTextAtDropPosition", linked, container, text);
         }
     }
 
@@ -263,7 +264,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         using (source)
         {
             var themeModule = await _moduleImportUtil.GetContentModuleReference(_themeModulePath, linked);
-            await themeModule.InvokeQuarkVoidAsync("registerThemeChangedCallback", linked, dotNetRef);
+            await themeModule.InvokeVoidWithContextAsync("registerThemeChangedCallback", linked, dotNetRef);
         }
     }
 
@@ -272,7 +273,7 @@ public sealed class CodeEditorInterop : ICodeEditorInterop
         try
         {
             var themeModule = await _moduleImportUtil.GetContentModuleReference(_themeModulePath);
-            await themeModule.InvokeQuarkVoidAsync("unregisterThemeChangedCallback", dotNetRef);
+            await themeModule.InvokeVoidWithContextAsync("unregisterThemeChangedCallback", dotNetRef);
         }
         catch
         {

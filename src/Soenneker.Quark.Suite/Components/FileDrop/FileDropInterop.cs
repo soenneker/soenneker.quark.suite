@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,12 +14,12 @@ public sealed class FileDropInterop(IModuleImportUtil moduleImportUtil, QuarkOpt
     public async ValueTask Register(ElementReference target, string inputId, CancellationToken cancellationToken = default)
     {
         var module = await moduleImportUtil.GetContentModuleReference(ModulePath, cancellationToken);
-        await module.InvokeQuarkVoidAsync("register", cancellationToken, target, inputId);
+        await module.InvokeVoidWithContextAsync("register", cancellationToken, target, inputId);
     }
 
     public async ValueTask Unregister(ElementReference target, CancellationToken cancellationToken = default)
     {
         var module = await moduleImportUtil.GetContentModuleReference(ModulePath, cancellationToken);
-        await module.InvokeQuarkVoidAsync("unregister", cancellationToken, target);
+        await module.InvokeVoidWithContextAsync("unregister", cancellationToken, target);
     }
 }

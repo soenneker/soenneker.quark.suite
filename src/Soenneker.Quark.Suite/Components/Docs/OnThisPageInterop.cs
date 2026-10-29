@@ -3,6 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -29,7 +30,7 @@ public sealed class OnThisPageInterop : IOnThisPageInterop, IAsyncDisposable
         using (source)
         {
             var module = await GetModule(linked);
-            var payload = await module.InvokeQuarkAsync<JsonElement?>("getItems", linked,
+            var payload = await module.InvokeWithContextAsync<JsonElement?>("getItems", linked,
                 JsonSerializer.SerializeToElement(options, QuarkInteropJsonContext.Default.OnThisPageInteropOptions));
             return QuarkInteropJson.Deserialize(payload, QuarkInteropJsonContext.Default.OnThisPageTocItemArray)!;
         }

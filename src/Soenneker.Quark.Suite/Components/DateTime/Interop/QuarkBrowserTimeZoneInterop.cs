@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -28,7 +29,7 @@ public sealed class QuarkBrowserTimeZoneInterop : IQuarkBrowserTimeZoneInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeQuarkAsync<string?>("getBrowserTimeZone", linked);
+            return await module.InvokeWithContextAsync<string?>("getBrowserTimeZone", linked);
         }
     }
 

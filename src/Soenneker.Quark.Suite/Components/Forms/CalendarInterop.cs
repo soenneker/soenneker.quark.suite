@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 
 namespace Soenneker.Quark;
@@ -17,13 +18,13 @@ public sealed class CalendarInterop : ICalendarInterop
     }
 
     public async ValueTask Initialize(ElementReference element, DotNetObjectReference<Calendar> receiver) =>
-        await (await _modules.GetContentModuleReference(_path)).InvokeQuarkVoidAsync("initialize", element, receiver);
+        await (await _modules.GetContentModuleReference(_path)).InvokeVoidWithContextAsync("initialize", element, receiver);
 
     public async ValueTask Focus(ElementReference element, string date) =>
-        await (await _modules.GetContentModuleReference(_path)).InvokeQuarkVoidAsync("focus", element, date);
+        await (await _modules.GetContentModuleReference(_path)).InvokeVoidWithContextAsync("focus", element, date);
 
     public async ValueTask Destroy(ElementReference element) =>
-        await (await _modules.GetContentModuleReference(_path)).InvokeQuarkVoidAsync("destroy", element);
+        await (await _modules.GetContentModuleReference(_path)).InvokeVoidWithContextAsync("destroy", element);
 
     public async ValueTask DisposeAsync() => await _modules.DisposeContentModule(_path);
 }

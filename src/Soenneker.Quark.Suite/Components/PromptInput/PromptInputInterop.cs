@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -29,7 +30,7 @@ public sealed class PromptInputInterop : IPromptInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("registerTextarea", linked, textarea);
+            await module.InvokeVoidWithContextAsync("registerTextarea", linked, textarea);
         }
     }
 
@@ -40,7 +41,7 @@ public sealed class PromptInputInterop : IPromptInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("unregisterTextarea", linked, textarea);
+            await module.InvokeVoidWithContextAsync("unregisterTextarea", linked, textarea);
         }
     }
 
@@ -51,7 +52,7 @@ public sealed class PromptInputInterop : IPromptInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("openFileDialogById", linked, inputId);
+            await module.InvokeVoidWithContextAsync("openFileDialogById", linked, inputId);
         }
     }
 
@@ -63,7 +64,7 @@ public sealed class PromptInputInterop : IPromptInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("registerAttachmentsById", linked, inputId, callbackReference, globalDrop);
+            await module.InvokeVoidWithContextAsync("registerAttachmentsById", linked, inputId, callbackReference, globalDrop);
         }
     }
 
@@ -74,7 +75,7 @@ public sealed class PromptInputInterop : IPromptInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("unregisterAttachmentsById", linked, inputId);
+            await module.InvokeVoidWithContextAsync("unregisterAttachmentsById", linked, inputId);
         }
     }
 

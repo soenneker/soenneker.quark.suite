@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -29,7 +30,7 @@ public sealed class NativeDialogInterop : INativeDialogInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("show", linked, element);
+            await module.InvokeVoidWithContextAsync("show", linked, element);
         }
     }
 
@@ -40,7 +41,7 @@ public sealed class NativeDialogInterop : INativeDialogInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("showModal", linked, element);
+            await module.InvokeVoidWithContextAsync("showModal", linked, element);
         }
     }
 
@@ -51,7 +52,7 @@ public sealed class NativeDialogInterop : INativeDialogInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("close", linked, element, returnValue);
+            await module.InvokeVoidWithContextAsync("close", linked, element, returnValue);
         }
     }
 
@@ -62,7 +63,7 @@ public sealed class NativeDialogInterop : INativeDialogInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeQuarkAsync<string?>("getReturnValue", linked, element);
+            return await module.InvokeWithContextAsync<string?>("getReturnValue", linked, element);
         }
     }
 

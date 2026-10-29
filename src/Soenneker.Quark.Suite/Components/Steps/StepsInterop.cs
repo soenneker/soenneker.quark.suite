@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -27,7 +28,7 @@ public sealed class StepsInterop : IStepsInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
-            await module.InvokeQuarkVoidAsync("focusById", linked, id);
+            await module.InvokeVoidWithContextAsync("focusById", linked, id);
         }
     }
 

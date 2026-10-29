@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Asyncs.Initializers;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Blazor.Utils.ResourceLoader.Abstract;
@@ -33,7 +34,7 @@ public sealed class SortableInterop : ISortableInterop
     {
         await _resourceLoader.LoadScript(_sortableScriptPath, cancellationToken: token);
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
-        await module.InvokeQuarkVoidAsync("waitForAvailable", token, 5000);
+        await module.InvokeVoidWithContextAsync("waitForAvailable", token, 5000);
     }
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
@@ -56,7 +57,7 @@ public sealed class SortableInterop : ISortableInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("initializeList", linked, element, disabled, sort, animation, forceFallback, itemSelector, handleSelector,
+            await module.InvokeVoidWithContextAsync("initializeList", linked, element, disabled, sort, animation, forceFallback, itemSelector, handleSelector,
                 filterSelector, group, notifyOnReorder, callbackReference);
         }
     }
@@ -69,7 +70,7 @@ public sealed class SortableInterop : ISortableInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("destroy", linked, element);
+            await module.InvokeVoidWithContextAsync("destroy", linked, element);
         }
     }
 

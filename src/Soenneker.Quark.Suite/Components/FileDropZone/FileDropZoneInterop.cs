@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -28,7 +29,7 @@ public sealed class FileDropZoneInterop : IFileDropZoneInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
-            await module.InvokeQuarkVoidAsync("initialize", linked, owner, element, callbackReference);
+            await module.InvokeVoidWithContextAsync("initialize", linked, owner, element, callbackReference);
         }
     }
 
@@ -39,7 +40,7 @@ public sealed class FileDropZoneInterop : IFileDropZoneInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
-            return await module.InvokeQuarkAsync<string?>("createPreview", linked, owner, inputId, index, fileId, contentType);
+            return await module.InvokeWithContextAsync<string?>("createPreview", linked, owner, inputId, index, fileId, contentType);
         }
     }
 
@@ -49,7 +50,7 @@ public sealed class FileDropZoneInterop : IFileDropZoneInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
-            await module.InvokeQuarkVoidAsync("retain", linked, owner, JsonSerializer.SerializeToElement(fileIds, QuarkInteropJsonContext.Default.StringArray));
+            await module.InvokeVoidWithContextAsync("retain", linked, owner, JsonSerializer.SerializeToElement(fileIds, QuarkInteropJsonContext.Default.StringArray));
         }
     }
 
@@ -59,7 +60,7 @@ public sealed class FileDropZoneInterop : IFileDropZoneInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
-            await module.InvokeQuarkVoidAsync("dispose", linked, owner);
+            await module.InvokeVoidWithContextAsync("dispose", linked, owner);
         }
     }
 

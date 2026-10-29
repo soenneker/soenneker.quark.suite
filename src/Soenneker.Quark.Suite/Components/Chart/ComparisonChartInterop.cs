@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -29,7 +30,7 @@ public sealed class ComparisonChartInterop : IComparisonChartInterop, IAsyncDisp
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
-            await module.InvokeQuarkVoidAsync("initialize", linked, element);
+            await module.InvokeVoidWithContextAsync("initialize", linked, element);
         }
     }
 
@@ -40,7 +41,7 @@ public sealed class ComparisonChartInterop : IComparisonChartInterop, IAsyncDisp
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
-            await module.InvokeQuarkVoidAsync("destroy", linked, element);
+            await module.InvokeVoidWithContextAsync("destroy", linked, element);
         }
     }
 

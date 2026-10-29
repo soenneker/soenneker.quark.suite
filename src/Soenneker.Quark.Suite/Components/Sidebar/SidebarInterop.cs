@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Microsoft.AspNetCore.Components;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
@@ -28,7 +29,7 @@ public sealed class SidebarInterop : ISidebarInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("initializeSidebar", linked, componentRef, shortcutKey);
+            await module.InvokeVoidWithContextAsync("initializeSidebar", linked, componentRef, shortcutKey);
         }
     }
 
@@ -38,7 +39,7 @@ public sealed class SidebarInterop : ISidebarInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("initializeSidebar", linked, componentRef, shortcutKey, instanceId);
+            await module.InvokeVoidWithContextAsync("initializeSidebar", linked, componentRef, shortcutKey, instanceId);
         }
     }
 
@@ -48,7 +49,7 @@ public sealed class SidebarInterop : ISidebarInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("cleanup", linked, instanceId);
+            await module.InvokeVoidWithContextAsync("cleanup", linked, instanceId);
         }
     }
 
@@ -59,7 +60,7 @@ public sealed class SidebarInterop : ISidebarInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeQuarkAsync<bool?>("getSidebarState", linked, cookieKey);
+            return await module.InvokeWithContextAsync<bool?>("getSidebarState", linked, cookieKey);
         }
     }
 
@@ -70,7 +71,7 @@ public sealed class SidebarInterop : ISidebarInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("saveSidebarState", linked, cookieKey, value);
+            await module.InvokeVoidWithContextAsync("saveSidebarState", linked, cookieKey, value);
         }
     }
 
@@ -80,7 +81,7 @@ public sealed class SidebarInterop : ISidebarInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("registerResizeHandle", linked, handle, componentRef, minWidth, maxWidth, rightSide);
+            await module.InvokeVoidWithContextAsync("registerResizeHandle", linked, handle, componentRef, minWidth, maxWidth, rightSide);
         }
     }
 
@@ -90,7 +91,7 @@ public sealed class SidebarInterop : ISidebarInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("unregisterResizeHandle", linked, handle);
+            await module.InvokeVoidWithContextAsync("unregisterResizeHandle", linked, handle);
         }
     }
 
@@ -101,7 +102,7 @@ public sealed class SidebarInterop : ISidebarInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("cleanup", linked);
+            await module.InvokeVoidWithContextAsync("cleanup", linked);
         }
     }
 

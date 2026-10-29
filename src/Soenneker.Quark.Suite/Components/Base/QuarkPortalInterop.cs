@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Bradix;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 
@@ -18,13 +19,13 @@ public sealed class QuarkPortalInterop(IModuleImportUtil modules) : IPortalInter
         CancellationToken cancellationToken = default)
     {
         var module = await Initialize(cancellationToken);
-        await module.InvokeQuarkVoidAsync("mountPortal", cancellationToken, element, containerSelector, container);
+        await module.InvokeVoidWithContextAsync("mountPortal", cancellationToken, element, containerSelector, container);
     }
 
     public async ValueTask UnmountPortal(ElementReference element, CancellationToken cancellationToken = default)
     {
         var module = await Initialize(cancellationToken);
-        await module.InvokeQuarkVoidAsync("unmountPortal", cancellationToken, element);
+        await module.InvokeVoidWithContextAsync("unmountPortal", cancellationToken, element);
     }
 
     public async ValueTask DisposeAsync() => await modules.DisposeContentModule(ModulePath);

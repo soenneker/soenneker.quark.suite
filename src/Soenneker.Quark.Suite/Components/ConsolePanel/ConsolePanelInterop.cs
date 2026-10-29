@@ -1,4 +1,5 @@
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Microsoft.AspNetCore.Components;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
@@ -28,7 +29,7 @@ public sealed class ConsolePanelInterop : IConsolePanelInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("initializeAutoScroll", linked, element);
+            await module.InvokeVoidWithContextAsync("initializeAutoScroll", linked, element);
         }
     }
 
@@ -39,14 +40,14 @@ public sealed class ConsolePanelInterop : IConsolePanelInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("updateViewport", linked, element, receiver, keys, autoScroll, hasOlderItems);
+            await module.InvokeVoidWithContextAsync("updateViewport", linked, element, receiver, keys, autoScroll, hasOlderItems);
         }
     }
 
     public async ValueTask JumpToLatest(ElementReference element, CancellationToken cancellationToken = default)
     {
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
-        await module.InvokeQuarkVoidAsync("jumpToLatest", cancellationToken, element);
+        await module.InvokeVoidWithContextAsync("jumpToLatest", cancellationToken, element);
     }
 
     public async ValueTask DestroyAutoScroll(ElementReference element, CancellationToken cancellationToken = default)
@@ -56,7 +57,7 @@ public sealed class ConsolePanelInterop : IConsolePanelInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("destroyAutoScroll", linked, element);
+            await module.InvokeVoidWithContextAsync("destroyAutoScroll", linked, element);
         }
     }
 
@@ -67,7 +68,7 @@ public sealed class ConsolePanelInterop : IConsolePanelInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("download", linked, fileName, contentType, content);
+            await module.InvokeVoidWithContextAsync("download", linked, fileName, contentType, content);
         }
     }
 

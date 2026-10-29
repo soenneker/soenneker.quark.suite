@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 using Soenneker.Blazor.Utils.ModuleImport.Abstract;
 using Soenneker.Extensions.CancellationTokens;
 using Soenneker.Utils.CancellationScopes;
@@ -29,7 +30,7 @@ public sealed class ColorPickerInterop : IColorPickerInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeQuarkAsync<string?>("pickColor", linked);
+            return await module.InvokeWithContextAsync<string?>("pickColor", linked);
         }
     }
 
@@ -41,7 +42,7 @@ public sealed class ColorPickerInterop : IColorPickerInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeQuarkAsync<bool>("registerCanvas", linked, root, callbackReference, disabled);
+            return await module.InvokeWithContextAsync<bool>("registerCanvas", linked, root, callbackReference, disabled);
         }
     }
 
@@ -52,7 +53,7 @@ public sealed class ColorPickerInterop : IColorPickerInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeQuarkVoidAsync("unregisterCanvas", linked, root);
+            await module.InvokeVoidWithContextAsync("unregisterCanvas", linked, root);
         }
     }
 

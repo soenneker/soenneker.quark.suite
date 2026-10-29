@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.JSInterop;
+using Soenneker.Blazor.Extensions.IJSObjectReferences;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -14,19 +15,19 @@ public sealed class QuarkJsInteropTests
         using var source = new CancellationTokenSource();
         var module = new InteropModuleStub { Result = 42 };
         object?[] args = ["element", false, null];
-        (await module.InvokeQuarkAsync<int>("measure", source.Token, args)).Should().Be(42);
+        (await module.InvokeWithContextAsync<int>("measure", source.Token, args)).Should().Be(42);
         module.Identifier.Should().Be("measure");
         module.Token.Should().Be(source.Token);
         module.Arguments.Should().BeSameAs(args);
 
         module.Result = null;
-        await module.InvokeQuarkVoidAsync("update", source.Token, args);
+        await module.InvokeVoidWithContextAsync("update", source.Token, args);
         module.Token.Should().Be(source.Token);
         module.Arguments.Should().BeSameAs(args);
-        await module.InvokeQuarkVoidAsync("update", args);
+        await module.InvokeVoidWithContextAsync("update", args);
         module.Token.Should().Be(CancellationToken.None);
         module.Arguments.Should().BeSameAs(args);
-        (await module.InvokeQuarkAsync<string?>("selection", args)).Should().BeNull();
+        (await module.InvokeWithContextAsync<string?>("selection", args)).Should().BeNull();
         module.Arguments.Should().BeSameAs(args);
     }
 
@@ -35,10 +36,10 @@ public sealed class QuarkJsInteropTests
     {
         var failure = new JSException("Script failed");
         var module = new InteropModuleStub { Failure = failure };
-        Func<Task> query = async () => await module.InvokeQuarkAsync<int>("measure");
+        Func<Task> query = async () => await module.InvokeWithContextAsync<int>("measure");
         var queryError = await query.Should().ThrowAsync<JSException>().WithMessage("*'measure'*Script failed*");
         queryError.Which.InnerException.Should().BeSameAs(failure);
-        Func<Task> command = async () => await module.InvokeQuarkVoidAsync("update");
+        Func<Task> command = async () => await module.InvokeVoidWithContextAsync("update");
         var commandError = await command.Should().ThrowAsync<JSException>().WithMessage("*'update'*Script failed*");
         commandError.Which.InnerException.Should().BeSameAs(failure);
     }
@@ -53,10 +54,10 @@ public sealed class QuarkJsInteropTests
         foreach (var failure in failures)
         {
             var module = new InteropModuleStub { Failure = failure };
-            Func<Task> query = async () => await module.InvokeQuarkAsync<int>("measure", source.Token);
+            Func<Task> query = async () => await module.InvokeWithContextAsync<int>("measure", source.Token);
             var queryError = await query.Should().ThrowAsync<Exception>();
             queryError.Which.Should().BeSameAs(failure);
-            Func<Task> command = async () => await module.InvokeQuarkVoidAsync("update", source.Token);
+            Func<Task> command = async () => await module.InvokeVoidWithContextAsync("update", source.Token);
             var commandError = await command.Should().ThrowAsync<Exception>();
             commandError.Which.Should().BeSameAs(failure);
         }
