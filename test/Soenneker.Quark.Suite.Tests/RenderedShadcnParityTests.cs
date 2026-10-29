@@ -28,12 +28,12 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     public void Radio_and_checkbox_use_typed_responsive_size()
     {
-        var radio = Render<Radio>(p => p.Add(c => c.Size, Size.Is4.OnMd.Is5));
+        var radio = Render<Radio>(p => p.Add(c => c.Size, CssValue<SizeBuilder>.For(Size.Is4, Variant.Of(Size.Is5).OnMd)));
         radio.Find("[data-slot=radio-group-item]").ClassList.Should().Contain("size-4").And.Contain("md:size-5");
-        var check = Render<Check>(p => p.Add(c => c.Size, Size.Is5.OnLg.Is6));
+        var check = Render<Check>(p => p.Add(c => c.Size, CssValue<SizeBuilder>.For(Size.Is5, Variant.Of(Size.Is6).OnLg)));
         check.Find("[role=checkbox]").ClassList.Should().Contain("size-5").And.Contain("lg:size-6").And.NotContain("size-4");
 
-        var preset = new QuarkPresetToken("control-size", context => context.Size = Size.Is6.OnMd.Is7);
+        var preset = new QuarkPresetToken("control-size", context => context.Size = CssValue<SizeBuilder>.For(Size.Is6, Variant.Of(Size.Is7).OnMd));
         var presetRadio = Render<Radio>(p => p.Add(c => c.Preset, preset));
         presetRadio.Find("[data-slot=radio-group-item]").ClassList.Should().Contain("size-6").And.Contain("md:size-7").And.NotContain("size-4");
         var presetCheck = Render<Check>(p => p.Add(c => c.Preset, preset));

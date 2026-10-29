@@ -56,7 +56,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="11.0.324">
+        <PackageReference Include="Soenneker.Quark.Gen.Tailwind" Version="11.0.325">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -79,6 +79,17 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components" Version="11.0.0-rc.3.26522.148" />
-        <PackageReference Include="Soenneker.DataTables.Dtos.ServerResponse" Version="11.0.36" />
+        <PackageReference Include="Soenneker.DataTables.Dtos.ServerResponse" Version="11.0.37" />
     </ItemGroup>
+    <!-- The latest enum calls Bold LetterB; the SVG package still uses bold.svg. -->
+    <Target Name="PrepareLucideLetterBAlias" BeforeTargets="ResolveLucideBuildTasksPath" DependsOnTargets="ResolveLucideResources">
+        <PropertyGroup>
+            <LucideIconsResourcesPath>$(IntermediateOutputPath)LucideResources</LucideIconsResourcesPath>
+        </PropertyGroup>
+        <ItemGroup>
+            <_DemoLucideSvg Include="$(_LucideIconsPackageResources)/*.svg" />
+        </ItemGroup>
+        <Copy SourceFiles="@(_DemoLucideSvg)" DestinationFolder="$(LucideIconsResourcesPath)" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="$(_LucideIconsPackageResources)/bold.svg" DestinationFiles="$(LucideIconsResourcesPath)/letter-b.svg" SkipUnchangedFiles="true" Condition="!Exists('$(_LucideIconsPackageResources)/letter-b.svg')" />
+    </Target>
 </Project>
