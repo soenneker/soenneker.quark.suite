@@ -29,7 +29,7 @@ public sealed class ColorPickerInterop : IColorPickerInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeAsync<string?>("pickColor", linked);
+            return await module.InvokeQuarkAsync<string?>("pickColor", linked);
         }
     }
 
@@ -41,7 +41,7 @@ public sealed class ColorPickerInterop : IColorPickerInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeAsync<bool>("registerCanvas", linked, root, callbackReference, disabled);
+            return await module.InvokeQuarkAsync<bool>("registerCanvas", linked, root, callbackReference, disabled);
         }
     }
 
@@ -52,7 +52,7 @@ public sealed class ColorPickerInterop : IColorPickerInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("unregisterCanvas", linked, root);
+            await module.InvokeQuarkVoidAsync("unregisterCanvas", linked, root);
         }
     }
 

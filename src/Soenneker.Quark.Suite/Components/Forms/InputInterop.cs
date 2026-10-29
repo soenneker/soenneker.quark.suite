@@ -37,7 +37,7 @@ public sealed class InputInterop : IInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return QuarkInteropJson.Deserialize(await module.InvokeAsync<JsonElement?>("getSelection", linked, input),
+            return QuarkInteropJson.Deserialize(await module.InvokeQuarkAsync<JsonElement?>("getSelection", linked, input),
                 QuarkInteropJsonContext.Default.InputSelectionSnapshot);
         }
     }
@@ -48,7 +48,7 @@ public sealed class InputInterop : IInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("registerComboboxKeys", linked, input);
+            await module.InvokeQuarkVoidAsync("registerComboboxKeys", linked, input);
         }
     }
 
@@ -58,7 +58,7 @@ public sealed class InputInterop : IInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("registerTagInputKeys", linked, input, delimiters);
+            await module.InvokeQuarkVoidAsync("registerTagInputKeys", linked, input, delimiters);
         }
     }
 
@@ -68,7 +68,7 @@ public sealed class InputInterop : IInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("registerNavigationKeys", linked, element, keys);
+            await module.InvokeQuarkVoidAsync("registerNavigationKeys", linked, element, keys);
         }
     }
 
@@ -78,7 +78,7 @@ public sealed class InputInterop : IInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("unregisterComboboxKeys", linked, input);
+            await module.InvokeQuarkVoidAsync("unregisterComboboxKeys", linked, input);
         }
     }
 
@@ -89,7 +89,7 @@ public sealed class InputInterop : IInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("restoreSelection", linked, input, start, end, value);
+            await module.InvokeQuarkVoidAsync("restoreSelection", linked, input, start, end, value);
         }
     }
 

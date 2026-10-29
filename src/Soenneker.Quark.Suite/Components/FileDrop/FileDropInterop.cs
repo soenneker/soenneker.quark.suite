@@ -13,12 +13,12 @@ public sealed class FileDropInterop(IModuleImportUtil moduleImportUtil, QuarkOpt
     public async ValueTask Register(ElementReference target, string inputId, CancellationToken cancellationToken = default)
     {
         var module = await moduleImportUtil.GetContentModuleReference(ModulePath, cancellationToken);
-        await module.InvokeVoidAsync("register", cancellationToken, target, inputId);
+        await module.InvokeQuarkVoidAsync("register", cancellationToken, target, inputId);
     }
 
     public async ValueTask Unregister(ElementReference target, CancellationToken cancellationToken = default)
     {
         var module = await moduleImportUtil.GetContentModuleReference(ModulePath, cancellationToken);
-        await module.InvokeVoidAsync("unregister", cancellationToken, target);
+        await module.InvokeQuarkVoidAsync("unregister", cancellationToken, target);
     }
 }

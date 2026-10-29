@@ -38,7 +38,7 @@ public sealed class OverlayInterop : IOverlayInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("activate", linked, overlayId, container, trapFocus, lockScroll, initialFocusSelector);
+            await module.InvokeQuarkVoidAsync("activate", linked, overlayId, container, trapFocus, lockScroll, initialFocusSelector);
         }
     }
 
@@ -49,7 +49,7 @@ public sealed class OverlayInterop : IOverlayInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("activateScrollLock", linked, overlayId);
+            await module.InvokeQuarkVoidAsync("activateScrollLock", linked, overlayId);
         }
     }
 
@@ -60,7 +60,7 @@ public sealed class OverlayInterop : IOverlayInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("deactivate", linked, overlayId, unlockScroll);
+            await module.InvokeQuarkVoidAsync("deactivate", linked, overlayId, unlockScroll);
         }
     }
 
@@ -71,7 +71,7 @@ public sealed class OverlayInterop : IOverlayInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("releaseScrollLocks", linked);
+            await module.InvokeQuarkVoidAsync("releaseScrollLocks", linked);
         }
     }
 

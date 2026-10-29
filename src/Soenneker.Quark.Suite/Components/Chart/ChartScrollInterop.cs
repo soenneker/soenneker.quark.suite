@@ -28,7 +28,7 @@ public sealed class ChartScrollInterop : IChartScrollInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("initialize", linked, element);
+            await module.InvokeQuarkVoidAsync("initialize", linked, element);
         }
     }
 
@@ -39,7 +39,7 @@ public sealed class ChartScrollInterop : IChartScrollInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("destroy", linked, element);
+            await module.InvokeQuarkVoidAsync("destroy", linked, element);
         }
     }
 

@@ -12,22 +12,22 @@ public sealed class VirtualViewportInterop(IModuleImportUtil modules, QuarkOptio
     public async ValueTask Update(ElementReference element, DotNetObjectReference<VirtualItems> receiver, IReadOnlyList<string> keys, bool follow, bool before, bool after, bool parentScroll, IReadOnlyList<string> disabledKeys)
     {
         var module = await modules.GetContentModuleReference(_path);
-        await module.InvokeVoidAsync("updateItems", element, receiver, keys, follow, before, after, parentScroll, disabledKeys);
+        await module.InvokeQuarkVoidAsync("updateItems", element, receiver, keys, follow, before, after, parentScroll, disabledKeys);
     }
     public async ValueTask ScrollToIndex(ElementReference element, int index, string? focusSelector)
     {
         var module = await modules.GetContentModuleReference(_path);
-        await module.InvokeVoidAsync("scrollToIndex", element, index, focusSelector);
+        await module.InvokeQuarkVoidAsync("scrollToIndex", element, index, focusSelector);
     }
     public async ValueTask JumpToEnd(ElementReference element)
     {
         var module = await modules.GetContentModuleReference(_path);
-        await module.InvokeVoidAsync("jumpToLatest", element);
+        await module.InvokeQuarkVoidAsync("jumpToLatest", element);
     }
     public async ValueTask Destroy(ElementReference element)
     {
         var module = await modules.GetContentModuleReference(_path);
-        await module.InvokeVoidAsync("destroyAutoScroll", element);
+        await module.InvokeQuarkVoidAsync("destroyAutoScroll", element);
     }
     public async ValueTask DisposeAsync() => await modules.DisposeContentModule(_path);
 }

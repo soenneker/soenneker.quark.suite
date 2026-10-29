@@ -18,13 +18,13 @@ public sealed class QuarkPortalInterop(IModuleImportUtil modules) : IPortalInter
         CancellationToken cancellationToken = default)
     {
         var module = await Initialize(cancellationToken);
-        await module.InvokeVoidAsync("mountPortal", cancellationToken, element, containerSelector, container);
+        await module.InvokeQuarkVoidAsync("mountPortal", cancellationToken, element, containerSelector, container);
     }
 
     public async ValueTask UnmountPortal(ElementReference element, CancellationToken cancellationToken = default)
     {
         var module = await Initialize(cancellationToken);
-        await module.InvokeVoidAsync("unmountPortal", cancellationToken, element);
+        await module.InvokeQuarkVoidAsync("unmountPortal", cancellationToken, element);
     }
 
     public async ValueTask DisposeAsync() => await modules.DisposeContentModule(ModulePath);

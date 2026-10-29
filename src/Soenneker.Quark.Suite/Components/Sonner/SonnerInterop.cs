@@ -53,7 +53,7 @@ public sealed class SonnerInterop : ISonnerInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("registerHotkey", linked, section, JsonSerializer.SerializeToElement(hotkey, QuarkInteropJsonContext.Default.IReadOnlyListString));
+            await module.InvokeQuarkVoidAsync("registerHotkey", linked, section, JsonSerializer.SerializeToElement(hotkey, QuarkInteropJsonContext.Default.IReadOnlyListString));
         }
     }
 
@@ -65,7 +65,7 @@ public sealed class SonnerInterop : ISonnerInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("unregisterHotkey", linked, section);
+            await module.InvokeQuarkVoidAsync("unregisterHotkey", linked, section);
         }
     }
 
@@ -77,7 +77,7 @@ public sealed class SonnerInterop : ISonnerInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeAsync<bool>("registerSwipeHandlers", linked, section, callbackReference);
+            return await module.InvokeQuarkAsync<bool>("registerSwipeHandlers", linked, section, callbackReference);
         }
     }
 
@@ -89,7 +89,7 @@ public sealed class SonnerInterop : ISonnerInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("unregisterSwipeHandlers", linked, section);
+            await module.InvokeQuarkVoidAsync("unregisterSwipeHandlers", linked, section);
         }
     }
 
@@ -101,7 +101,7 @@ public sealed class SonnerInterop : ISonnerInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            var payload = await module.InvokeAsync<JsonElement?>("measureToastHeights", linked, section);
+            var payload = await module.InvokeQuarkAsync<JsonElement?>("measureToastHeights", linked, section);
             return QuarkInteropJson.Deserialize(payload, QuarkInteropJsonContext.Default.DictionaryStringDouble)!;
         }
     }

@@ -2,6 +2,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using System.Threading;
+using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark.Suite.Tests;
 
@@ -55,14 +58,15 @@ public sealed class InteropJsonTests
     public async ValueTask Connection_validation_callback_uses_generated_metadata_in_both_directions(CancellationToken cancellationToken)
     {
         NodeEditorConnectionValidationRequest? received = null;
-        var editor = new NodeEditor
+        var editor = new NodeEditor();
+        ParameterView.FromDictionary(new Dictionary<string, object?>
         {
-            ConnectionValidator = request =>
+            [nameof(NodeEditor.ConnectionValidator)] = (Func<NodeEditorConnectionValidationRequest, ValueTask<NodeEditorConnectionValidationResult>>)(request =>
             {
                 received = request;
                 return ValueTask.FromResult(NodeEditorConnectionValidationResult.Accept());
-            }
-        };
+            })
+        }).SetParameterProperties(editor);
         using var json = JsonDocument.Parse("""{"sourceNodeId":"a","sourcePortId":"out","targetNodeId":"b","targetPortId":"in","edgeId":null}""");
         var result = await editor.InvokeConnectionValidationRequestedFromJson(json.RootElement);
         received!.SourceNodeId.Should().Be("a");

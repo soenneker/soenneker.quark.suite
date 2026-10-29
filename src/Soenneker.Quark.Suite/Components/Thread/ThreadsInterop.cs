@@ -38,7 +38,7 @@ public sealed class ThreadsInterop : IThreadsInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("initialize", linked, element, callbackReference, initial, resizeBehavior, stickToBottom);
+            await module.InvokeQuarkVoidAsync("initialize", linked, element, callbackReference, initial, resizeBehavior, stickToBottom);
         }
     }
 
@@ -49,7 +49,7 @@ public sealed class ThreadsInterop : IThreadsInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("scrollToBottom", linked, element, behavior);
+            await module.InvokeQuarkVoidAsync("scrollToBottom", linked, element, behavior);
         }
     }
 
@@ -60,7 +60,7 @@ public sealed class ThreadsInterop : IThreadsInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("dispose", linked, element);
+            await module.InvokeQuarkVoidAsync("dispose", linked, element);
         }
     }
 

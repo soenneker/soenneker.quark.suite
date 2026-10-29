@@ -29,7 +29,7 @@ public sealed class OnThisPageInterop : IOnThisPageInterop, IAsyncDisposable
         using (source)
         {
             var module = await GetModule(linked);
-            var payload = await module.InvokeAsync<JsonElement?>("getItems", linked,
+            var payload = await module.InvokeQuarkAsync<JsonElement?>("getItems", linked,
                 JsonSerializer.SerializeToElement(options, QuarkInteropJsonContext.Default.OnThisPageInteropOptions));
             return QuarkInteropJson.Deserialize(payload, QuarkInteropJsonContext.Default.OnThisPageTocItemArray)!;
         }

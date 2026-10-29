@@ -48,7 +48,7 @@ public class RenderPipelineBenchmarks
     [GlobalCleanup]
     public void Cleanup()
     {
-        _renderer.Dispose();
+        ((IDisposable)_renderer).Dispose();
         _services.Dispose();
     }
 }

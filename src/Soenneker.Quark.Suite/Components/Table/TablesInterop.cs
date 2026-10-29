@@ -23,13 +23,13 @@ public sealed class TablesInterop : ITablesInterop
     public async ValueTask StartAdaptiveLayout(ElementReference element, ElementReference columns, TableColumnSizingOptions options, CancellationToken cancellationToken = default)
     {
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
-        await module.InvokeVoidAsync("initialize", cancellationToken, element, columns, JsonSerializer.SerializeToElement(options, QuarkInteropJsonContext.Default.TableColumnSizingOptions));
+        await module.InvokeQuarkVoidAsync("initialize", cancellationToken, element, columns, JsonSerializer.SerializeToElement(options, QuarkInteropJsonContext.Default.TableColumnSizingOptions));
     }
 
     public async ValueTask StopAdaptiveLayout(ElementReference element, CancellationToken cancellationToken = default)
     {
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
-        await module.InvokeVoidAsync("destroy", cancellationToken, element);
+        await module.InvokeQuarkVoidAsync("destroy", cancellationToken, element);
     }
 
     public async ValueTask DisposeAsync() => await _moduleImportUtil.DisposeContentModule(_modulePath);

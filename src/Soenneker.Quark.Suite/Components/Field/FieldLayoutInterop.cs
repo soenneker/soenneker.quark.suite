@@ -13,13 +13,13 @@ public sealed class FieldLayoutInterop(IModuleImportUtil modules) : IFieldLayout
     public async ValueTask Observe(ElementReference fieldset, CancellationToken cancellationToken = default)
     {
         var module = await modules.GetContentModuleReference(ModulePath, cancellationToken);
-        await module.InvokeVoidAsync("observe", cancellationToken, fieldset);
+        await module.InvokeQuarkVoidAsync("observe", cancellationToken, fieldset);
     }
 
     public async ValueTask Unobserve(ElementReference fieldset, CancellationToken cancellationToken = default)
     {
         var module = await modules.GetContentModuleReference(ModulePath, cancellationToken);
-        await module.InvokeVoidAsync("unobserve", cancellationToken, fieldset);
+        await module.InvokeQuarkVoidAsync("unobserve", cancellationToken, fieldset);
     }
 
     public async ValueTask DisposeAsync() => await modules.DisposeContentModule(ModulePath);

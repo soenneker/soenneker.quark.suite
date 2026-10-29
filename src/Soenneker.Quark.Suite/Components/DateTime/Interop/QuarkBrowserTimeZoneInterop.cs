@@ -28,7 +28,7 @@ public sealed class QuarkBrowserTimeZoneInterop : IQuarkBrowserTimeZoneInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeAsync<string?>("getBrowserTimeZone", linked);
+            return await module.InvokeQuarkAsync<string?>("getBrowserTimeZone", linked);
         }
     }
 

@@ -11,10 +11,8 @@ public class ComponentStylingBenchmarks
     private readonly ComponentStylingProbe _dense = CreateDense(false);
     private readonly ComponentStylingProbe _densePreset = CreateDense(true);
 
-    private readonly ComponentStylingProbe _frozenPreset = new()
-    {
-        Preset = QuarkPresetToken.Freeze("benchmark-frozen", static c => c.Width = Quark.Width.Token("[240px]"))
-    };
+    private readonly ComponentStylingProbe _frozenPreset = new(preset:
+        QuarkPresetToken.Freeze("benchmark-frozen", static c => c.Width = Quark.Width.Token("[240px]")));
 
     [Benchmark] public object FrozenPreset() => _frozenPreset.Rebuild();
     [Benchmark] public object Empty() => _empty.Rebuild();
@@ -25,7 +23,6 @@ public class ComponentStylingBenchmarks
 
     private static ComponentStylingProbe CreateDense(bool usePreset)
     {
-        var probe = new ComponentStylingProbe();
         void Populate(object target)
         {
             foreach (var property in target.GetType().GetProperties())
@@ -37,9 +34,8 @@ public class ComponentStylingBenchmarks
                 property.SetValue(target, value);
             }
         }
-        if (usePreset)
-            probe.Preset = QuarkPresetToken.Freeze("dense", context => Populate(context));
-        else
+        var probe = new ComponentStylingProbe(preset: usePreset ? QuarkPresetToken.Freeze("dense", context => Populate(context)) : null);
+        if (!usePreset)
             Populate(probe);
         return probe;
     }

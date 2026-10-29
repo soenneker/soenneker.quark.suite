@@ -29,7 +29,7 @@ public sealed class NativeDialogInterop : INativeDialogInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("show", linked, element);
+            await module.InvokeQuarkVoidAsync("show", linked, element);
         }
     }
 
@@ -40,7 +40,7 @@ public sealed class NativeDialogInterop : INativeDialogInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("showModal", linked, element);
+            await module.InvokeQuarkVoidAsync("showModal", linked, element);
         }
     }
 
@@ -51,7 +51,7 @@ public sealed class NativeDialogInterop : INativeDialogInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("close", linked, element, returnValue);
+            await module.InvokeQuarkVoidAsync("close", linked, element, returnValue);
         }
     }
 
@@ -62,7 +62,7 @@ public sealed class NativeDialogInterop : INativeDialogInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeAsync<string?>("getReturnValue", linked, element);
+            return await module.InvokeQuarkAsync<string?>("getReturnValue", linked, element);
         }
     }
 

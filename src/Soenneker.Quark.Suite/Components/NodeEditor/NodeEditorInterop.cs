@@ -56,7 +56,7 @@ public sealed class NodeEditorInterop : INodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            var payload = await module.InvokeAsync<JsonElement?>("clientToGraphPoint", linked, id, clientX, clientY);
+            var payload = await module.InvokeQuarkAsync<JsonElement?>("clientToGraphPoint", linked, id, clientX, clientY);
             return QuarkInteropJson.Deserialize(payload, QuarkInteropJsonContext.Default.NodeEditorGraphPoint)!;
         }
     }
@@ -72,7 +72,7 @@ public sealed class NodeEditorInterop : INodeEditorInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync(identifier, linked, args);
+            await module.InvokeQuarkVoidAsync(identifier, linked, args);
         }
     }
 

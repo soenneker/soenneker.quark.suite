@@ -28,7 +28,7 @@ public sealed class ConsolePanelInterop : IConsolePanelInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("initializeAutoScroll", linked, element);
+            await module.InvokeQuarkVoidAsync("initializeAutoScroll", linked, element);
         }
     }
 
@@ -39,14 +39,14 @@ public sealed class ConsolePanelInterop : IConsolePanelInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("updateViewport", linked, element, receiver, keys, autoScroll, hasOlderItems);
+            await module.InvokeQuarkVoidAsync("updateViewport", linked, element, receiver, keys, autoScroll, hasOlderItems);
         }
     }
 
     public async ValueTask JumpToLatest(ElementReference element, CancellationToken cancellationToken = default)
     {
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, cancellationToken);
-        await module.InvokeVoidAsync("jumpToLatest", cancellationToken, element);
+        await module.InvokeQuarkVoidAsync("jumpToLatest", cancellationToken, element);
     }
 
     public async ValueTask DestroyAutoScroll(ElementReference element, CancellationToken cancellationToken = default)
@@ -56,7 +56,7 @@ public sealed class ConsolePanelInterop : IConsolePanelInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("destroyAutoScroll", linked, element);
+            await module.InvokeQuarkVoidAsync("destroyAutoScroll", linked, element);
         }
     }
 
@@ -67,7 +67,7 @@ public sealed class ConsolePanelInterop : IConsolePanelInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("download", linked, fileName, contentType, content);
+            await module.InvokeQuarkVoidAsync("download", linked, fileName, contentType, content);
         }
     }
 

@@ -27,7 +27,7 @@ public sealed class StepsInterop : IStepsInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
-            await module.InvokeVoidAsync("focusById", linked, id);
+            await module.InvokeQuarkVoidAsync("focusById", linked, id);
         }
     }
 

@@ -29,7 +29,7 @@ public sealed class PromptInputInterop : IPromptInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("registerTextarea", linked, textarea);
+            await module.InvokeQuarkVoidAsync("registerTextarea", linked, textarea);
         }
     }
 
@@ -40,7 +40,7 @@ public sealed class PromptInputInterop : IPromptInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("unregisterTextarea", linked, textarea);
+            await module.InvokeQuarkVoidAsync("unregisterTextarea", linked, textarea);
         }
     }
 
@@ -51,7 +51,7 @@ public sealed class PromptInputInterop : IPromptInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("openFileDialogById", linked, inputId);
+            await module.InvokeQuarkVoidAsync("openFileDialogById", linked, inputId);
         }
     }
 
@@ -63,7 +63,7 @@ public sealed class PromptInputInterop : IPromptInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("registerAttachmentsById", linked, inputId, callbackReference, globalDrop);
+            await module.InvokeQuarkVoidAsync("registerAttachmentsById", linked, inputId, callbackReference, globalDrop);
         }
     }
 
@@ -74,7 +74,7 @@ public sealed class PromptInputInterop : IPromptInputInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("unregisterAttachmentsById", linked, inputId);
+            await module.InvokeQuarkVoidAsync("unregisterAttachmentsById", linked, inputId);
         }
     }
 

@@ -39,7 +39,7 @@ public sealed class ResizableInterop : IResizableInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("registerHandle", linked, handle, group, orientation, callbackReference, handleIndex);
+            await module.InvokeQuarkVoidAsync("registerHandle", linked, handle, group, orientation, callbackReference, handleIndex);
         }
     }
 
@@ -50,7 +50,7 @@ public sealed class ResizableInterop : IResizableInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("unregisterHandle", linked, handle);
+            await module.InvokeQuarkVoidAsync("unregisterHandle", linked, handle);
         }
     }
 
@@ -62,7 +62,7 @@ public sealed class ResizableInterop : IResizableInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("startDrag", linked, group, pointerId, clientX, clientY, orientation, callbackReference, handleIndex);
+            await module.InvokeQuarkVoidAsync("startDrag", linked, group, pointerId, clientX, clientY, orientation, callbackReference, handleIndex);
         }
     }
 
@@ -72,7 +72,7 @@ public sealed class ResizableInterop : IResizableInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("stopDrag", linked, group);
+            await module.InvokeQuarkVoidAsync("stopDrag", linked, group);
         }
     }
 
@@ -83,7 +83,7 @@ public sealed class ResizableInterop : IResizableInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("stopDrag", linked);
+            await module.InvokeQuarkVoidAsync("stopDrag", linked);
         }
     }
 

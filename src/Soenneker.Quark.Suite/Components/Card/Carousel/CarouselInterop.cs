@@ -30,7 +30,7 @@ public sealed class CarouselInterop : ICarouselInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("initialize", linked, element, callbackReference, currentIndex, isVertical, align);
+            await module.InvokeQuarkVoidAsync("initialize", linked, element, callbackReference, currentIndex, isVertical, align);
         }
     }
 
@@ -42,7 +42,7 @@ public sealed class CarouselInterop : ICarouselInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            return await module.InvokeAsync<double>("measureOffset", linked, element, currentIndex, isVertical, align);
+            return await module.InvokeQuarkAsync<double>("measureOffset", linked, element, currentIndex, isVertical, align);
         }
     }
 
@@ -53,7 +53,7 @@ public sealed class CarouselInterop : ICarouselInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("dispose", linked, element);
+            await module.InvokeQuarkVoidAsync("dispose", linked, element);
         }
     }
 

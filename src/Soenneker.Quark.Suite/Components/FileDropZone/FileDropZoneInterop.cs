@@ -28,7 +28,7 @@ public sealed class FileDropZoneInterop : IFileDropZoneInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
-            await module.InvokeVoidAsync("initialize", linked, owner, element, callbackReference);
+            await module.InvokeQuarkVoidAsync("initialize", linked, owner, element, callbackReference);
         }
     }
 
@@ -39,7 +39,7 @@ public sealed class FileDropZoneInterop : IFileDropZoneInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
-            return await module.InvokeAsync<string?>("createPreview", linked, owner, inputId, index, fileId, contentType);
+            return await module.InvokeQuarkAsync<string?>("createPreview", linked, owner, inputId, index, fileId, contentType);
         }
     }
 
@@ -49,7 +49,7 @@ public sealed class FileDropZoneInterop : IFileDropZoneInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
-            await module.InvokeVoidAsync("retain", linked, owner, JsonSerializer.SerializeToElement(fileIds, QuarkInteropJsonContext.Default.StringArray));
+            await module.InvokeQuarkVoidAsync("retain", linked, owner, JsonSerializer.SerializeToElement(fileIds, QuarkInteropJsonContext.Default.StringArray));
         }
     }
 
@@ -59,7 +59,7 @@ public sealed class FileDropZoneInterop : IFileDropZoneInterop
         using (source)
         {
             var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
-            await module.InvokeVoidAsync("dispose", linked, owner);
+            await module.InvokeQuarkVoidAsync("dispose", linked, owner);
         }
     }
 

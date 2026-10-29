@@ -2,9 +2,10 @@ namespace Soenneker.Quark.Suite.Benchmarks;
 
 public sealed class ComponentStylingProbe : Component
 {
-    public ComponentStylingProbe(bool styled = false, bool usePreset = false)
+    public ComponentStylingProbe(bool styled = false, bool usePreset = false, QuarkPresetToken? preset = null)
     {
         QuarkOptions = new QuarkOptions { AlwaysRender = true };
+        Preset = preset;
         if (styled)
         {
             Width = Quark.Width.Token("[240px]");

@@ -20,14 +20,21 @@ internal sealed class BenchmarkModuleImportUtil : IModuleImportUtil
     public ValueTask<ModuleImportItem> GetExternalModule(string url, CancellationToken cancellationToken = default) =>
         throw new NotSupportedException("Bradix tests use module references directly.");
 
-    public ValueTask<IJSObjectReference> GetContentModuleReference(string path, CancellationToken cancellationToken = default)
+    public async ValueTask<IJSObjectReference> GetContentModuleReference(string path, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeAsync<IJSObjectReference>("import", cancellationToken, BradixModulePath);
+        try
+        {
+            return await _jsRuntime.InvokeAsync<IJSObjectReference>("import", cancellationToken, BradixModulePath);
+        }
+        catch (JSException exception)
+        {
+            throw new JSException($"Could not import benchmark module '{BradixModulePath}': {exception.Message}", exception);
+        }
     }
 
     public ValueTask<IJSObjectReference> GetExternalModuleReference(string url, CancellationToken cancellationToken = default)
     {
-        return _jsRuntime.InvokeAsync<IJSObjectReference>("import", cancellationToken, BradixModulePath);
+        return GetContentModuleReference(url, cancellationToken);
     }
 
     public ValueTask<bool> DisposeContentModule(string name)

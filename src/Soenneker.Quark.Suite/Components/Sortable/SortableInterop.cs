@@ -33,7 +33,7 @@ public sealed class SortableInterop : ISortableInterop
     {
         await _resourceLoader.LoadScript(_sortableScriptPath, cancellationToken: token);
         var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, token);
-        await module.InvokeVoidAsync("waitForAvailable", token, 5000);
+        await module.InvokeQuarkVoidAsync("waitForAvailable", token, 5000);
     }
 
     public async ValueTask Initialize(CancellationToken cancellationToken = default)
@@ -56,7 +56,7 @@ public sealed class SortableInterop : ISortableInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("initializeList", linked, element, disabled, sort, animation, forceFallback, itemSelector, handleSelector,
+            await module.InvokeQuarkVoidAsync("initializeList", linked, element, disabled, sort, animation, forceFallback, itemSelector, handleSelector,
                 filterSelector, group, notifyOnReorder, callbackReference);
         }
     }
@@ -69,7 +69,7 @@ public sealed class SortableInterop : ISortableInterop
         {
             await _initializer.Init(linked);
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
-            await module.InvokeVoidAsync("destroy", linked, element);
+            await module.InvokeQuarkVoidAsync("destroy", linked, element);
         }
     }
 

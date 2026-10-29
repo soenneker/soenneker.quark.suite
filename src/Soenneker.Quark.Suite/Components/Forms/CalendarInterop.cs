@@ -17,13 +17,13 @@ public sealed class CalendarInterop : ICalendarInterop
     }
 
     public async ValueTask Initialize(ElementReference element, DotNetObjectReference<Calendar> receiver) =>
-        await (await _modules.GetContentModuleReference(_path)).InvokeVoidAsync("initialize", element, receiver);
+        await (await _modules.GetContentModuleReference(_path)).InvokeQuarkVoidAsync("initialize", element, receiver);
 
     public async ValueTask Focus(ElementReference element, string date) =>
-        await (await _modules.GetContentModuleReference(_path)).InvokeVoidAsync("focus", element, date);
+        await (await _modules.GetContentModuleReference(_path)).InvokeQuarkVoidAsync("focus", element, date);
 
     public async ValueTask Destroy(ElementReference element) =>
-        await (await _modules.GetContentModuleReference(_path)).InvokeVoidAsync("destroy", element);
+        await (await _modules.GetContentModuleReference(_path)).InvokeQuarkVoidAsync("destroy", element);
 
     public async ValueTask DisposeAsync() => await _modules.DisposeContentModule(_path);
 }
