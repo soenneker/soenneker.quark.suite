@@ -25,7 +25,6 @@ else
     @RenderAutoSaveControl()
 }
 
-
 @code {
     private RenderFragment RenderAutoSaveControl() => @<text>
 @{
@@ -72,7 +71,6 @@ else
     private AutoSaveController<double[]> _autoSaveMultiple;
     private Task NotifyAutoSaveMultiple(double[] value) => _autoSaveMultiple.NotifyValueChanged(AutoSave && OnAutoSaveMultiple is not null ? value.ToArray() : value, AutoSave, AutoSaveDelay, OnAutoSaveMultiple, AutoSaveStateChanged, _autoSaveRefresh ??= RefreshAutoSave);
 
-    private static readonly CssValue<SliderSizeBuilder> _staticCss1 = SliderSizes.Default;
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.Center;
     private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
@@ -119,9 +117,6 @@ else
     public EventCallback<double> SliderValueChanged { get; set; }
 
     [Parameter]
-    public CssValue<SliderSizeBuilder>? SliderSize { get; set; } = _staticCss1;
-
-    [Parameter]
     public bool PlainText { get; set; }
 
     [Parameter]
@@ -156,7 +151,7 @@ else
     [CascadingParameter(Name = "DirectionProviderDir")]
     private string? DirectionProviderDir { get; set; }
 
-    private const string ThumbSizeClass = "size-3";
+    private const string ThumbSizeClass = "size-4";
     private double[]? _resolvedValues;
     private double[] _sourceValuesSnapshot = [];
     private (double Min, double Max, double Step, double Value, bool Multiple) _resolvedValuesState;
@@ -548,7 +543,7 @@ else
         var attributes = _trackAttributeDictionaries.Create(2);
         attributes["data-slot"] = "slider-track";
 
-        PrependClassAttribute(attributes, "relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:h-1 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1", ref _lastPrependedClass);
+        PrependClassAttribute(attributes, "relative grow overflow-hidden rounded-full bg-muted data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5", ref _lastPrependedClass);
 
         return attributes;
     }
@@ -769,7 +764,6 @@ else
             hc.Add(values[i]);
         }
 
-        AddIf(ref hc, SliderSize);
         hc.Add(PlainText);
         hc.Add(FloatingLabel);
         hc.Add(Label);

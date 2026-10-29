@@ -26,7 +26,6 @@ else
     @RenderAutoSaveControl()
 }
 
-
 @code {
     private RenderFragment RenderAutoSaveControl() => @<text>
 <Popover Open="@_open" OpenChanged="(_cachedHandleOpenChangedDelegate ??= HandleOpenChanged)">
@@ -87,15 +86,11 @@ else
     protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
     {
         base.BuildDefaultClasses(ref cls);
-        var sizeClass = GetSizeClass();
         AppendClass(ref cls, "selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50");
         AppendClass(ref cls, "focus-visible:ring-[3px]");
         AppendClass(ref cls, "aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive/20 dark:aria-[invalid=true]:ring-destructive/40");
-        if (sizeClass != null)
-            AppendClass(ref cls, sizeClass);
     }
 
-    private static readonly CssValue<InputSizeBuilder> _staticCss5 = InputSizes.Default;
     private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
     private static readonly CssValue<ButtonSizeBuilder> _staticCss1 = ButtonSize.Sm;
     private static readonly CssValue<ButtonSizeBuilder> _staticCss2 = ButtonSize.IconSm;
@@ -134,7 +129,6 @@ else
     private Func<ChangeEventArgs, Task>? _cachedOnHourInputDelegate;
     private Func<ChangeEventArgs, Task>? _cachedOnMinuteInputDelegate;
 
-
     private Func<Task>? _cachedDecrementHourDelegate;
     private Func<Task>? _cachedIncrementHourDelegate;
     private Func<Task>? _cachedDecrementMinuteDelegate;
@@ -169,7 +163,6 @@ else
         Opacity ??= _defaultOpacity;
     }
 
-
     [Parameter]
     public DateTime? SelectedDateTime { get; set; }
 
@@ -181,9 +174,6 @@ else
 
     [Parameter]
     public DateTime? Max { get; set; }
-
-    [Parameter]
-    public CssValue<InputSizeBuilder>? InputSize { get; set; } = _staticCss5;
 
     [Parameter]
     public EventCallback<DateTime?> SelectedDateTimeChanged { get; set; }
@@ -318,12 +308,6 @@ else
 
     private static void PreventPanelAutoFocus(BradixAutoFocusEventArgs args) => args.PreventDefault();
 
-    private string? GetSizeClass()
-    {
-        var sizeClass = InputSize?.ToString();
-        return string.IsNullOrWhiteSpace(sizeClass) ? null : sizeClass;
-    }
-
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
@@ -372,7 +356,6 @@ else
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-
 
         if (Placeholder.HasContent())
             attributes["placeholder"] = Placeholder!;
@@ -441,7 +424,6 @@ else
             _open = false;
         await RefreshOffThread();
     }
-
 
     private async Task Commit()
     {
@@ -586,7 +568,6 @@ else
         hc.Add(_hour);
         hc.Add(_minute);
         hc.Add(_isAm);
-        AddIf(ref hc, InputSize);
     }
 
 }

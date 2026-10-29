@@ -5,10 +5,6 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IPagination : IElement
 {
-    /// <summary>
-    /// Gets or sets the size of the pagination.
-    /// </summary>
-    CssValue<PaginationSizeBuilder>? PaginationSize { get; set; }
 
     /// <summary>
     /// Gets or sets whether the pagination should be displayed vertically.

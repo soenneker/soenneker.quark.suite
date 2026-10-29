@@ -24,7 +24,6 @@ else
     @RenderAutoSaveControl()
 }
 
-
 @code {
     private RenderFragment RenderAutoSaveControl() => @<text>
 @if (ParentRadioGroup is not null)
@@ -126,7 +125,7 @@ else
 
     private string GetRadioItemClass()
     {
-        var size = GetSizeClass();
+        var size = ResolvePresetValue(Size, BuildPresetContext()?.Size, nameof(Size))?.ToString();
         var validation = GetValidationClass();
         var key = (size, validation);
         if (_itemClass is null || _itemClassKey != key)
@@ -136,7 +135,7 @@ else
             try
             {
                 AppendClass(ref cls, _shadcnRadioItemBase);
-                if (size.HasContent()) AppendClass(ref cls, size);
+                AppendClass(ref cls, string.IsNullOrWhiteSpace(size) ? "size-4" : size);
                 if (validation is not null) AppendClass(ref cls, validation);
                 _itemClass = cls.ToString();
             }
@@ -188,7 +187,6 @@ else
     [CascadingParameter(Name = "ParentRadioGroup")]
     public RadioGroup? ParentRadioGroup { get; set; }
 
-
     private QuarkAttributeDictionary _wrapperAttributeDictionaries;
     private QuarkAttributeDictionary _labelAttributeDictionaries;
     private QuarkAttributeDictionary _inputAttributeDictionaries;
@@ -213,12 +211,6 @@ else
     private string? _generatedId;
     private string ControlId => Id != _generatedId || ParentRadioGroup is not null ? Id! : CurrentFieldContext?.ControlId ?? Id!;
     private string ResolvedGroupedValue => Value ?? ControlId;
-
-    /// <summary>
-    /// Gets or sets the size of the radio.
-    /// </summary>
-    [Parameter]
-    public CssValue<RadioSizeBuilder>? RadioSize { get; set; }
 
     /// <summary>
     /// Gets or sets whether the radio should be displayed inline.
@@ -273,7 +265,6 @@ else
             await validation.InitializeInput(this);
     }
 
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (ParentRadioGroup is not null)
@@ -319,12 +310,6 @@ else
         }
 
         return attributes;
-    }
-
-    private string? GetSizeClass()
-    {
-        var sizeClass = RadioSize?.ToString();
-        return string.IsNullOrWhiteSpace(sizeClass) ? null : sizeClass;
     }
 
     private Task HandleInputClick(MouseEventArgs e)
@@ -384,9 +369,8 @@ else
         }
     }
 
-
     private const string _shadcnRadioItemBase =
-        "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 rounded-full border border-input outline-hidden after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary";
+        "group/radio-group-item peer relative flex aspect-square shrink-0 rounded-full border border-input outline-hidden after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary";
 
     private Dictionary<string, object> BuildLabelAttributes()
     {
@@ -497,7 +481,6 @@ else
         hc.Add(Name);
         hc.Add(Value);
         hc.Add(ParentRadioGroup?.Value);
-        AddIf(ref hc, RadioSize);
         hc.Add(Inline);
     }
 

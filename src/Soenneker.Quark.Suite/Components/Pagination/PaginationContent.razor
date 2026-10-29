@@ -6,7 +6,7 @@
 </ul>
 
 @code {
-    private string? _sizePrefix;
+
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.Center;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
     private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Row;
@@ -31,12 +31,7 @@
     {
         base.BuildAttributesCore(attributes);
 
-
-        var sizeClass = ParentPagination?.GetSizeClass();
-        var prefix = ParentPagination?.Vertical == true
-            ? string.IsNullOrEmpty(sizeClass) ? "flex-col" : QuarkStringCache.Concat(sizeClass, " ", "flex-col", ref _sizePrefix)
-            : sizeClass;
-        if (!string.IsNullOrEmpty(prefix))
-            PrependClassAttribute(attributes, prefix, ref _lastBuiltClass);
+        if (ParentPagination?.Vertical == true)
+            PrependClassAttribute(attributes, "flex-col", ref _lastBuiltClass);
     }
 }

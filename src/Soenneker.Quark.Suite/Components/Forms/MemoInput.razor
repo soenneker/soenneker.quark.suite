@@ -79,18 +79,14 @@ else
     protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
     {
         base.BuildDefaultClasses(ref cls);
-        var sizeClass = GetSizeClass();
         var validationClass = GetValidationClass();
         AppendClass(ref cls, "field-sizing-content placeholder:text-muted-foreground aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 dark:bg-input/30 focus-visible:ring-[3px]");
-        if (sizeClass != null)
-            AppendClass(ref cls, sizeClass);
         if (validationClass != null)
             AppendClass(ref cls, validationClass);
         if (UsesAutoSaveStatusSlot)
             AppendClass(ref cls, "min-w-0 flex-1");
     }
 
-    private static readonly CssValue<InputSizeBuilder> _staticCss1 = InputSizes.Default;
     private QuarkInt32Attribute _minlengthAttribute;
     private QuarkInt32Attribute _maxlengthAttribute;
     private QuarkInt32Attribute _rowsAttribute;
@@ -153,12 +149,6 @@ else
 	/// </summary>
 	[Parameter]
 	public bool AutoResize { get; set; }
-
-	/// <summary>
-	/// Gets or sets the size of the input.
-	/// </summary>
-	[Parameter]
-	public CssValue<InputSizeBuilder>? InputSize { get; set; } = _staticCss1;
 
 	/// <summary>
 	/// Gets or sets the callback invoked When the value changes.
@@ -298,12 +288,6 @@ else
 		if (ShouldShowInvalid())
 			return "border-destructive ring-destructive/20 dark:ring-destructive/40";
 		return null;
-	}
-
-	private string? GetSizeClass()
-	{
-		var sizeClass = InputSize?.ToString();
-		return string.IsNullOrWhiteSpace(sizeClass) ? null : sizeClass;
 	}
 
 	protected override void ApplyDefaultParameters()
@@ -494,7 +478,6 @@ else
 		hc.Add(MinLength);
 		hc.Add(Pattern);
 		hc.Add(AutoResize);
-		AddIf(ref hc, InputSize);
 		hc.Add(Placeholder);
 		hc.Add(Disabled);
 		hc.Add(ReadOnly);

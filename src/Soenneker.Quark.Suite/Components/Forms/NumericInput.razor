@@ -13,7 +13,7 @@
            Type="number"
            Value="@GetNumericValueString()"
            ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)"
-           InputSize="@InputSize"
+
            PlainText="@PlainText"
            FloatingLabel="@FloatingLabel"
            Label="@Label"
@@ -51,8 +51,6 @@
     [Parameter]
     public string? AutoComplete { get; set; }
 
-
-    private static readonly CssValue<InputSizeBuilder> _staticCss0 = InputSizes.Default;
     private DecimalTextCache _valueText, _minText, _maxText, _stepText;
     private Func<Task>? _autoSaveRefreshCallback;
     private Func<string?, Task>? _cachedHandleValueChangedDelegate;
@@ -101,12 +99,6 @@
     /// </summary>
     [Parameter]
     public decimal? Step { get; set; }
-
-    /// <summary>
-    /// Gets or sets the size of the numeric input.
-    /// </summary>
-    [Parameter]
-    public CssValue<InputSizeBuilder>? InputSize { get; set; } = _staticCss0;
 
     /// <summary>
     /// Gets or sets whether the input should be rendered as plain text.
@@ -198,12 +190,6 @@
     public string? GetColorClass()
     {
         return null;
-    }
-
-    public string? GetSizeClass()
-    {
-        var sizeClass = InputSize?.ToString();
-        return string.IsNullOrWhiteSpace(sizeClass) ? null : sizeClass;
     }
 
     private string? GetNumericValueString()
@@ -333,7 +319,6 @@
         hc.Add(Min);
         hc.Add(Max);
         hc.Add(Step);
-        AddIf(ref hc, InputSize);
         hc.Add(PlainText);
         hc.Add(FloatingLabel);
         hc.Add(Label);

@@ -28,11 +28,6 @@ public interface IInput : IComponent
     bool Required { get; set; }
 
     /// <summary>
-    /// Gets or sets the size of the input.
-    /// </summary>
-    CssValue<InputSizeBuilder>? InputSize { get; set; }
-
-    /// <summary>
     /// Gets or sets whether the input should be rendered as plain text.
     /// </summary>
     bool PlainText { get; set; }
@@ -74,9 +69,4 @@ public interface IInput : IComponent
     /// <returns>The requested text.</returns>
     string? GetColorClass();
 
-    /// <summary>
-    /// Gets the size class for the input based on size.
-    /// </summary>
-    /// <returns>The requested text.</returns>
-    string? GetSizeClass();
 }

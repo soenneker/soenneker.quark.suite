@@ -69,11 +69,6 @@ public interface IDatePicker : IElement
     DateOnly? Max { get; set; }
 
     /// <summary>
-    /// Gets or sets the size of the input.
-    /// </summary>
-    CssValue<InputSizeBuilder>? InputSize { get; set; }
-
-    /// <summary>
     /// Gets or sets the callback invoked When the value changes.
     /// </summary>
     EventCallback<DateOnly?> SelectedDateChanged { get; set; }

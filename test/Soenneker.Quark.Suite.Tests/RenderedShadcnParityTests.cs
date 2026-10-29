@@ -10,6 +10,46 @@ namespace Soenneker.Quark.Suite.Tests;
 
 public sealed partial class RenderedShadcnParityTests
 {
+    [Test]
+    public void Component_size_variants_use_enum_values_and_update_rendered_attributes()
+    {
+        var toggle = Render<Switch>(p => p.Add(c => c.SwitchSize, SwitchSize.Sm));
+        toggle.Find("[role=switch]").GetAttribute("data-size").Should().Be("sm");
+        toggle.Render(p => p.Add(c => c.SwitchSize, SwitchSize.Default));
+        toggle.Find("[role=switch]").GetAttribute("data-size").Should().Be("default");
+
+        var select = Render<Select<string>>(p => p.Add(c => c.SelectSize, SelectSize.Sm)
+            .AddChildContent<SelectTrigger>());
+        select.Find("[data-slot=select-trigger]").GetAttribute("data-size").Should().Be("sm");
+        select.Render(p => p.Add(c => c.SelectSize, SelectSize.Default));
+        select.Find("[data-slot=select-trigger]").GetAttribute("data-size").Should().Be("default");
+    }
+
+    [Test]
+    public void Radio_and_checkbox_use_typed_responsive_size()
+    {
+        var radio = Render<Radio>(p => p.Add(c => c.Size, Size.Is4.OnMd.Is5));
+        radio.Find("[data-slot=radio-group-item]").ClassList.Should().Contain("size-4").And.Contain("md:size-5");
+        var check = Render<Check>(p => p.Add(c => c.Size, Size.Is5.OnLg.Is6));
+        check.Find("[role=checkbox]").ClassList.Should().Contain("size-5").And.Contain("lg:size-6").And.NotContain("size-4");
+
+        var preset = new QuarkPresetToken("control-size", context => context.Size = Size.Is6.OnMd.Is7);
+        var presetRadio = Render<Radio>(p => p.Add(c => c.Preset, preset));
+        presetRadio.Find("[data-slot=radio-group-item]").ClassList.Should().Contain("size-6").And.Contain("md:size-7").And.NotContain("size-4");
+        var presetCheck = Render<Check>(p => p.Add(c => c.Preset, preset));
+        presetCheck.Find("[role=checkbox]").ClassList.Should().Contain("size-6").And.Contain("md:size-7").And.NotContain("size-4");
+    }
+
+    [Test]
+    public void Slider_sizing_matches_shadcn_and_supports_typed_width()
+    {
+        var cut = Render<Slider>(p => p.Add(c => c.SliderValue, 50)
+            .Add(c => c.Width, Width.IsFull.OnMd.Is64));
+        cut.Find("[data-slot=slider]").ClassList.Should().Contain("w-full").And.Contain("md:w-64");
+        cut.Find("[data-slot=slider-track]").ClassList.Should().Contain("data-[orientation=horizontal]:h-1.5")
+            .And.Contain("data-[orientation=vertical]:w-1.5");
+        cut.Find("[data-slot=slider-thumb]").ClassList.Should().Contain("size-4");
+    }
 
     [Test]
     public void Dialog_layout_honors_top_alignment_and_fullscreen_sizes()
@@ -244,7 +284,6 @@ public sealed partial class RenderedShadcnParityTests
         cut.Find("[data-slot='switch-thumb']").ClassList.Should().Contain("rtl:data-[state=checked]:-translate-x-[calc(100%-2px)]");
     }
 
-
     [Test]
     public void Deep_audit_otp_keeps_numeric_order_inside_rtl_layouts()
     {
@@ -259,7 +298,6 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<NativeSelect>();
         cut.Find("select").ClassList.Should().Contain("scheme-light").And.Contain("dark:scheme-dark");
     }
-
 
     [Test]
     public void Deep_audit_navigation_dropdown_has_stacking_priority()
@@ -278,7 +316,6 @@ public sealed partial class RenderedShadcnParityTests
         var separator = Render<Separator>(p => p.Add(c => c.Orientation, SeparatorOrientation.Vertical).Add(c => c.Preset, separatorPreset));
         separator.Find("[data-slot='separator']").HasAttribute("data-auto-stretch").Should().BeFalse();
     }
-
 
     [Test]
     public async System.Threading.Tasks.Task Deep_audit_carousel_announces_manual_slide_changes()
@@ -303,7 +340,6 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<Check>(p => p.Add(c => c.Switch, true).Add(c => c.Checked, true).Add(c => c.Dir, "rtl"));
         cut.Find("[data-slot='switch-thumb']").ClassList.Should().Contain("rtl:data-[state=checked]:-translate-x-[calc(100%-2px)]");
     }
-
 
     [Test]
     public void Deep_audit_inline_combobox_empty_state_tracks_available_items()

@@ -42,7 +42,6 @@
 </CascadingValue>
 
 @code {
-    private static readonly CssValue<SelectSizeBuilder> _staticCss0 = SelectSizes.Default;
     private Func<Task>? _autoSaveRefreshCallback;
     private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.InlineFlex;
     private static readonly CssValue<ItemsBuilder> _renderCss1 = Items.Center;
@@ -77,11 +76,8 @@
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
-    /// <summary>
-    /// Gets or sets the size of the select.
-    /// </summary>
     [Parameter]
-    public CssValue<SelectSizeBuilder>? SelectSize { get; set; } = _staticCss0;
+    public SelectSize SelectSize { get; set; } = Quark.SelectSize.Default;
 
     [Parameter]
     public bool AutoSave { get; set; }
@@ -234,14 +230,7 @@
         return value?.ToString();
     }
 
-    private string GetSizeValue()
-    {
-        var sizeValue = SelectSize?.ToString();
-
-        return string.Equals(sizeValue, "sm", StringComparison.OrdinalIgnoreCase)
-            ? "sm"
-            : "default";
-    }
+    private string GetSizeValue() => SelectSize == Quark.SelectSize.Sm ? "sm" : "default";
 
     private string? GetValidationClass()
     {
@@ -292,7 +281,7 @@
         hc.Add(SelectedValue);
         hc.Add(Disabled);
         hc.Add(Required);
-        AddIf(ref hc, SelectSize);
+        hc.Add(SelectSize);
         hc.Add(Placeholder);
         hc.Add(DefaultItemText);
         hc.Add(DefaultItemValue);

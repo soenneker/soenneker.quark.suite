@@ -96,7 +96,6 @@ else
     };
     private string? _switchClass;
 
-    private static readonly CssValue<CheckSizeBuilder> _staticCss0 = CheckSizes.Default;
     private Func<Task>? _autoSaveRefreshCallback;
     private static readonly CssValue<SizeBuilder> _renderCss0 = Quark.Size.Is3_5;
     private static readonly CssValue<DisplayBuilder> _renderCss1 = Quark.Display.InlineFlex;
@@ -126,9 +125,6 @@ else
 
     [Parameter]
     public bool Indeterminate { get; set; }
-
-    [Parameter]
-    public CssValue<CheckSizeBuilder>? CheckSize { get; set; } = _staticCss0;
 
     [Parameter]
     public bool Switch { get; set; }
@@ -241,7 +237,6 @@ else
             await validation.InitializeInput(this);
     }
 
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
@@ -311,7 +306,7 @@ else
         if (Switch)
         {
             attributes["data-slot"] = "switch";
-            attributes["data-size"] = CheckSize?.ToString() is "h-3 w-3" or "h-3.5 w-3.5" ? "sm" : "default";
+            attributes["data-size"] = "default";
             PrependClassAttribute(attributes, "peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent transition-all outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[size=default]:h-[18.4px] data-[size=default]:w-[32px] data-[size=sm]:h-[14px] data-[size=sm]:w-[24px] data-[state=checked]:bg-primary data-[state=unchecked]:bg-input disabled:cursor-not-allowed disabled:opacity-50", ref _switchClass);
             if (IndicatorStyle.HasContent())
                 PrependStyleAttribute(attributes, IndicatorStyle!, ref _lastControlStyle);
@@ -319,8 +314,8 @@ else
         }
 
         var validationClass = GetValidationClass();
-        var size = CheckSize?.ToString();
-        attributes["data-size"] = size ?? "default";
+        var size = ResolvePresetValue(Size, BuildPresetContext()?.Size, nameof(Size))?.ToString();
+
         var controlClassKey = (validationClass, IndicatorClass, attributes.GetValueOrDefault("class")?.ToString(), size);
         if (_lastBuiltClass3 is null || _controlClassKey != controlClassKey)
         {
@@ -423,7 +418,6 @@ else
         hc.Add(Disabled);
         hc.Add(Name);
         hc.Add(Value);
-        AddIf(ref hc, CheckSize);
         hc.Add(Indeterminate);
         hc.Add(Switch);
         hc.Add(Inline);

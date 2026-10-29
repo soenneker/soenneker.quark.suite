@@ -94,11 +94,6 @@ public interface IMemoInput : IComponent
     bool AutoResize { get; set; }
 
     /// <summary>
-    /// Gets or sets the size of the textarea.
-    /// </summary>
-    CssValue<InputSizeBuilder>? InputSize { get; set; }
-
-    /// <summary>
     /// Gets or sets the callback invoked When the value changes.
     /// </summary>
     EventCallback<string?> ValueChanged { get; set; }

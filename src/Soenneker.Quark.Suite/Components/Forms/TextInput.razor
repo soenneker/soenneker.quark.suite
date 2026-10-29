@@ -13,7 +13,7 @@
            Type="@Type"
            Value="@Value"
            ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)"
-           InputSize="@InputSize"
+
            PlainText="@PlainText"
            FloatingLabel="@FloatingLabel"
            Label="@Label"
@@ -82,7 +82,6 @@
     [Parameter]
     public int? HtmlSize { get; set; }
 
-    private static readonly CssValue<InputSizeBuilder> _staticCss0 = InputSizes.Default;
     private QuarkInt32Attribute _maxLengthAttribute;
     private Func<object?>? _validationValueSelector;
     private Func<string?, Task>? _cachedHandleValueChangedDelegate;
@@ -131,12 +130,6 @@
     /// </summary>
     [Parameter]
     public string? EditMask { get; set; }
-
-    /// <summary>
-    /// Gets or sets the size of the text input.
-    /// </summary>
-    [Parameter]
-    public CssValue<InputSizeBuilder>? InputSize { get; set; } = _staticCss0;
 
     /// <summary>
     /// Gets or sets whether the input should be rendered as plain text.
@@ -223,12 +216,6 @@
     public string? GetColorClass()
     {
         return null;
-    }
-
-    public string? GetSizeClass()
-    {
-        var sizeClass = InputSize?.ToString();
-        return string.IsNullOrWhiteSpace(sizeClass) ? null : sizeClass;
     }
 
     protected override async Task OnParametersSetAsync()
@@ -348,7 +335,6 @@
         hc.Add(Type);
         hc.Add(InputMode);
         hc.Add(EditMask);
-        AddIf(ref hc, InputSize);
         hc.Add(PlainText);
         hc.Add(FloatingLabel);
         hc.Add(Label);

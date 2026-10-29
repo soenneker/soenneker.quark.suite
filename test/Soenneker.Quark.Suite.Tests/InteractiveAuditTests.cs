@@ -214,10 +214,10 @@ public sealed partial class RenderedShadcnParityTests
     public async Task Audit_interactive_checks_and_switches_forward_attributes_and_legacy_switch_mode()
     {
         var cut = Render<Check>(p => p.Add(c => c.Class, "custom-check").Add(c => c.Style, "color:red")
-            .Add(c => c.CheckSize, CheckSizes.Lg).Add(c => c.AriaLabel, "Accept")
+            .Add(c => c.Size, Size.Is5).Add(c => c.AriaLabel, "Accept")
             .Add(c => c.Attributes, new Dictionary<string, object> { ["class"] = "extra-check", ["style"] = "margin:1px" }));
         var control = cut.Find("[role='checkbox']");
-        control.ClassList.Should().Contain("custom-check").And.Contain("extra-check").And.Contain("h-5");
+        control.ClassList.Should().Contain("custom-check").And.Contain("extra-check").And.Contain("size-5");
         control.GetAttribute("style").Should().Contain("color:red").And.Contain("margin:1px");
         control.GetAttribute("aria-label").Should().Be("Accept");
         cut.Render(p => p.Add(c => c.Class, "updated-check").Add(c => c.Switch, true));

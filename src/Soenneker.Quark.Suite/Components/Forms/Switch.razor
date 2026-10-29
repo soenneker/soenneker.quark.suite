@@ -77,7 +77,6 @@ else
 }
 
 @code {
-    private static readonly CssValue<SwitchSizeBuilder> _staticCss0 = SwitchSizes.Default;
     private Func<Task>? _autoSaveRefreshCallback;
     private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.InlineFlex;
     private static readonly CssValue<CursorBuilder> _renderCss1 = Quark.Cursor.Pointer;
@@ -101,7 +100,7 @@ else
     public string? Label { get; set; }
 
     [Parameter]
-    public CssValue<SwitchSizeBuilder>? SwitchSize { get; set; } = _staticCss0;
+    public SwitchSize SwitchSize { get; set; } = Quark.SwitchSize.Default;
 
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChange { get; set; }
@@ -197,7 +196,6 @@ else
             await validation.InitializeInput(this);
     }
 
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
@@ -208,13 +206,7 @@ else
         _ = RefreshOffThread();
     }
 
-    private bool IsSmSize()
-    {
-        if (SwitchSize == null)
-            return false;
-
-        return string.Equals(SwitchSize?.ToString(), "sm", StringComparison.OrdinalIgnoreCase);
-    }
+    private bool IsSmSize() => SwitchSize == Quark.SwitchSize.Sm;
 
     private Dictionary<string, object> BuildLabelAttributes()
     {
@@ -314,7 +306,7 @@ else
         hc.Add(Name);
         hc.Add(Value);
         hc.Add(Label);
-        AddIf(ref hc, SwitchSize);
+        hc.Add(SwitchSize);
         hc.Add(AutoSave);
         hc.Add(AutoSaveDelay);
         hc.Add(AutoSaveOnBlur);

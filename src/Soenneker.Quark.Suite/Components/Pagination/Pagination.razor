@@ -10,16 +10,10 @@
 </CascadingValue>
 
 @code {
-    private static readonly CssValue<PaginationSizeBuilder> _staticCss0 = PaginationSizes.Default;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
     private static readonly CssValue<MarginBuilder> _defaultMargin = Quark.Margin.OnX.Auto;
     private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
-    /// <summary>
-    /// Gets or sets the size of the pagination component.
-    /// </summary>
-    [Parameter]
-    public CssValue<PaginationSizeBuilder>? PaginationSize { get; set; } = _staticCss0;
 
     /// <summary>
     /// Gets or sets whether the pagination should be displayed vertically.
@@ -38,12 +32,6 @@
         Justify ??= _defaultJustify;
     }
 
-    internal string? GetSizeClass()
-    {
-        var sizeClass = PaginationSize?.ToString();
-        return string.IsNullOrWhiteSpace(sizeClass) ? null : sizeClass;
-    }
-
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
@@ -57,7 +45,6 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        AddIf(ref hc, PaginationSize);
         hc.Add(Vertical);
     }
 }

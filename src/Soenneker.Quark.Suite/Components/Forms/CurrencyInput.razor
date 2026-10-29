@@ -17,7 +17,7 @@
             </Span>
         }
 
-        <Input Id="@Id" Name="@Name" Type="text" Value="@DisplayValue" ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)" InputSize="@InputSize" PlainText="@PlainText" FloatingLabel="@FloatingLabel" Label="@Label" Placeholder="@Placeholder" Disabled="@Disabled" ReadOnly="@ReadOnly" Required="@Required" Class="@InputClass" Style="@InputStyle" AriaLabel="@AriaLabel" AriaDescribedBy="@AriaDescribedBy" OnClick="@OnClick" OnDoubleClick="@OnDoubleClick" OnMouseOver="@OnMouseOver" OnMouseOut="@OnMouseOut" OnKeyDown="(_cachedHandleInputKeyDownDelegate ??= HandleInputKeyDown)" OnInput="(_cachedHandleInputDelegate ??= HandleInput)" OnChange="(_cachedHandleChangeDelegate ??= HandleChange)" OnFocus="(_cachedHandleInputFocusDelegate ??= HandleInputFocus)" OnBlur="(_cachedHandleInputBlurDelegate ??= HandleInputBlur)" AdditionalAttributes="BuildInputAttributes()" ValidationValueSelector="@(_validationValueSelector ??= () => (object?)Value)"/>
+        <Input Id="@Id" Name="@Name" Type="text" Value="@DisplayValue" ValueChanged="(_cachedHandleValueChangedDelegate ??= HandleValueChanged)" PlainText="@PlainText" FloatingLabel="@FloatingLabel" Label="@Label" Placeholder="@Placeholder" Disabled="@Disabled" ReadOnly="@ReadOnly" Required="@Required" Class="@InputClass" Style="@InputStyle" AriaLabel="@AriaLabel" AriaDescribedBy="@AriaDescribedBy" OnClick="@OnClick" OnDoubleClick="@OnDoubleClick" OnMouseOver="@OnMouseOver" OnMouseOut="@OnMouseOut" OnKeyDown="(_cachedHandleInputKeyDownDelegate ??= HandleInputKeyDown)" OnInput="(_cachedHandleInputDelegate ??= HandleInput)" OnChange="(_cachedHandleChangeDelegate ??= HandleChange)" OnFocus="(_cachedHandleInputFocusDelegate ??= HandleInputFocus)" OnBlur="(_cachedHandleInputBlurDelegate ??= HandleInputBlur)" AdditionalAttributes="BuildInputAttributes()" ValidationValueSelector="@(_validationValueSelector ??= () => (object?)Value)"/>
 
         @if (ShowSymbol && SymbolAtEnd)
         {
@@ -37,7 +37,6 @@
 </Div>
 
 @code {
-    private static readonly CssValue<InputSizeBuilder> _staticCss1 = InputSizes.Default;
     private static readonly CssValue<MaxWidthBuilder> _currencyMaxWidth = CssValue<MaxWidthBuilder>.For(Quark.MaxWidth.Is48, "sm:max-w-56");
     private (decimal? Value, int Places, bool Thousands, CultureInfo Culture) _displayKey;
     private (decimal? Value, int Places, CultureInfo Culture) _editingKey;
@@ -110,9 +109,6 @@
 
     [Parameter]
     public string? CultureName { get; set; }
-
-    [Parameter]
-    public CssValue<InputSizeBuilder>? InputSize { get; set; } = _staticCss1;
 
     [Parameter]
     public bool PlainText { get; set; }
@@ -206,12 +202,6 @@
     public string? GetColorClass()
     {
         return null;
-    }
-
-    public string? GetSizeClass()
-    {
-        var sizeClass = InputSize?.ToString();
-        return string.IsNullOrWhiteSpace(sizeClass) ? null : sizeClass;
     }
 
     protected override void OnParametersSet()
@@ -500,7 +490,6 @@
         hc.Add(ShowSymbol);
         hc.Add(SymbolAtEnd);
         hc.Add(CultureName);
-        AddIf(ref hc, InputSize);
         hc.Add(PlainText);
         hc.Add(FloatingLabel);
         hc.Add(Label);

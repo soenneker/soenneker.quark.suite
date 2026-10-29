@@ -25,11 +25,6 @@ public interface ICheck : IComponent
     bool Disabled { get; set; }
 
     /// <summary>
-    /// Gets or sets the size of the checkbox.
-    /// </summary>
-    CssValue<CheckSizeBuilder>? CheckSize { get; set; }
-
-    /// <summary>
     /// Gets or sets whether the checkbox should be rendered as a switch.
     /// </summary>
     bool Switch { get; set; }

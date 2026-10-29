@@ -49,8 +49,4 @@ public interface IRadio : IElement, IAutoSaveInput<bool>
     /// </summary>
     object? ValidationValue { get; }
 
-    /// <summary>
-    /// Gets or sets the size of the radio button.
-    /// </summary>
-    CssValue<RadioSizeBuilder>? RadioSize { get; set; }
 }

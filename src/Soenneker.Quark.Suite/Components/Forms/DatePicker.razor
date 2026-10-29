@@ -64,7 +64,6 @@
 </Popover>
 
 @code {
-    private static readonly CssValue<InputSizeBuilder> _staticCss1 = InputSizes.Default;
     private static readonly string[] _triggerExcludedAttributes = ["value", "name", "placeholder", "readonly", "required", "autocomplete", "oninput", "onchange"];
     private string? _triggerClass;
     private DateOnly _formattedDate;
@@ -145,12 +144,6 @@
     public DateOnly? Max { get; set; }
 
     /// <summary>
-    /// Gets or sets the size of the date picker.
-    /// </summary>
-    [Parameter]
-    public CssValue<InputSizeBuilder>? InputSize { get; set; } = _staticCss1;
-
-    /// <summary>
     /// Gets or sets the callback invoked When the value changes.
     /// </summary>
     [Parameter]
@@ -219,8 +212,6 @@
     protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
     {
         base.BuildDefaultClasses(ref cls);
-        if (InputSize.HasValue)
-            AppendClass(ref cls, InputSize.Value.ToString());
     }
 
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
@@ -428,6 +419,5 @@
         hc.Add(Max);
         hc.Add(_open);
         hc.Add(_triggerId);
-        AddIf(ref hc, InputSize);
     }
 }

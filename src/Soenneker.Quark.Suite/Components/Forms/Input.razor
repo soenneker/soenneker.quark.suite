@@ -180,7 +180,6 @@ else
     protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
     {
         base.BuildDefaultClasses(ref cls);
-        var sizeClass = GetSizeClass();
         var validationClass = GetValidationClass();
         if (PlainText)
         {
@@ -194,15 +193,12 @@ else
             AppendClass(ref cls, "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40");
         }
 
-        if (sizeClass is not null)
-            AppendClass(ref cls, sizeClass);
         if (UsesAutoSaveStatusSlot)
             AppendClass(ref cls, "min-w-0 flex-1");
         if (validationClass is not null)
             AppendClass(ref cls, validationClass);
     }
 
-    private static readonly CssValue<InputSizeBuilder> _staticCss1 = InputSizes.Default;
     private Func<Task>? _autoSaveRefreshCallback;
     private static readonly CssValue<MinWidthBuilder> _staticCss0 = Quark.MinWidth.Is0;
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFull;
@@ -256,12 +252,6 @@ else
     /// </summary>
     [Parameter]
     public virtual string? Type { get; set; }
-
-    /// <summary>
-    /// Gets or sets the size of the input.
-    /// </summary>
-    [Parameter]
-    public CssValue<InputSizeBuilder>? InputSize { get; set; } = _staticCss1;
 
     /// <summary>
     /// Gets or sets whether the input should be rendered as plain text.
@@ -594,16 +584,6 @@ else
         return null;
     }
 
-    /// <summary>
-    /// Gets the size class for the input.
-    /// </summary>
-    /// <returns>The size class name, or null if no size class should be applied.</returns>
-    public virtual string? GetSizeClass()
-    {
-        var sizeClass = InputSize?.ToString();
-        return string.IsNullOrWhiteSpace(sizeClass) ? null : sizeClass;
-    }
-
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -718,7 +698,6 @@ else
         hc.Add(Disabled);
         hc.Add(ReadOnly);
         hc.Add(Required);
-        AddIf(ref hc, InputSize);
         hc.Add(PlainText);
         hc.Add(FloatingLabel);
         hc.Add(Label);
