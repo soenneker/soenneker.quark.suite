@@ -24,7 +24,7 @@ public interface IComparisonChart
     /// <summary>Gets or sets the heading above entry names. Defaults to Entry.</summary>
     string EntryLabel { get; set; }
 
-    /// <summary>Gets or sets whether rows reveal once as they enter the viewport and marks animate when values change. Sorting or recreating the chart restarts the reveal. Reduced-motion preferences take precedence.</summary>
+    /// <summary>Gets or sets whether rows reveal once as they enter the viewport and marks animate when values change. Sorting or recreating the chart restarts the reveal. Reduced-motion preferences take precedence unless QuarkOptions.RespectReducedMotion is false.</summary>
     bool Animate { get; set; }
 
     /// <summary>Gets or sets the callback raised when an entry is selected by mouse, touch, or keyboard.</summary>

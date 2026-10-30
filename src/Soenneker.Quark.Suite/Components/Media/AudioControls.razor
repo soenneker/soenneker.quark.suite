@@ -30,7 +30,7 @@
         {
             <Span Shrink="_staticShrink6" Whitespace="_staticWhitespace7" TextSize="_staticTextSize8" FontWeight="_staticFontWeight9" FontVariantNumeric="_staticFontVariantNumeric10">@CurrentTimeText / @DurationText</Span>
             <Div Class="group/seek" MinWidth="_seekMinWidth" Flex="_staticFlex11">
-                <Slider Class="[&_[data-slot=slider-track]]:bg-foreground/20 [&_[data-slot=slider-thumb]]:opacity-0 [&_[data-slot=slider-thumb]]:transition-opacity group-hover/seek:[&_[data-slot=slider-thumb]]:opacity-100 group-focus-within/seek:[&_[data-slot=slider-thumb]]:opacity-100 motion-reduce:[&_[data-slot=slider-thumb]]:transition-none" MinHeight="_sliderMinHeight" Min="0" Max="@Math.Max(SafeDuration, 1)" Step="1"
+                <Slider Class="@SeekClass" MinHeight="_sliderMinHeight" Min="0" Max="@Math.Max(SafeDuration, 1)" Step="1"
                         SliderValue="@Math.Clamp(SafeSeconds(CurrentTime), 0, SafeDuration)"
                         SliderValueChanged="CurrentTimeChanged" Disabled="@(Disabled || !CanSeek || SafeDuration <= 0)"
                         Label="Playback position" />
@@ -52,7 +52,7 @@
                         }
                     </svg>
                 </Button>
-                <Div Class="order-first transition-[width,opacity] ease-out group-hover/volume:visible group-hover/volume:w-20 group-hover/volume:opacity-100 group-focus-within/volume:visible group-focus-within/volume:w-20 group-focus-within/volume:opacity-100 motion-reduce:transition-none" Visibility="_staticVisibility12" Width="_staticWidth13" Overflow="_staticOverflow14" Opacity="_staticOpacity15" Duration="_staticDuration16">
+                <Div Class="@VolumeClass" Visibility="_staticVisibility12" Width="_staticWidth13" Overflow="_staticOverflow14" Opacity="_staticOpacity15" Duration="_staticDuration16">
                     <Div Width="_staticWidth17" Padding="_staticPadding18">
                         <Slider Class="[&_[data-slot=slider-track]]:bg-foreground/20" MinHeight="_sliderMinHeight" Min="0" Max="1" Step="0.01" SliderValue="@SafeVolume"
                                 SliderValueChanged="VolumeChanged" Disabled="@Disabled" Label="Volume" />
@@ -65,6 +65,12 @@
     @ChildContent
 </div>
 @code {
+    private const string _volumeBaseClass = "order-first transition-[width,opacity] ease-out group-hover/volume:visible group-hover/volume:w-20 group-hover/volume:opacity-100 group-focus-within/volume:visible group-focus-within/volume:w-20 group-focus-within/volume:opacity-100";
+    private string VolumeClass => _volumeBaseClass + (QuarkOptions.RespectReducedMotion ? " motion-reduce:transition-none" : "");
+
+    private const string _seekBaseClass = "[&_[data-slot=slider-track]]:bg-foreground/20 [&_[data-slot=slider-thumb]]:opacity-0 [&_[data-slot=slider-thumb]]:transition-opacity group-hover/seek:[&_[data-slot=slider-thumb]]:opacity-100 group-focus-within/seek:[&_[data-slot=slider-thumb]]:opacity-100";
+    private string SeekClass => _seekBaseClass + (QuarkOptions.RespectReducedMotion ? " motion-reduce:[&_[data-slot=slider-thumb]]:transition-none" : "");
+
     private static readonly CssValue<ButtonSizeBuilder> _controlButtonSize = ButtonSize.IconSm;
     private static readonly CssValue<MinWidthBuilder> _seekMinWidth = Quark.MinWidth.Token("8");
     private static readonly CssValue<MinHeightBuilder> _sliderMinHeight = Quark.MinHeight.Token("7");

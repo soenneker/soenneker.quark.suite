@@ -11,6 +11,13 @@ public sealed class QuarkOptions
     public bool Debug { get; set; }
 
     /// <summary>
+    /// Gets or sets whether Quark visual effects respect the browser's reduced-motion preference.
+    /// Defaults to true. Set to false before rendering components to keep animations and transitions enabled.
+    /// Explicit component animation settings and pause-on-hover or focus behavior still apply.
+    /// </summary>
+    public bool RespectReducedMotion { get; set; } = true;
+
+    /// <summary>
     /// Loads minified Quark-owned JavaScript modules. Defaults to false.
     /// Configure before resolving interop services. Third-party bundles retain their supplied format.
     /// </summary>

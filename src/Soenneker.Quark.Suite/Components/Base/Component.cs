@@ -2621,6 +2621,9 @@ public abstract class Component : RenderComponent, IComponent
     {
         base.BuildFinalAttributes(attrs);
 
+        if (!QuarkOptions.RespectReducedMotion)
+            attrs["data-quark-motion"] = "always";
+
         if (DataSlot.HasContent() && !HasExplicitDataSlotAttribute())
         {
             attrs["data-slot"] = DataSlot!;

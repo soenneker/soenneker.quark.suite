@@ -74,7 +74,7 @@ tr:hover .comparison-tooltip, tr:focus-within .comparison-tooltip { display: blo
 @keyframes comparison-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes comparison-pop { from { transform: scale(0); } to { transform: scale(1); } }
 @keyframes comparison-label { from { opacity: 0; } to { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .comparison[data-animated=true] *, .comparison * { animation: none !important; transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { .comparison:not([data-quark-motion="always"] *) * { animation: none !important; transition: none !important; } }
 @media (max-width: 760px) {
     .comparison-chart tr { column-gap: 12px; }
     .comparison-chart .comparison-name { font-size: 12px; }
@@ -121,4 +121,10 @@ tr:hover .comparison-tooltip, tr:focus-within .comparison-tooltip { display: blo
     .comparison[data-animated=true] tbody tr:focus-within,
     .comparison[data-animated=true] tbody tr:focus-within :is(.comparison-bar, .comparison-range, .comparison-stem, .comparison-marker, .comparison-number) { animation: none; }
 }
+[data-quark-motion="always"] > .comparison[data-animated=true] tbody tr { animation: comparison-row .45s ease-out backwards; animation-delay: min(calc(var(--comparison-order) * 65ms), 260ms); }
+[data-quark-motion="always"] > .comparison[data-animated=true] tbody tr:not([data-scroll-reveal-state=visible]),
+[data-quark-motion="always"] > .comparison[data-animated=true] tbody tr:not([data-scroll-reveal-state=visible]) :is(.comparison-bar, .comparison-range, .comparison-stem, .comparison-marker, .comparison-number) { animation-play-state: paused; }
+[data-quark-motion="always"] > .comparison[data-animated=true] tbody tr:focus-within,
+[data-quark-motion="always"] > .comparison[data-animated=true] tbody tr:focus-within :is(.comparison-bar, .comparison-range, .comparison-stem, .comparison-marker, .comparison-number) { animation: none; }
+
 @keyframes comparison-row { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
