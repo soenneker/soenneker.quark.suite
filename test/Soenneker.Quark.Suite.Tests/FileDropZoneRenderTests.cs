@@ -241,6 +241,56 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
+    [Arguments(false, false)]
+    [Arguments(false, true)]
+    [Arguments(true, false)]
+    [Arguments(true, true)]
+    public async Task FileDropZone_full_transfer_waits_for_server_result(bool readStream, bool fail, CancellationToken cancellationToken)
+    {
+        var transferred = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var response = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var cut = Render<FileDropZone>(p => p.Add(c => c.Upload, async (request, ct) =>
+        {
+            if (readStream)
+            {
+                await using var stream = request.OpenReadStreamWithProgress();
+                await stream.CopyToAsync(System.IO.Stream.Null, ct);
+            }
+            else
+                await request.ReportUploadProgress(100);
+            transferred.TrySetResult();
+            await response.Task.WaitAsync(ct);
+            if (fail)
+                throw new InvalidOperationException("Storage unavailable");
+            return new FileDropZoneUploadResult { ServerId = "saved" };
+        }));
+        var input = cut.FindComponent<InputFile>();
+        var upload = Task.Run(() => input.UploadFiles(InputFileContent.CreateFromText("abc", "document.pdf")), cancellationToken);
+        try
+        {
+            await transferred.Task.WaitAsync(TimeSpan.FromSeconds(10), cancellationToken);
+            cut.WaitForAssertion(() =>
+            {
+                cut.Instance.Files.Single().State.Should().Be(FileDropZoneState.Processing);
+                cut.Instance.Files.Single().ServerId.Should().BeNull();
+                cut.Find("[role='progressbar']").HasAttribute("aria-valuenow").Should().BeFalse();
+                cut.Find("[role='progressbar']").GetAttribute("aria-valuetext").Should().Be("Finishing upload");
+                cut.Find("button[aria-label='Cancel upload of document.pdf']").Should().NotBeNull();
+            });
+        }
+        finally
+        {
+            response.TrySetResult();
+            await upload.WaitAsync(TimeSpan.FromSeconds(10), cancellationToken);
+        }
+        cut.WaitForAssertion(() => cut.Instance.Files.Single().State.Should().Be(fail ? FileDropZoneState.Failed : FileDropZoneState.Complete));
+        if (fail)
+            cut.Find("[role='alert']").TextContent.Should().Contain("Storage unavailable");
+        else
+            cut.Instance.Files.Single().ServerId.Should().Be("saved");
+    }
+
+    [Test]
     public async ValueTask FileDropZone_failed_upload_can_retry_after_another_selection(CancellationToken cancellationToken)
     {
         var fail = true;

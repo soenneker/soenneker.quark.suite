@@ -33,7 +33,10 @@ public sealed class FileDropZoneUploadRequest
     /// <remarks>Read progress does not confirm server receipt or upload completion. Use the upload result to determine completion.</remarks>
     public Stream OpenReadStreamWithProgress() => new FileDropZoneProgressStream(OpenReadStream(), this);
     /// <summary>Reports bytes actually transferred by the application's transport, or null for unknown progress.</summary>
-    public Task ReportUploadProgress(int? percent) => _report(FileDropZoneState.Uploading, percent, null);
+    /// <remarks>At 100 percent, shows an indeterminate finishing stage until the upload callback returns its result.</remarks>
+    public Task ReportUploadProgress(int? percent) => percent >= 100
+        ? _report(FileDropZoneState.Processing, null, "Finishing upload")
+        : _report(FileDropZoneState.Uploading, percent, null);
     /// <summary>Reports server work separately from transfer progress. Null percent displays an indeterminate bar.</summary>
     public Task ReportProcessingProgress(string statusText, int? percent = null) => _report(FileDropZoneState.Processing, percent, statusText);
 }
