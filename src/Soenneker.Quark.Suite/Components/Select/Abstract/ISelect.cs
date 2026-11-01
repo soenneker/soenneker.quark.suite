@@ -1,5 +1,4 @@
 using System;
-using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark;
@@ -15,10 +14,6 @@ public interface ISelect<TValue> : IElement
     /// </summary>
     TValue? SelectedValue { get; set; }
 
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound value for validation.
-    /// </summary>
-    Expression<Func<TValue>>? SelectedValueExpression { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked When the selected value changes.

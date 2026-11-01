@@ -1,5 +1,4 @@
 @using Soenneker.Atomics.ValueBools
-@using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Bradix
@@ -163,7 +162,6 @@ else
     }
 
     private Validation? _subscribedValidation;
-    private Expression<Func<bool>>? _registeredValidationExpression;
     private ValueAtomicBool _validationDisposed;
 
     protected override async Task OnParametersSetAsync()
@@ -181,17 +179,11 @@ else
                 _subscribedValidation.UnregisterInput(this);
             }
             _subscribedValidation = validation;
-            _registeredValidationExpression = null;
             if (validation is not null)
                 validation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
         if (validation is null)
             return;
-        if (!ReferenceEquals(_registeredValidationExpression, CheckedExpression))
-        {
-            _registeredValidationExpression = CheckedExpression;
-            await validation.InitializeInputExpression(CheckedExpression!);
-        }
         if (ownerChanged && !_validationDisposed.Value && ReferenceEquals(_subscribedValidation, validation))
             await validation.InitializeInput(this);
     }

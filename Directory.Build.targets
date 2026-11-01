@@ -1,0 +1,14 @@
+<Project>
+  <!-- Prefer the sibling checkout for coordinated runtime/generator development; callers can opt out. -->
+  <PropertyGroup>
+    <UseLocalQuarkValidationGenerator Condition="'$(UseLocalQuarkValidationGenerator)' == '' and Exists('$(MSBuildThisFileDirectory)../soenneker.quark.gen.validation/src/Soenneker.Quark.Gen.Validation.BuildTasks/Soenneker.Quark.Gen.Validation.BuildTasks.csproj')">true</UseLocalQuarkValidationGenerator>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(UseLocalQuarkValidationGenerator)' == 'true'">
+    <_LocalQuarkValidationRoot>$(MSBuildThisFileDirectory)../soenneker.quark.gen.validation/src/</_LocalQuarkValidationRoot>
+    <ValidationBuildTasksDllPath>$([System.IO.Path]::GetFullPath('$(_LocalQuarkValidationRoot)Soenneker.Quark.Gen.Validation.BuildTasks/bin/$(Configuration)/Soenneker.Quark.Gen.Validation.BuildTasks.dll'))</ValidationBuildTasksDllPath>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(UseLocalQuarkValidationGenerator)' == 'true'">
+    <ProjectReference Include="$(_LocalQuarkValidationRoot)Soenneker.Quark.Gen.Validation.BuildTasks/Soenneker.Quark.Gen.Validation.BuildTasks.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" SkipGetTargetFrameworkProperties="true" />
+  </ItemGroup>
+  <Import Project="$(_LocalQuarkValidationRoot)Soenneker.Quark.Gen.Validation/Soenneker.Quark.Gen.Validation.targets" Condition="'$(UseLocalQuarkValidationGenerator)' == 'true'" />
+</Project>

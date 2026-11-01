@@ -1,5 +1,4 @@
 using System;
-using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark;
@@ -39,10 +38,6 @@ public interface ISwitch : IComponent
     /// </summary>
     EventCallback<ChangeEventArgs> OnChange { get; set; }
 
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound checked value for validation.
-    /// </summary>
-    Expression<Func<bool>>? CheckedExpression { get; set; }
 
     /// <summary>
     /// Gets the value used for validation purposes.

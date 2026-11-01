@@ -1,6 +1,5 @@
 @using Soenneker.Bradix
 @using System.Globalization
-@using System.Linq.Expressions
 @using System.Threading
 
 @namespace Soenneker.Quark
@@ -58,11 +57,6 @@
     [Parameter]
     public TValue? SelectedValue { get; set; }
 
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound selected value.
-    /// </summary>
-    [Parameter]
-    public Expression<Func<TValue>>? SelectedValueExpression { get; set; }
 
     /// <summary>
     /// Gets or sets the callback invoked When the selected value changes.
@@ -159,8 +153,6 @@
             ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
             await ParentValidation.InitializeInput(this);
 
-            if (SelectedValueExpression is not null)
-                await ParentValidation.InitializeInputExpression(SelectedValueExpression);
 
         }
 

@@ -1,6 +1,5 @@
 @using System.Buffers
 @using System.Globalization
-@using System.Linq.Expressions
 @using System.Threading
 @using Soenneker.Blazor.Extensions.EventCallback
 
@@ -80,8 +79,6 @@
     [Parameter]
     public EventCallback<decimal?> ValueChanged { get; set; }
 
-    [Parameter]
-    public Expression<Func<decimal?>>? ValueExpression { get; set; }
 
     [Parameter]
     public decimal? Min { get; set; }
@@ -162,7 +159,6 @@
     public Validation? ParentValidation { get; set; }
 
     private Validation? _subscribedValidation;
-    private LambdaExpression? _registeredExpression;
     public object? ValidationValue => Value;
 
     private string? _cultureNameSnapshot;
@@ -220,14 +216,8 @@
             if (_subscribedValidation is not null)
                 _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
             _subscribedValidation = ParentValidation;
-            _registeredExpression = null;
             if (_subscribedValidation is not null)
                 _subscribedValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
-        }
-        if (ParentValidation is not null && !ReferenceEquals(_registeredExpression, ValueExpression))
-        {
-            _registeredExpression = ValueExpression;
-            await ParentValidation.InitializeInputExpression(ValueExpression!);
         }
     }
 

@@ -1,6 +1,5 @@
 @using Soenneker.Atomics.ValueBools
 @using Soenneker.Utils.PooledStringBuilders
-@using System.Linq.Expressions
 @using System.Threading
 @using Soenneker.Blazor.Extensions.EventCallback
 
@@ -241,11 +240,6 @@ else
     [Parameter]
     public EventCallback<string?> ValueChanged { get; set; }
 
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound value for validation.
-    /// </summary>
-    [Parameter]
-    public Expression<Func<string?>>? ValueExpression { get; set; }
 
     /// <summary>
     /// Gets or sets the input type (e.g., "text", "email", "password").
@@ -290,7 +284,6 @@ else
     public Validation? ParentValidation { get; set; }
 
     private Validation? _subscribedValidation;
-    private Expression<Func<string?>>? _registeredValidationExpression;
     private ValueAtomicBool _validationDisposed;
 
     protected override async Task OnParametersSetAsync()
@@ -308,17 +301,11 @@ else
                 _subscribedValidation.UnregisterInput(this);
             }
             _subscribedValidation = validation;
-            _registeredValidationExpression = null;
             if (validation is not null)
                 validation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
         if (validation is null)
             return;
-        if (!ReferenceEquals(_registeredValidationExpression, ValueExpression))
-        {
-            _registeredValidationExpression = ValueExpression;
-            await validation.InitializeInputExpression(ValueExpression!);
-        }
         if (ownerChanged && !_validationDisposed.Value && ReferenceEquals(_subscribedValidation, validation))
             await validation.InitializeInput(this);
     }

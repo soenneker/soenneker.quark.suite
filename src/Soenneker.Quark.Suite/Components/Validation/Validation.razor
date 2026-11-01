@@ -1,6 +1,5 @@
 @using Soenneker.Atomics.ValueBools
 @using System.Text.RegularExpressions
-@using System.Linq.Expressions
 @using System.Threading
 @using Microsoft.AspNetCore.Components.Forms
 
@@ -28,12 +27,14 @@
     }
 
     private IValidationInput? _input;
+    private IValidationFieldBinding? _generatedFieldOwner;
     private object? _lastKnownValue;
     private string? _patternString;
     private bool _hasPattern;
     private bool _hasInputPattern;
     private ValueAtomicBool _initialized;
     private FieldIdentifier _fieldIdentifier;
+    private FieldIdentifier? _parameterField;
     private bool _hasFieldIdentifier;
     private CancellationTokenSource? _cts;
     private ValueAtomicBool _disposed;
@@ -132,6 +133,9 @@
     /// </summary>
     public FieldIdentifier FieldIdentifier => _fieldIdentifier;
 
+    [Parameter]
+    public FieldIdentifier? Field { get; set; }
+
     /// <summary>
     /// Gets the compiled regex pattern for validation.
     /// </summary>
@@ -151,6 +155,13 @@
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
+        if (!Nullable.Equals(_parameterField, Field))
+        {
+            _parameterField = Field;
+            await InitializeInputField(Field);
+        }
+        if (!ReferenceEquals(_messageEditContext, EditContext))
+            ClearDataAnnotationMessages();
 
         if (!ReferenceEquals(_registeredValidations, ParentValidations))
         {
@@ -196,6 +207,8 @@
     {
         _input = input;
         _lastKnownValue = input.ValidationValue;
+        if ((Field ?? _generatedFieldOwner?.ValidationField) is { } field)
+            await InitializeInputField(field, input.ValidationValue);
 
         if ((ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto && (ParentValidations?.ValidateOnLoad ?? false))
         {
@@ -261,31 +274,44 @@
         }
     }
 
-    public async Task InitializeInputExpression<T>(Expression<Func<T>> expression)
+    internal Task BindGeneratedField(IValidationFieldBinding owner, FieldIdentifier? field)
     {
-        if ((ParentValidations is not null || EditContext is not null) && expression is not null)
+        if (Field is not null || (_generatedFieldOwner is not null && !ReferenceEquals(_generatedFieldOwner, owner)))
+            return Task.CompletedTask;
+        if (field is null && _generatedFieldOwner is null)
+            return Task.CompletedTask;
+        _generatedFieldOwner = field is null ? null : owner;
+        return InitializeInputField(field);
+    }
+
+    public Task InitializeInputField(FieldIdentifier? field) => InitializeInputField(field, _input?.ValidationValue);
+
+    public async Task InitializeInputField(FieldIdentifier? field, object? currentValue)
+    {
+        if (field is { } fieldIdentifier)
         {
-            var fieldIdentifier = FieldIdentifier.Create(expression);
+            if (fieldIdentifier.Model is null || string.IsNullOrEmpty(fieldIdentifier.FieldName))
+                throw new ArgumentException("A validation field requires a model and a field name.", nameof(field));
             if (!_hasFieldIdentifier || !fieldIdentifier.Equals(_fieldIdentifier))
             {
                 ClearDataAnnotationMessages();
                 _fieldIdentifier = fieldIdentifier;
-                _lastKnownValue = expression.Compile(preferInterpretation: true)
-                    .Invoke();
+                _lastKnownValue = currentValue;
+                bool wasBound = _hasFieldIdentifier;
+                _hasFieldIdentifier = true;
 
-                if (_hasFieldIdentifier && (ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto &&
+                if (wasBound && (ParentValidations?.Mode ?? ValidationMode.Auto) == ValidationMode.Auto &&
                     (ParentValidations?.ValidateOnLoad ?? false) && _initialized.Value)
                 {
                     await NotifyInputChanged(_lastKnownValue, true);
                 }
-
-                _hasFieldIdentifier = true;
             }
         }
         else
         {
             ClearDataAnnotationMessages();
             _hasFieldIdentifier = false;
+            _fieldIdentifier = default;
         }
     }
 

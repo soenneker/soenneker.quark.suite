@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components.Forms;
 using System.Threading.Tasks;
 using AwesomeAssertions;
@@ -293,26 +292,23 @@ public sealed partial class RenderedShadcnParityTests
     [Arguments("Switch")]
     [Arguments("Radio")]
     [Arguments("TextArea")]
-    public async Task Audit_interactive_form_controls_rebind_validation_owner_and_expression(string control)
+    public async Task Audit_interactive_form_controls_rebind_validation_owner_and_field(string control)
     {
         Services.AddScoped<IValidationInterop, FakeValidationInterop>();
         var boolModel = new { First = false, Second = true };
         var textModel = new { First = "first", Second = "second" };
         var editContext = new EditContext(control == "TextArea" ? (object)textModel : boolModel);
-        var first = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), editContext));
-        var second = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), editContext));
-        object expression = control == "TextArea" ? (Expression<Func<string?>>)(() => textModel.First) : (Expression<Func<bool>>)(() => boolModel.First);
+        var first = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), editContext).Add(c => c.Field, new FieldIdentifier(editContext.Model, "First")));
+        var second = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), editContext).Add(c => c.Field, new FieldIdentifier(editContext.Model, "Second")));
         Type type = control switch { "Check" => typeof(Check), "Switch" => typeof(Switch), "Radio" => typeof(Radio), _ => typeof(TextArea) };
         RenderFragment content = builder =>
         {
             builder.OpenComponent(0, type);
-            builder.AddAttribute(1, control == "TextArea" ? "ValueExpression" : "CheckedExpression", expression);
             builder.CloseComponent();
         };
         var host = Render<CascadingValue<Validation>>(p => p.Add(c => c.Name, "ParentValidation")
             .Add(c => c.Value, first.Instance).Add(c => c.ChildContent, content));
         first.Instance.FieldIdentifier.FieldName.Should().Be("First");
-        expression = control == "TextArea" ? (Expression<Func<string?>>)(() => textModel.Second) : (Expression<Func<bool>>)(() => boolModel.Second);
         host.Render(p => p.Add(c => c.Value, second.Instance).Add(c => c.ChildContent, content));
         second.Instance.FieldIdentifier.FieldName.Should().Be("Second");
         int Count() => control switch

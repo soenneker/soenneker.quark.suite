@@ -1,5 +1,4 @@
 using System;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -48,10 +47,6 @@ public interface IDatePicker : IElement
     /// </summary>
     DateOnly? SelectedDate { get; set; }
 
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound value for validation.
-    /// </summary>
-    Expression<Func<DateOnly?>>? SelectedDateExpression { get; set; }
 
     /// <summary>
     /// Gets or sets whether the input is required.

@@ -1,5 +1,4 @@
 using System;
-using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark;
@@ -14,10 +13,6 @@ public interface IDateTimePicker : IElement, IAutoSaveInput<DateTime?>
     /// </summary>
     DateTime? SelectedDateTime { get; set; }
 
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound value for validation.
-    /// </summary>
-    Expression<Func<DateTime?>>? SelectedDateTimeExpression { get; set; }
 
     /// <summary>
     /// Gets or sets whether the input is required.

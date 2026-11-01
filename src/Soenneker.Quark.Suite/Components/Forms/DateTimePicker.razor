@@ -2,7 +2,6 @@
 @implements IAutoSaveInput<DateTime?>
 @using Soenneker.Atomics.ValueBools
 @using System.Globalization
-@using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Bradix
@@ -166,8 +165,6 @@ else
     [Parameter]
     public DateTime? SelectedDateTime { get; set; }
 
-    [Parameter]
-    public Expression<Func<DateTime?>>? SelectedDateTimeExpression { get; set; }
 
     [Parameter]
     public DateTime? Min { get; set; }
@@ -204,7 +201,6 @@ else
     private Func<DateOnly?, Task>? _calendarDateChanged;
     private Func<DateOnly?, Task>? _calendarMonthChanged;
     private Validation? _subscribedValidation;
-    private LambdaExpression? _registeredExpression;
 
     private static readonly IReadOnlyDictionary<string, object> PanelAttributes = new Dictionary<string, object>
     {
@@ -321,16 +317,10 @@ else
                 _subscribedValidation.UnregisterInput(this);
             }
             _subscribedValidation = validation;
-            _registeredExpression = null;
             if (validation is not null)
                 validation.ValidationStatusChanged += OnValidationStatusChanged;
         }
         if (validation is null) return;
-        if (!ReferenceEquals(_registeredExpression, SelectedDateTimeExpression))
-        {
-            _registeredExpression = SelectedDateTimeExpression;
-            await validation.InitializeInputExpression(SelectedDateTimeExpression!);
-        }
         if (ownerChanged && ReferenceEquals(_subscribedValidation, validation))
             await validation.InitializeInput(this);
     }

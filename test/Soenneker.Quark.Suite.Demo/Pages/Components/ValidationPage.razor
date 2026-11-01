@@ -4,6 +4,25 @@
 
 <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
     <Div Space="Space.Y.Is6">
+            <DemoSection Title="Generated Annotation Validation"
+                         Description="Bind the input normally to validate its model annotations. The model is a partial class whose Name property has a Required attribute."
+                         Code="@(@"<Validations @ref=""_generatedValidations"" Model=""_generatedModel"">
+    <Validation>
+        <TextInput @bind-Value=""_generatedModel.Name"" Placeholder=""Enter your name"" />
+        <ValidationError />
+    </Validation>
+    <Button @onclick=""ValidateGeneratedForm"">Validate name</Button>
+</Validations>")" CodeLanguage="razor">
+                <Validations @ref="_generatedValidations" Model="_generatedModel">
+                    <Validation>
+                        <TextInput @bind-Value="_generatedModel.Name" Placeholder="Enter your name" />
+                        <ValidationError />
+                    </Validation>
+                    <Button @onclick="ValidateGeneratedForm">Validate name</Button>
+                </Validations>
+            </DemoSection>
+
+
             <DemoSection Title="Basic Validation" Description="Required field and email validation with Validations, Validation, ValidationError." Code="@(@"<Div Margin=""Margin.FromEnd.Is3"" Space=""Space.Y.Is4"">
     <Validations @ref=""_basicValidationsRef"" Model=""_basicModel"">
         <Field>
@@ -452,6 +471,15 @@ CodeLanguage="razor">
 </Div>
 
 @code {
+    private readonly FormDemoModel _generatedModel = new();
+    private Validations? _generatedValidations;
+
+    private async Task ValidateGeneratedForm()
+    {
+        if (_generatedValidations is not null)
+            await _generatedValidations.Validate();
+    }
+
     private const string ValidationComponentPropertiesCode =
 @"<Div BackgroundColor=""BackgroundColor.Muted"" Padding=""Padding.Is3"" Margin=""Margin.FromBottom.Is3"">
     <H3>Validation Features</H3>

@@ -54,13 +54,20 @@ public interface IValidation : IDisposable
     /// </summary>
     void ClearInputPattern();
 
-    /// <summary>
-    /// Initialize or update the expression used to bind a model field for data-annotation validation.
-    /// </summary>
-    /// <typeparam name="T">Type of value handled by the Validation.</typeparam>
-    /// <param name="expression">Expression for the initialize input expression operation.</param>
-    /// <returns>A task that completes when the Validation is ready for use.</returns>
-    Task InitializeInputExpression<T>(System.Linq.Expressions.Expression<Func<T>> expression);
+    /// <summary>Gets or sets the explicit model field used for generated annotation validation.</summary>
+    /// <remarks>Construct with the model instance and nameof its property. Null clears the field binding.</remarks>
+    FieldIdentifier? Field { get; set; }
+
+    /// <summary>Updates the bound model field using the registered input's current value.</summary>
+    /// <param name="field">The model and field name, or null to clear the binding.</param>
+    /// <returns>A task that completes when the field binding is updated.</returns>
+    Task InitializeInputField(FieldIdentifier? field);
+
+    /// <summary>Updates the bound model field using the supplied input value.</summary>
+    /// <param name="field">The model and field name, or null to clear the binding.</param>
+    /// <param name="currentValue">Current input value, including null.</param>
+    /// <returns>A task that completes when the field binding is updated.</returns>
+    Task InitializeInputField(FieldIdentifier? field, object? currentValue);
 
     /// <summary>
     /// Notify that the input value has changed so validation can run in Auto mode.

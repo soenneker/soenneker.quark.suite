@@ -1,5 +1,4 @@
 using System;
-using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark;
@@ -25,20 +24,12 @@ public interface IDateInput : IInput
     /// </summary>
     DateTime? Date { get; set; }
 
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound DateTime value for validation.
-    /// </summary>
-    Expression<Func<DateTime?>>? DateExpression { get; set; }
 
     /// <summary>
     /// Gets or sets the DateOnly value.
     /// </summary>
     DateOnly? DateOnly { get; set; }
 
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound DateOnly value for validation.
-    /// </summary>
-    Expression<Func<DateOnly?>>? DateOnlyExpression { get; set; }
 
     /// <summary>
     /// Gets or sets the minimum DateTime value allowed.

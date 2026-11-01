@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
@@ -60,24 +59,21 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async Task Audit_date_picker_rebinds_validation_owner_and_expression()
+    public async Task Audit_date_picker_rebinds_validation_owner_and_field()
     {
         Services.AddScoped<IValidationInterop, FakeValidationInterop>();
         var model = new { First = (DateOnly?)new DateOnly(2026, 1, 1), Second = (DateOnly?)new DateOnly(2026, 2, 1) };
         var context = new EditContext(model);
-        var first = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), context));
-        var second = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), context));
-        Expression<Func<DateOnly?>> expression = () => model.First;
+        var first = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), context).Add(c => c.Field, new FieldIdentifier(context.Model, "First")));
+        var second = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), context).Add(c => c.Field, new FieldIdentifier(context.Model, "Second")));
         RenderFragment content = builder =>
         {
             builder.OpenComponent<DatePicker>(0);
-            builder.AddAttribute(1, nameof(DatePicker.SelectedDateExpression), expression);
             builder.CloseComponent();
         };
         var host = Render<CascadingValue<Validation>>(p => p.Add(c => c.Name, "ParentValidation")
             .Add(c => c.Value, first.Instance).Add(c => c.ChildContent, content));
         first.Instance.FieldIdentifier.FieldName.Should().Be("First");
-        expression = () => model.Second;
         host.Render(p => p.Add(c => c.Value, second.Instance).Add(c => c.ChildContent, content));
         second.Instance.FieldIdentifier.FieldName.Should().Be("Second");
         var picker = host.FindComponent<DatePicker>();

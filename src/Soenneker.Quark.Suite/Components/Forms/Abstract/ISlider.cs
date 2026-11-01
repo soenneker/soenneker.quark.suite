@@ -1,5 +1,4 @@
 using System;
-using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 
 using Soenneker.Bradix;
@@ -16,10 +15,6 @@ public interface ISlider : IMultipleAutoSaveInput<double, double[]>
     /// </summary>
     double SliderValue { get; set; }
 
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound value for validation.
-    /// </summary>
-    Expression<Func<double>>? SliderValueExpression { get; set; }
 
     /// <summary>
     /// Gets or sets the current collection of slider thumb values.
@@ -31,10 +26,6 @@ public interface ISlider : IMultipleAutoSaveInput<double, double[]>
     /// </summary>
     EventCallback<double[]> ValuesChanged { get; set; }
 
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound thumb values for validation.
-    /// </summary>
-    Expression<Func<double[]?>>? ValuesExpression { get; set; }
 
     /// <summary>
     /// Gets or sets the minimum value of the slider range.

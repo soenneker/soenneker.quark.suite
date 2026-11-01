@@ -1,5 +1,4 @@
 using System;
-using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark;
@@ -21,17 +20,11 @@ public abstract class ToggleElement : FormControlElement
     [Parameter]
     public EventCallback<bool> CheckedChanged { get; set; }
 
-    /// <summary>
-    /// Gets or sets checked expression.
-    /// </summary>
-    [Parameter]
-    public Expression<Func<bool>>? CheckedExpression { get; set; }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
 
         hc.Add(Checked);
-        hc.Add(CheckedExpression);
     }
 }

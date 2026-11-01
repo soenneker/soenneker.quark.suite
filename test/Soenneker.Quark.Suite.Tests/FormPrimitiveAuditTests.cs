@@ -1,7 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System;
-using System.Linq.Expressions;
 using System.Collections.Generic;
 using AwesomeAssertions;
 using Bunit;
@@ -58,24 +57,21 @@ public sealed partial class RenderedShadcnParityTests
     [Test]
     [Arguments(false)]
     [Arguments(true)]
-    public async ValueTask Audit_native_input_rebinds_validation_owner_and_expression(bool memo, CancellationToken cancellationToken)
+    public async ValueTask Audit_native_input_rebinds_validation_owner_and_field(bool memo, CancellationToken cancellationToken)
     {
         Services.AddScoped<IValidationInterop, FakeValidationInterop>();
         var model = new { First = "first", Second = "second" };
         var editContext = new EditContext(model);
-        var first = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), editContext));
-        var second = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), editContext));
-        Expression<Func<string?>> expression = () => model.First;
+        var first = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), editContext).Add(c => c.Field, new FieldIdentifier(editContext.Model, "First")));
+        var second = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), editContext).Add(c => c.Field, new FieldIdentifier(editContext.Model, "Second")));
         RenderFragment content = builder =>
         {
             builder.OpenComponent(0, memo ? typeof(MemoInput) : typeof(Input));
-            builder.AddAttribute(1, "ValueExpression", expression);
             builder.CloseComponent();
         };
         var host = Render<CascadingValue<Validation>>(p => p.Add(c => c.Name, "ParentValidation")
             .Add(c => c.Value, first.Instance).Add(c => c.ChildContent, content));
         first.Instance.FieldIdentifier.FieldName.Should().Be("First");
-        expression = () => model.Second;
         host.Render(p => p.Add(c => c.Value, second.Instance).Add(c => c.ChildContent, content));
         second.Instance.FieldIdentifier.FieldName.Should().Be("Second");
         int renders = memo ? host.FindComponent<MemoInput>().RenderCount : host.FindComponent<Input>().RenderCount;

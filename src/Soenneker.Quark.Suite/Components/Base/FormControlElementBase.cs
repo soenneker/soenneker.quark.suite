@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
@@ -10,8 +11,29 @@ namespace Soenneker.Quark;
 /// Base for form-control semantics without a Value parameter.
 /// Used by components that declare their own Value/ValueChanged (e.g. TextInput, NumericInput).
 /// </summary>
-public abstract class FormControlElementBase : InteractiveElement
+public abstract class FormControlElementBase : InteractiveElement, IValidationFieldBinding
 {
+    [Parameter]
+    public FieldIdentifier? ValidationField { get; set; }
+
+    [CascadingParameter(Name = "ParentValidation")]
+    private Validation? BindingValidation { get; set; }
+
+    private Validation? _bindingOwner;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        if (!ReferenceEquals(_bindingOwner, BindingValidation))
+        {
+            if (_bindingOwner is not null)
+                await _bindingOwner.BindGeneratedField(this, null);
+            _bindingOwner = BindingValidation;
+        }
+        if (BindingValidation is not null)
+            await BindingValidation.BindGeneratedField(this, ValidationField);
+    }
+
     /// <summary>Gets or sets the AccentColor utilities, including responsive and state variants.</summary>
     [Parameter]
     public CssValue<AccentColorBuilder>? AccentColor { get; set; }
@@ -177,6 +199,8 @@ public abstract class FormControlElementBase : InteractiveElement
     /// <returns>A task that represents the asynchronous operation.</returns>
     public override async ValueTask DisposeAsync()
     {
+        if (_bindingOwner is not null)
+            await _bindingOwner.BindGeneratedField(this, null);
         if (_subscribedFieldContext is not null)
             _subscribedFieldContext.StateChanged -= OnFieldContextStateChanged;
 

@@ -13,30 +13,72 @@ public sealed partial class ValidationLifetimeTests : BunitContext
     public ValidationLifetimeTests() => Services.AddSingleton<IValidationInterop, FakeInterop>();
 
     [Test]
-    public async Task Audit_removing_validation_expression_clears_previous_field_messages()
+    public async Task Explicit_field_parameter_rebinds_models_and_clears_removed_field_messages()
     {
-        var model = new Model();
-        var context = new EditContext(model);
-        var cut = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), context));
-        await cut.InvokeAsync(() => cut.Instance.InitializeInput(new Input()));
-        await cut.InvokeAsync(() => cut.Instance.InitializeInputExpression(() => model.Name));
-        await cut.InvokeAsync(() => cut.Instance.ValidateValue(""));
-        context.GetValidationMessages().Should().ContainSingle();
-        await cut.InvokeAsync(() => cut.Instance.InitializeInputExpression<string>(null!));
+        Services.AddLogging();
+        Services.AddDefaultQuarkOptionsAsScoped();
+        Services.AddSingleton<IInputInterop, InputSelectionTestInterop>();
+        var first = new Model();
+        var second = new Model { Name = "valid" };
+        var context = new EditContext(first);
+        var cut = Render<Validation>(p => p
+            .AddCascadingValue(nameof(EditContext), context)
+            .Add(c => c.Field, new FieldIdentifier(first, nameof(first.Name)))
+            .AddChildContent<TextInput>());
+
+        await cut.InvokeAsync(cut.Instance.ValidateCurrent);
+        context.GetValidationMessages(new FieldIdentifier(first, nameof(first.Name))).Should().ContainSingle();
+
+        cut.Render(p => p.Add(c => c.Field, new FieldIdentifier(second, nameof(second.Name))));
+        context.GetValidationMessages().Should().BeEmpty();
+        await cut.InvokeAsync(cut.Instance.ValidateCurrent);
+        cut.Instance.Status.Should().Be(ValidationStatus.Success);
+
+        second.Name = "";
+        await cut.InvokeAsync(cut.Instance.ValidateCurrent);
+        context.GetValidationMessages(new FieldIdentifier(second, nameof(second.Name))).Should().ContainSingle();
+        cut.Render(p => p.Add(c => c.Field, (FieldIdentifier?)null));
         context.GetValidationMessages().Should().BeEmpty();
     }
 
     [Test]
-    public async Task Audit_validation_expression_switches_fields_on_the_same_model()
+    public async Task Binding_a_field_uses_the_input_value_without_evaluating_the_model_getter()
+    {
+        var model = new UnevaluatedValidationModel();
+        var context = new EditContext(model);
+        var cut = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), context));
+
+        await cut.InvokeAsync(() => cut.Instance.InitializeInputField(new FieldIdentifier(model, nameof(model.Name)), "input value"));
+        cut.Render(p => p.Add(c => c.ShowErrorsOnInput, true));
+
+        cut.Instance.FieldIdentifier.Should().Be(new FieldIdentifier(model, nameof(model.Name)));
+    }
+
+    [Test]
+    public async Task Audit_removing_validation_field_clears_previous_field_messages()
     {
         var model = new Model();
         var context = new EditContext(model);
         var cut = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), context));
         await cut.InvokeAsync(() => cut.Instance.InitializeInput(new Input()));
-        await cut.InvokeAsync(() => cut.Instance.InitializeInputExpression(() => model.Name));
+        await cut.InvokeAsync(() => cut.Instance.InitializeInputField(new FieldIdentifier(model, nameof(model.Name))));
+        await cut.InvokeAsync(() => cut.Instance.ValidateValue(""));
+        context.GetValidationMessages().Should().ContainSingle();
+        await cut.InvokeAsync(() => cut.Instance.InitializeInputField(null));
+        context.GetValidationMessages().Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task Audit_validation_field_switches_fields_on_the_same_model()
+    {
+        var model = new Model();
+        var context = new EditContext(model);
+        var cut = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), context));
+        await cut.InvokeAsync(() => cut.Instance.InitializeInput(new Input()));
+        await cut.InvokeAsync(() => cut.Instance.InitializeInputField(new FieldIdentifier(model, nameof(model.Name))));
         await cut.InvokeAsync(() => cut.Instance.ValidateValue(""));
         context.GetValidationMessages(new FieldIdentifier(model, nameof(model.Name))).Should().ContainSingle();
-        await cut.InvokeAsync(() => cut.Instance.InitializeInputExpression(() => model.OtherName));
+        await cut.InvokeAsync(() => cut.Instance.InitializeInputField(new FieldIdentifier(model, nameof(model.OtherName))));
         cut.Instance.FieldIdentifier.FieldName.Should().Be(nameof(model.OtherName));
         context.GetValidationMessages().Should().BeEmpty();
     }
@@ -48,7 +90,7 @@ public sealed partial class ValidationLifetimeTests : BunitContext
         var context = new EditContext(model);
         var cut = Render<Validation>(p => p.AddCascadingValue(nameof(EditContext), context));
         await cut.InvokeAsync(() => cut.Instance.InitializeInput(new Input()));
-        await cut.InvokeAsync(() => cut.Instance.InitializeInputExpression(() => model.Name));
+        await cut.InvokeAsync(() => cut.Instance.InitializeInputField(new FieldIdentifier(model, nameof(model.Name))));
         await cut.InvokeAsync(() => cut.Instance.ValidateValue(""));
         await cut.InvokeAsync(() => cut.Instance.ValidateValue(""));
         context.GetValidationMessages().Should().ContainSingle();
@@ -78,14 +120,14 @@ public sealed partial class ValidationLifetimeTests : BunitContext
             .Add(c => c.ChildContent, content));
         var cut = host.FindComponent<Validation>();
         await cut.InvokeAsync(() => cut.Instance.InitializeInput(new Input()));
-        await cut.InvokeAsync(() => cut.Instance.InitializeInputExpression(() => model.Name));
+        await cut.InvokeAsync(() => cut.Instance.InitializeInputField(new FieldIdentifier(model, nameof(model.Name))));
         await cut.InvokeAsync(() => cut.Instance.Validate("a different input value"));
         first.GetValidationMessages().Should().ContainSingle();
 
         model = new Model { Name = "valid" };
         var second = new EditContext(model);
         host.Render(p => p.Add(c => c.Name, nameof(EditContext)).Add(c => c.Value, second).Add(c => c.ChildContent, content));
-        await cut.InvokeAsync(() => cut.Instance.InitializeInputExpression(() => model.Name));
+        await cut.InvokeAsync(() => cut.Instance.InitializeInputField(new FieldIdentifier(model, nameof(model.Name))));
         await cut.InvokeAsync(() => cut.Instance.ValidateValue(""));
         first.GetValidationMessages().Should().BeEmpty();
         second.GetValidationMessages().Should().BeEmpty();

@@ -1,7 +1,6 @@
 @using Soenneker.Atomics.ValueBools
 @using System.Threading
 @using System.Globalization
-@using System.Linq.Expressions
 @using Soenneker.Blazor.Extensions.EventCallback
 @using Soenneker.Blazor.Utils.Ids
 @using Soenneker.Bradix
@@ -125,11 +124,6 @@
     [Parameter]
     public DateOnly? SelectedDate { get; set; }
 
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound value.
-    /// </summary>
-    [Parameter]
-    public Expression<Func<DateOnly?>>? SelectedDateExpression { get; set; }
 
     /// <summary>
     /// Gets or sets the minimum date value.
@@ -174,7 +168,6 @@
     private DateOnly? _lastSyncedSelectedDate;
     private string? _triggerId;
     private Validation? _subscribedValidation;
-    private Expression<Func<DateOnly?>>? _registeredValidationExpression;
     private ValueAtomicBool _validationDisposed;
 
     private static readonly IReadOnlyDictionary<string, object> PanelAttributes = new Dictionary<string, object>
@@ -263,17 +256,11 @@
                 _subscribedValidation.UnregisterInput(this);
             }
             _subscribedValidation = validation;
-            _registeredValidationExpression = null;
             if (validation is not null)
                 validation.ValidationStatusChanged += OnParentValidationStatusChanged;
         }
         if (validation is null)
             return;
-        if (!ReferenceEquals(_registeredValidationExpression, SelectedDateExpression))
-        {
-            _registeredValidationExpression = SelectedDateExpression;
-            await validation.InitializeInputExpression(SelectedDateExpression!);
-        }
         if (ownerChanged && !_validationDisposed.Value && ReferenceEquals(_subscribedValidation, validation))
             await validation.InitializeInput(this);
     }

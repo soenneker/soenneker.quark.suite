@@ -1,5 +1,4 @@
 @using System.Globalization
-@using System.Linq.Expressions
 @using System.Threading
 @using Soenneker.Blazor.Extensions.EventCallback
 
@@ -76,11 +75,6 @@
     [Parameter]
     public EventCallback<decimal?> ValueChanged { get; set; }
 
-    /// <summary>
-    /// Gets or sets the expression that identifies the bound value for validation.
-    /// </summary>
-    [Parameter]
-    public Expression<Func<decimal?>>? ValueExpression { get; set; }
 
     /// <summary>
     /// Gets or sets the minimum allowed value.
@@ -170,7 +164,6 @@
     public Validation? ParentValidation { get; set; }
 
     private Validation? _subscribedValidation;
-    private LambdaExpression? _registeredExpression;
     public object? ValidationValue => Value;
     private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
 
@@ -251,14 +244,8 @@
             if (_subscribedValidation is not null)
                 _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
             _subscribedValidation = ParentValidation;
-            _registeredExpression = null;
             if (_subscribedValidation is not null)
                 _subscribedValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
-        }
-        if (ParentValidation is not null && !ReferenceEquals(_registeredExpression, ValueExpression))
-        {
-            _registeredExpression = ValueExpression;
-            await ParentValidation.InitializeInputExpression(ValueExpression!);
         }
     }
 

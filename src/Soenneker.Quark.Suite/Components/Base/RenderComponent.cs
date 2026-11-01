@@ -298,7 +298,8 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         int index = 0;
         foreach (var parameter in parameters)
         {
-            if (IsRenderFragment(parameter.Value))
+            // Any delegate may contain captured render state, including RenderFragment<T>.
+            if (parameter.Value is Delegate)
             {
                 hasRenderFragment = true;
                 if (IndependentChildContent && parameter.Name == nameof(ChildContent))
@@ -332,13 +333,11 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
 
     private static bool IsStableParameter(object? value)
     {
-        if (value is null or string or Type or Delegate or EventCallback) return true;
         if (value is QuarkPresetToken preset) return preset.IsFrozen;
-        Type type = value.GetType();
-        if (IsKnownImmutableCascadingType(type)) return true;
-        if (!type.IsGenericType) return false;
-        Type definition = type.GetGenericTypeDefinition();
-        return definition == typeof(CssValue<>) || definition == typeof(EventCallback<>);
+        return value is null or string or Type or Delegate or EventCallback or Enum or
+            bool or char or byte or sbyte or short or ushort or int or uint or long or ulong or
+            nint or nuint or float or double or decimal or DateTime or DateTimeOffset or TimeSpan or
+            DateOnly or TimeOnly or Guid || StableCssParameters.Contains(value.GetType());
     }
 
     private static bool RenderedEquals(object? left, object? right)
@@ -359,29 +358,6 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             (DateTimeOffset a, DateTimeOffset b) => a.Ticks == b.Ticks && a.Offset == b.Offset,
             _ => Equals(left, right)
         };
-    }
-
-    private static bool IsRenderFragment(object? value)
-    {
-        if (value is RenderFragment)
-            return true;
-
-        // Only delegates can be render fragments. Most values here are boxed CSS builders
-        // and event callbacks; avoid generic reflection for every such parameter.
-        if (value is not Delegate callback)
-            return false;
-
-        Type type = callback.GetType();
-        return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(RenderFragment<>);
-    }
-
-    private static bool IsKnownImmutableCascadingType(Type type)
-    {
-        type = Nullable.GetUnderlyingType(type) ?? type;
-
-        return type.IsPrimitive || type.IsEnum || type == typeof(string) || type == typeof(decimal) || type == typeof(DateTime) ||
-               type == typeof(DateTimeOffset) || type == typeof(TimeSpan) || type == typeof(DateOnly) || type == typeof(TimeOnly) ||
-               type == typeof(Guid) || type == typeof(Type);
     }
 
     async Task IHandleEvent.HandleEventAsync(EventCallbackWorkItem callback, object? argument)
