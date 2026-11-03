@@ -15,7 +15,7 @@
         @RenderAutoSaveControl()
         <AutoSaveStatus State="@(IsRangeMode ? _autoSaveRange.State : IsMultipleMode ? _autoSaveMultiple.State : _autoSave.State)" HasSaved="@(IsRangeMode ? _autoSaveRange.HasSaved : IsMultipleMode ? _autoSaveMultiple.HasSaved : _autoSave.HasSaved)" Visible="@(AutoSave && ShowAutoSaveStatus && (IsRangeMode ? OnAutoSaveRange is not null : IsMultipleMode ? OnAutoSaveMultiple is not null : OnAutoSave is not null))"
                 Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
-                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" ErrorTooltip="@AutoSaveErrorTooltip" />
     </Div>
 }
 else
@@ -163,6 +163,9 @@ else
     [Parameter] public string? AutoSaveSavingClass { get; set; }
     [Parameter] public string? AutoSaveSavedClass { get; set; }
     [Parameter] public string? AutoSaveFailedClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveErrorTooltip { get; set; }
     [Parameter] public Func<CalendarDateRange?, CancellationToken, ValueTask>? OnAutoSaveRange { get; set; }
     private AutoSaveController<CalendarDateRange?> _autoSaveRange;
     private AutoSaveController<DateOnly?> _autoSave;
@@ -1352,6 +1355,7 @@ else
         hc.Add(AutoSaveSavingClass);
         hc.Add(AutoSaveSavedClass);
         hc.Add(AutoSaveFailedClass);
+        hc.Add(AutoSaveErrorTooltip);
         hc.Add((IsRangeMode ? _autoSaveRange.State : IsMultipleMode ? _autoSaveMultiple.State : _autoSave.State));
         hc.Add((IsRangeMode ? _autoSaveRange.HasSaved : IsMultipleMode ? _autoSaveMultiple.HasSaved : _autoSave.HasSaved));
         hc.Add(OnAutoSaveMultiple);

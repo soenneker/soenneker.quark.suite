@@ -14,6 +14,42 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void AutoSaveStatus_error_tooltip_is_opt_in_and_only_available_on_failure()
+    {
+        var cut = Render<AutoSaveStatus>(p => p.Add(c => c.State, AutoSaveState.Failed));
+        cut.FindComponents<Tooltip>().Should().BeEmpty();
+
+        cut.Render(p => p.Add(c => c.ErrorTooltip, "Could not save. Try again."));
+        cut.FindComponents<Tooltip>().Should().ContainSingle();
+        var status = cut.Find("[data-slot='autosave-status']");
+        status.GetAttribute("tabindex").Should().Be("0");
+        status.ClassList.Should().Contain("pointer-events-auto");
+        status.Focus();
+        cut.WaitForAssertion(() => cut.Markup.Should().Contain("Could not save. Try again."));
+
+        cut.Render(p => p.Add(c => c.State, AutoSaveState.Saving));
+        cut.FindComponents<Tooltip>().Should().BeEmpty();
+        cut.Find("[data-slot='autosave-status']").HasAttribute("tabindex").Should().BeFalse();
+
+        cut.Render(p => p.Add(c => c.State, AutoSaveState.Failed).Add(c => c.ErrorTooltip, " "));
+        cut.FindComponents<Tooltip>().Should().BeEmpty();
+        cut.Render(p => p.Add(c => c.ErrorTooltip, "Error").Add(c => c.Visible, false));
+        cut.Markup.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task AutoSave_error_tooltip_is_forwarded_from_input_on_failure()
+    {
+        var cut = Render<TextInput>(p => p.Add(c => c.AutoSave, true)
+            .Add(c => c.AutoSaveDelay, 0)
+            .Add(c => c.AutoSaveErrorTooltip, "Unable to save display name.")
+            .Add(c => c.OnAutoSave, (_, _) => ValueTask.FromException(new InvalidOperationException("Save failed"))));
+        await cut.InvokeAsync(() => cut.Find("input").Input("New name"));
+        cut.WaitForAssertion(() => cut.FindComponents<Tooltip>().Should().ContainSingle(), TimeSpan.FromSeconds(3));
+        cut.FindComponent<AutoSaveStatus>().Instance.ErrorTooltip.Should().Be("Unable to save display name.");
+    }
+
+    [Test]
     public void AutoSave_layout_keeps_tag_status_beside_input()
     {
         foreach (bool inline in new[] { false, true })

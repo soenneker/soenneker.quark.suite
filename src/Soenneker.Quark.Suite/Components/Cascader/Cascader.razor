@@ -13,7 +13,7 @@
         @RenderAutoSaveControl()
         <AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved" Visible="@(AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)"
                 Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
-                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" ErrorTooltip="@AutoSaveErrorTooltip" />
     </Div>
 }
 else
@@ -76,6 +76,9 @@ else
     [Parameter] public string? AutoSaveSavingClass { get; set; }
     [Parameter] public string? AutoSaveSavedClass { get; set; }
     [Parameter] public string? AutoSaveFailedClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveErrorTooltip { get; set; }
     private AutoSaveController<string[]?> _autoSave;
     private Func<Task>? _autoSaveRefresh;
     private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);
@@ -636,6 +639,7 @@ else
         hc.Add(AutoSaveSavingClass);
         hc.Add(AutoSaveSavedClass);
         hc.Add(AutoSaveFailedClass);
+        hc.Add(AutoSaveErrorTooltip);
         hc.Add(_autoSave.State);
         hc.Add(_autoSave.HasSaved);
 

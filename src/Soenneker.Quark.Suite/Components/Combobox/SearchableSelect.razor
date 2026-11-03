@@ -36,7 +36,7 @@
 
 <AutoSaveStatus State="@(Multiple ? _autoSaveMultiple.State : _autoSave.State)" HasSaved="@(Multiple ? _autoSaveMultiple.HasSaved : _autoSave.HasSaved)" Visible="@(AutoSave && ShowAutoSaveStatus && (Multiple ? OnAutoSaveMultiple is not null : OnAutoSave is not null))"
                 Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
-                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" ErrorTooltip="@AutoSaveErrorTooltip" />
 
 </Div>
 @code {
@@ -49,6 +49,9 @@
     [Parameter] public string? AutoSaveSavingClass { get; set; }
     [Parameter] public string? AutoSaveSavedClass { get; set; }
     [Parameter] public string? AutoSaveFailedClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveErrorTooltip { get; set; }
     private AutoSaveController<string?> _autoSave;
     private Func<Task>? _autoSaveRefresh;
     private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);

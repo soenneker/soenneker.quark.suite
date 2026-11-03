@@ -35,4 +35,7 @@ public interface IAutoSaveInput<TValue>
     /// <summary>Additional classes for the failed state.</summary>
     string? AutoSaveFailedClass { get; set; }
 
+    /// <summary>Optional tooltip text shown on the failed autosave indicator. Null or whitespace disables the tooltip.</summary>
+    string? AutoSaveErrorTooltip { get; set; }
+
 }

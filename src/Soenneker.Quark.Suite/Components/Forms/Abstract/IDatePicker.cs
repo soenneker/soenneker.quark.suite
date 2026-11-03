@@ -42,6 +42,9 @@ public interface IDatePicker : IElement
 
     /// <summary>Gets or sets the CSS class for the failed status.</summary>
     string? AutoSaveFailedClass { get; set; }
+
+    /// <summary>Optional tooltip text shown on the failed autosave indicator. Null or whitespace disables the tooltip.</summary>
+    string? AutoSaveErrorTooltip { get; set; }
     /// <summary>
     /// Gets or sets the selected date value.
     /// </summary>

@@ -46,7 +46,7 @@
         <Div Display="Soenneker.Quark.Display.Flex" Justify="Soenneker.Quark.Justify.End" DataSlot="autosave-status-row">
             <AutoSaveStatus State="@_autoSave.State" HasSaved="@_autoSave.HasSaved"
                             Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
-                            SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+                            SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" ErrorTooltip="@AutoSaveErrorTooltip" />
         </Div>
     }
 </div>
@@ -63,6 +63,9 @@
     [Parameter] public string? AutoSaveSavingClass { get; set; }
     [Parameter] public string? AutoSaveSavedClass { get; set; }
     [Parameter] public string? AutoSaveFailedClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveErrorTooltip { get; set; }
     private AutoSaveController<string> _autoSave;
     private Func<Task>? _autoSaveRefresh;
     private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);

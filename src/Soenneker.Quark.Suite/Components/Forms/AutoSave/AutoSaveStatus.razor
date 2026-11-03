@@ -2,13 +2,34 @@
 
 @if (Visible)
 {
-    <span class="@RootClass"
-          data-slot="autosave-status"
-          data-state="@State.Value"
-          role="@StatusRole"
-          aria-live="@AriaLive"
-          aria-label="@AriaLabel"
-          aria-hidden="@AriaHidden">
+    @if (HasErrorTooltip)
+    {
+        <Tooltip>
+            <TooltipTrigger AsChild="true">
+                <Span Class="@RootClass" data-slot="autosave-status" data-state="@State.Value"
+                      role="@StatusRole" aria-live="@AriaLive" aria-label="@AriaLabel" tabindex="0">
+                    @StatusIcons
+                </Span>
+            </TooltipTrigger>
+            <TooltipContent>@ErrorTooltip</TooltipContent>
+        </Tooltip>
+    }
+    else
+    {
+        <span class="@RootClass"
+              data-slot="autosave-status"
+              data-state="@State.Value"
+              role="@StatusRole"
+              aria-live="@AriaLive"
+              aria-label="@AriaLabel"
+              aria-hidden="@AriaHidden">
+            @StatusIcons
+        </span>
+    }
+}
+
+@code {
+    private RenderFragment StatusIcons => @<text>
         <span class="@GetIconLayerClass(IsSavingState)">
             @if (IsSavingState)
             {
@@ -24,10 +45,14 @@
         <span class="@GetIconLayerClass(IsState(AutoSaveState.Failed))">
             <Icon Name="LucideIcon.X" Size="_renderCss0" aria-hidden="true" />
         </span>
-    </span>
-}
+    </text>;
 
-@code {
+    /// <summary>Optional tooltip text shown only in the failed state. Null or whitespace disables the tooltip.</summary>
+    [Parameter]
+    public string? ErrorTooltip { get; set; }
+
+    private bool HasErrorTooltip => IsState(AutoSaveState.Failed) && !string.IsNullOrWhiteSpace(ErrorTooltip);
+
     private static readonly CssValue<SizeBuilder> _renderCss0 = Size.Is4;
     [Parameter]
     public AutoSaveState State { get; set; } = AutoSaveState.Idle;
@@ -72,17 +97,17 @@
         }
         : null;
 
-    private (AutoSaveState State, bool Saved, string? Class, string? Saving, string? SavedClass, string? Failed)? _rootClassInputs;
+    private (AutoSaveState State, bool Saved, string? Class, string? Saving, string? SavedClass, string? Failed, bool Tooltip)? _rootClassInputs;
     private string? _rootClass;
     private string RootClass
     {
         get
         {
-            var inputs = (State, HasSaved, Class, SavingClass, SavedClass, FailedClass);
+            var inputs = (State, HasSaved, Class, SavingClass, SavedClass, FailedClass, HasErrorTooltip);
             if (_rootClass is not null && _rootClassInputs == inputs)
                 return _rootClass;
             _rootClassInputs = inputs;
-            var cls = $"pointer-events-none {PositionClass} grid size-4 shrink-0 place-items-center overflow-hidden {StateClass}";
+            var cls = $"{(HasErrorTooltip ? "pointer-events-auto" : "pointer-events-none")} {PositionClass} grid size-4 shrink-0 place-items-center overflow-hidden {StateClass}";
 
             if (!string.IsNullOrWhiteSpace(Class))
                 cls = $"{cls} {Class}";

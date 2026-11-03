@@ -16,7 +16,7 @@
         @RenderAutoSaveControl()
         <AutoSaveStatus State="@(UsesValuesApi ? _autoSaveMultiple.State : _autoSave.State)" HasSaved="@(UsesValuesApi ? _autoSaveMultiple.HasSaved : _autoSave.HasSaved)" Visible="@(AutoSave && ShowAutoSaveStatus && (UsesValuesApi ? OnAutoSaveMultiple is not null : OnAutoSave is not null))"
                 Class="@AutoSaveStatusClass" SavingClass="@AutoSaveSavingClass"
-                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" />
+                SavedClass="@AutoSaveSavedClass" FailedClass="@AutoSaveFailedClass" ErrorTooltip="@AutoSaveErrorTooltip" />
     </Div>
 }
 else
@@ -62,6 +62,9 @@ else
     [Parameter] public string? AutoSaveSavingClass { get; set; }
     [Parameter] public string? AutoSaveSavedClass { get; set; }
     [Parameter] public string? AutoSaveFailedClass { get; set; }
+
+    [Parameter]
+    public string? AutoSaveErrorTooltip { get; set; }
     private AutoSaveController<double> _autoSave;
     private Func<Task>? _autoSaveRefresh;
     private Task RefreshAutoSave() => InvokeAsync(StateHasChanged);
@@ -725,6 +728,7 @@ else
         hc.Add(AutoSaveSavingClass);
         hc.Add(AutoSaveSavedClass);
         hc.Add(AutoSaveFailedClass);
+        hc.Add(AutoSaveErrorTooltip);
         hc.Add((UsesValuesApi ? _autoSaveMultiple.State : _autoSave.State));
         hc.Add((UsesValuesApi ? _autoSaveMultiple.HasSaved : _autoSave.HasSaved));
         hc.Add(OnAutoSaveMultiple);
