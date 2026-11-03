@@ -13,6 +13,26 @@ public sealed class QuarkSelectPlaywrightTests : QuarkPlaywrightTest
     {
     }
 
+    [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async ValueTask Select_typeahead_tab_commits_and_moves_focus(bool backward, CancellationToken cancellationToken)
+    {
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
+        IPage page = session.Page;
+        await page.GotoAndWaitForReady($"{BaseUrl}components/select", static p => p.Locator("[role='combobox']").First);
+        ILocator trigger = page.Locator("[role='combobox']").First;
+        await trigger.EvaluateAsync("element => { for (const side of ['before', 'after']) { const input = document.createElement('input'); input.id = 'tab-' + side; element[side](input); } }");
+        await trigger.ClickAsync();
+        await Assertions.Expect(page.GetByRole(AriaRole.Option, new() { Name = "Apple", Exact = true })).ToBeFocusedAsync();
+        await page.Keyboard.TypeAsync("ban");
+        await Assertions.Expect(page.GetByRole(AriaRole.Option, new() { Name = "Banana", Exact = true })).ToBeFocusedAsync();
+        await page.Keyboard.PressAsync(backward ? "Shift+Tab" : "Tab");
+        await Assertions.Expect(trigger).ToContainTextAsync("Banana");
+        await Assertions.Expect(trigger).ToHaveAttributeAsync("aria-expanded", "false");
+        await Assertions.Expect(page.Locator(backward ? "#tab-before" : "#tab-after")).ToBeFocusedAsync();
+    }
+
 [Test]
     public async ValueTask Select_demo_portals_content_and_dismisses_on_outside_click(CancellationToken cancellationToken)
     {
