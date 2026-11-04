@@ -65,7 +65,7 @@ public sealed partial class RenderedShadcnParityTests
         await cut.InvokeAsync(async () => await service.Info("Info", options => options.Id = "same-toast", cancellationToken: cancellationToken));
         cut.WaitForAssertion(() => cut.FindComponent<Icon>().Instance.Name.Should().Be(LucideIcon.Info));
         await cut.InvokeAsync(async () => await service.Warning("Warning", options => options.Id = "same-toast", cancellationToken: cancellationToken));
-        cut.WaitForAssertion(() => cut.FindComponent<Icon>().Instance.Name.Should().Be(LucideIcon.TriangleAlert));
+        cut.WaitForAssertion(() => cut.FindComponent<Icon>().Instance.Name.Should().Be(LucideIcon.TriangleExclamationPoint));
         await cut.InvokeAsync(async () => await service.Error("Error", options => options.Id = "same-toast", cancellationToken: cancellationToken));
         cut.WaitForAssertion(() => cut.FindComponent<Icon>().Instance.Name.Should().Be(LucideIcon.OctagonX));
         await cut.InvokeAsync(async () => await service.Loading("Loading", options => options.Id = "same-toast", cancellationToken: cancellationToken));
