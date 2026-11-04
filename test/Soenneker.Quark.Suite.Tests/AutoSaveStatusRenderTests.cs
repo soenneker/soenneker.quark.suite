@@ -14,6 +14,17 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void TextInput_without_autosave_accepts_additional_attributes()
+    {
+        var cut = Render<TextInput>(p => p
+            .Add(c => c.AdditionalAttributes, new Dictionary<string, object> { ["data-test"] = "plain-input" }));
+
+        cut.Find("input").GetAttribute("data-test").Should().Be("plain-input");
+        cut.FindComponent<Input>().Instance.AutoSaveErrorTooltip.Should().BeNull();
+        cut.FindComponents<AutoSaveStatus>().Should().BeEmpty();
+    }
+
+    [Test]
     public void AutoSaveStatus_error_tooltip_is_opt_in_and_only_available_on_failure()
     {
         var cut = Render<AutoSaveStatus>(p => p.Add(c => c.State, AutoSaveState.Failed));
