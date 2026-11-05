@@ -65,7 +65,18 @@ export function initialize(id, optionsJson, dotNetRef) {
     const onDragEnd = event => handlePaletteDragEnd(state, event);
     const onDragOver = event => handlePaletteDragOver(state, event);
     const onDrop = event => handlePaletteDrop(state, event);
-    const onBlur = () => cancelActiveInteraction(state);
+    const onContextMenu = event => handleContextMenu(state, event);
+    const onOutsidePointerDown = event => {
+        if (!state.contextMenu?.contains(event.target)) closeContextMenu(state);
+    };
+    const onBlur = () => { closeContextMenu(state); cancelActiveInteraction(state); };
+    root.addEventListener("contextmenu", onContextMenu);
+    document.addEventListener("pointerdown", onOutsidePointerDown, true);
+    state.cleanup.push(
+        () => closeContextMenu(state),
+        () => root.removeEventListener("contextmenu", onContextMenu),
+        () => document.removeEventListener("pointerdown", onOutsidePointerDown, true)
+    );
 
     root.addEventListener("pointerdown", onPointerDown);
     root.addEventListener("wheel", onWheel, { passive: false });
@@ -270,6 +281,81 @@ export function destroy(id) {
     editors.delete(id);
 }
 
+function closeContextMenu(state, restoreFocus = false) {
+    if (!state.contextMenu) return;
+    state.contextMenu.remove();
+    state.contextMenu = null;
+    if (restoreFocus) state.root.focus({ preventScroll: true });
+}
+
+function handleContextMenu(state, event) {
+    if (event.target.closest("input,textarea,select,[contenteditable]:not([contenteditable='false']),[data-slot='node-editor-controls']")) return;
+    const node = event.target.closest("[data-slot='node-editor-node']");
+    const edge = event.target.closest("[data-edge-id]");
+    const target = node || edge;
+    if (target && (target.dataset.disabled === "true" || target.dataset.selectable !== "true")) return;
+    event.preventDefault();
+    event.stopPropagation();
+    closeContextMenu(state);
+    cancelActiveInteraction(state);
+    if (node && !state.selectedNodeIds.has(node.dataset.nodeId)) selectNodes(state, [node.dataset.nodeId]);
+    else if (edge) selectEdge(state, edge.dataset.edgeId);
+
+    const menu = document.createElement("div");
+    menu.dataset.slot = "node-editor-context-menu";
+    menu.setAttribute("role", "menu");
+    menu.setAttribute("aria-label", "Editor actions");
+    menu.style.cssText = "position:fixed;z-index:10000;min-width:160px;padding:4px;border:1px solid var(--border,#ddd);border-radius:6px;background:var(--popover,#fff);color:var(--popover-foreground,#111);box-shadow:0 4px 12px #0002;";
+    const add = (label, action) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.setAttribute("role", "menuitem");
+        button.textContent = label;
+        button.style.cssText = "display:block;width:100%;padding:6px 10px;border:0;border-radius:4px;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer;";
+        button.addEventListener("click", event => {
+            event.stopPropagation();
+            closeContextMenu(state, true);
+            action();
+        });
+        menu.append(button);
+    };
+    const invoke = (...args) => state.dotNetRef.invokeMethodAsync(...args).catch(console.error);
+    if (node && state.options.commandShortcutsEnabled) {
+        add("Duplicate", () => invoke("InvokeDuplicateRequested", node.dataset.nodeId));
+    }
+    if (target && state.options.deleteKeyEnabled) {
+        const request = { nodeIds: [...state.selectedNodeIds], nodeId: state.selectedNodeId, edgeId: state.selectedEdgeId };
+        add("Delete", () => invoke("InvokeDeleteRequested", request));
+    }
+    if (edge && state.options.inlineEdgeLabelEditingEnabled && edge.dataset.labelEditable === "true") {
+        add("Edit label", () => invoke("InvokeEdgeLabelEditRequested", edge.dataset.edgeId));
+    }
+    if (!target) add("Fit view", () => fitView(state.root.id));
+    if (!menu.children.length) return;
+    menu.addEventListener("pointerdown", event => event.stopPropagation());
+    menu.addEventListener("contextmenu", event => event.preventDefault());
+    menu.addEventListener("keydown", event => {
+        event.stopPropagation();
+        const items = [...menu.children];
+        const index = items.indexOf(document.activeElement);
+        if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+            event.preventDefault();
+            const next = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1 :
+                (index + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+            items[next].focus();
+        } else if (event.key === "Escape" || event.key === "Tab") {
+            event.preventDefault();
+            closeContextMenu(state, true);
+        }
+    });
+    state.root.append(menu);
+    state.contextMenu = menu;
+    const bounds = menu.getBoundingClientRect();
+    menu.style.left = `${Math.max(0, Math.min(event.clientX, window.innerWidth - bounds.width))}px`;
+    menu.style.top = `${Math.max(0, Math.min(event.clientY, window.innerHeight - bounds.height))}px`;
+    menu.firstElementChild.focus();
+}
+
 function handlePointerDown(state, event) {
     if (event.button !== 0 && event.button !== 1) {
         return;
@@ -380,7 +466,8 @@ function handlePointerDown(state, event) {
 
     state.root.focus({ preventScroll: true });
 
-    if (event.button === 0 && state.options.marqueeSelectionEnabled) {
+    if (event.button === 0 && state.options.marqueeSelectionEnabled &&
+        (event.shiftKey || event.ctrlKey || event.metaKey || !state.options.panEnabled)) {
         event.preventDefault();
         const rootRect = state.root.getBoundingClientRect();
         state.interaction = {

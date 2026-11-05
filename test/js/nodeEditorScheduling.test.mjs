@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 
 const source = await readFile(new URL('../../src/Soenneker.Quark.Suite/wwwroot/js/nodeeditorinterop.js', import.meta.url), 'utf8');
 const editor = await import('data:text/javascript;base64,' + Buffer.from(source +
-  '\nexport { schedulePointerMove, handlePointerUp, cancelActiveInteraction, renderEditorFrame, scheduleEdgeUpdate, editors };').toString('base64'));
+  '\nexport { handlePointerDown, handleContextMenu, closeContextMenu, schedulePointerMove, handlePointerUp, cancelActiveInteraction, renderEditorFrame, scheduleEdgeUpdate, editors };').toString('base64'));
 
 function fixture(t, kind = 'node') {
   const frames = new Map(), timers = new Map(), calls = [], operations = [];
@@ -185,4 +185,46 @@ test('shared ports are measured once per frame and reuse coordinates without ret
   assert.equal(center.x, 42);
   assert.equal(reads, 2);
   assert.equal(queries, initialQueries);
+});
+
+for (const [modifiers, expected] of [[{}, 'pan'], [{ shiftKey: true }, 'marquee'], [{ ctrlKey: true }, 'marquee'], [{ button: 1 }, 'pan']]) {
+  test(`empty-space gesture ${JSON.stringify(modifiers)} starts ${expected}`, t => {
+    const { state } = fixture(t);
+    state.interaction = null;
+    state.root.focus = () => {};
+    state.options.panEnabled = state.options.marqueeSelectionEnabled = true;
+    editor.handlePointerDown(state, { button: 0, pointerId: 1, clientX: 10, clientY: 20,
+      target: { closest() { return null; } }, preventDefault() {}, ...modifiers });
+    assert.equal(state.interaction.kind, expected);
+  });
+}
+
+test('node context menu preserves multi-selection, deletes through callback, and dismisses', t => {
+  const { state, node, calls } = fixture(t);
+  state.interaction = null;
+  state.options.deleteKeyEnabled = state.options.commandShortcutsEnabled = true;
+  state.selectedNodeIds.add('b');
+  let removed = false;
+  const previousDocument = globalThis.document, previousWindow = globalThis.window;
+  t.after(() => { globalThis.document = previousDocument; globalThis.window = previousWindow; });
+  globalThis.document = { createElement() {
+    return { dataset: {}, style: {}, children: [], listeners: {}, setAttribute() {},
+      addEventListener(name, handler) { this.listeners[name] = handler; },
+      append(child) { this.children.push(child); },
+      get firstElementChild() { return this.children[0]; },
+      getBoundingClientRect() { return { width: 160, height: 70 }; },
+      focus() { document.activeElement = this; }, remove() { removed = true; } };
+  } };
+  globalThis.window = { innerWidth: 800, innerHeight: 600 };
+  state.root.append = () => {};
+  state.root.focus = () => {};
+  editor.handleContextMenu(state, { target: { closest(selector) { return selector.includes("node-editor-node") ? node : null; } },
+    clientX: 790, clientY: 590, preventDefault() {}, stopPropagation() {} });
+  const menu = state.contextMenu;
+  assert.deepEqual(menu.children.map(item => item.textContent), ['Duplicate', 'Delete']);
+  assert.equal(menu.style.left, '640px');
+  menu.children[1].listeners.click({ stopPropagation() {} });
+  assert.deepEqual(calls.at(-1), ['InvokeDeleteRequested', { nodeIds: ['a', 'b'], nodeId: 'a', edgeId: null }]);
+  assert.equal(removed, true);
+  assert.equal(state.contextMenu, null);
 });

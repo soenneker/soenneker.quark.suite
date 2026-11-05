@@ -11,12 +11,13 @@ public interface INodeEditorOptions
     bool DraggableNodes { get; set; }
 
     /// <summary>
-    /// Gets or sets whether middle-button dragging empty editor space pans the viewport.
+    /// Gets or sets whether left- or middle-button dragging empty editor space pans the viewport.
     /// </summary>
     bool PanEnabled { get; set; }
 
     /// <summary>
-    /// Gets or sets whether dragging across empty editor space selects every selectable node intersecting the rectangle.
+    /// Gets or sets whether Shift-, Ctrl-, or Command-dragging across empty editor space selects nodes intersecting the rectangle.
+    /// Unmodified dragging also selects when panning is disabled.
     /// Middle-button dragging continues to pan when <see cref="PanEnabled"/> is enabled.
     /// </summary>
     bool MarqueeSelectionEnabled { get; set; }

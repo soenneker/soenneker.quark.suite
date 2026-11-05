@@ -8,7 +8,7 @@
 
 <Popover Open="@EffectiveOpen"
          OpenChanged="(_cachedHandleOpenChangedDelegate ??= HandleOpenChanged)">
-    <div class="relative w-fit">
+    <div class="relative flex w-fit items-center gap-2">
         <PopoverTrigger AsChild="true" Id="@TriggerId">
             <Button Id="@TriggerId"
                     Type="@ButtonType.Button"
@@ -24,6 +24,13 @@
                 <Icon Name="@ChevronIcon" Margin="_renderCss3" Size="_renderCss1" Opacity="_renderCss4" />
             </Button>
         </PopoverTrigger>
+
+        <span class="flex size-4 shrink-0" data-slot="preset-date-range-picker-loading">
+            @if (Loading)
+            {
+                <Spinner Size="_renderCss1" AriaLabel="@LoadingLabel" />
+            }
+        </span>
 
         <PopoverContent Side="@Side"
                         Align="@Align"
@@ -151,6 +158,14 @@
 
     [Parameter]
     public bool ShowCalendarIcon { get; set; } = true;
+
+    /// <summary>Shows a spinner beside the trigger while the selected range's data loads. Does not disable the picker.</summary>
+    [Parameter]
+    public bool Loading { get; set; }
+
+    /// <summary>Gets or sets the accessible label for the loading indicator.</summary>
+    [Parameter]
+    public string LoadingLabel { get; set; } = "Loading";
 
     [Parameter]
     public int NumberOfMonths { get; set; } = 1;

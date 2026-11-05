@@ -11,6 +11,28 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void Preset_date_range_picker_loading_preserves_space_and_does_not_disable_trigger()
+    {
+        var cut = Render<PresetDateRangePicker>();
+        var slot = cut.Find("[data-slot='preset-date-range-picker-loading']");
+        string? idleClass = slot.GetAttribute("class");
+        cut.FindComponents<Spinner>().Should().BeEmpty();
+
+        cut.Render(p => p.Add(c => c.Loading, true));
+        cut.FindComponent<Spinner>().Instance.AriaLabel.Should().Be("Loading");
+        cut.Find("button[data-slot='preset-date-range-picker-trigger']").HasAttribute("disabled").Should().BeFalse();
+        cut.Find("[data-slot='preset-date-range-picker-loading']").GetAttribute("class").Should().Be(idleClass);
+
+        cut.Render(p => p.Add(c => c.LoadingLabel, "Loading metrics").Add(c => c.Disabled, true));
+        cut.FindComponent<Spinner>().Instance.AriaLabel.Should().Be("Loading metrics");
+        cut.Find("button[data-slot='preset-date-range-picker-trigger']").HasAttribute("disabled").Should().BeTrue();
+
+        cut.Render(p => p.Add(c => c.Loading, false));
+        cut.FindComponents<Spinner>().Should().BeEmpty();
+        cut.Find("[data-slot='preset-date-range-picker-loading']").GetAttribute("class").Should().Be(idleClass);
+    }
+
+    [Test]
     public void Preset_date_range_picker_marks_active_preset_and_disables_dates_outside_constrained_window()
     {
         var cut = Render<PresetDateRangePicker>(parameters => parameters
