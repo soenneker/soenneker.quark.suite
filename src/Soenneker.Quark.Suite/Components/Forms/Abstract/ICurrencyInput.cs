@@ -5,7 +5,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a currency input component for entering nullable decimal values with display formatting.
 /// </summary>
-public interface ICurrencyInput : IInput
+public interface ICurrencyInput : IInput, IFormValueExpression<decimal?>
 {
     /// <summary>
     /// Gets or sets the value.

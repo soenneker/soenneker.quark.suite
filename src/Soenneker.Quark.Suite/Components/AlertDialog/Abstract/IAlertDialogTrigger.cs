@@ -1,8 +1,6 @@
 namespace Soenneker.Quark;
 
-/// <summary>
-/// Represents a trigger element that opens an alert dialog.
-/// </summary>
-public interface IAlertDialogTrigger : IElement
+/// <summary>Quark AlertDialog trigger backed by Bradix activation and focus management.</summary>
+public interface IAlertDialogTrigger : IElement, IComposableTrigger
 {
 }

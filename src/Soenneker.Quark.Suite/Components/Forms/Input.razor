@@ -409,6 +409,7 @@ else
         {
             Value = newValue;
             await ValueChanged.InvokeAsync(Value);
+            NotifyEditFieldChanged();
             await CapturePendingSelection(Value);
             valueChanged = true;
         }
@@ -446,6 +447,7 @@ else
         {
             Value = newValue;
             await ValueChanged.InvokeAsync(Value);
+            NotifyEditFieldChanged();
             valueChanged = true;
         }
 
@@ -526,6 +528,8 @@ else
             _pendingNativeTimeValue = null;
 
             await ValueChanged.InvokeIfHasDelegate(value);
+
+            NotifyEditFieldChanged();
             if (OnChange.HasDelegate)
                 await OnChange.InvokeIfHasDelegate(new ChangeEventArgs { Value = value });
             await _autoSave.NotifyValueChanged(value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));

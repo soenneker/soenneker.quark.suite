@@ -1,60 +1,31 @@
 @using Soenneker.Bradix
-@using Soenneker.Blazor.Utils.Ids
-
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.TriggerElement
 @implements IAlertDialogTrigger
 
-@if (AsChild)
-{
-    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-        <CascadingValue Name="@SlotAttributes.Name" Value="BuildSlotAttributes()" IsFixed="false"
-                        ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
-    </CascadingValue>
-}
-else
-{
-    <BradixDialogTrigger Disabled="@Disabled"
-                         OnClick="@OnClick"
-                         AdditionalAttributes="@TriggerAttributes"
-                         ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
-}
+<BradixDialogTrigger Id="@(AsChild ? _childTriggerId ?? Id : Id)" Disabled="@Disabled" OnClick="@OnClick" OnActivate="@OnActivate"
+    TriggerTemplate="@(AsChild ? SlottedTrigger : TriggerTemplate)"
+    AdditionalAttributes="@TriggerAttributes" ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 
 @code {
-    [CascadingParameter(Name = SlotAttributes.Name)]
-    private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
-
-    private QuarkAttributeDictionary _slotAttributesBuffer;
+    [Parameter] public bool AsChild { get; set; }
+    [Parameter] public RenderFragment<BradixTriggerContext>? TriggerTemplate { get; set; }
+    [Parameter] public EventCallback<BradixActivationEventArgs> OnActivate { get; set; }
+    [CascadingParameter(Name = nameof(ParentAlertDialog))] public AlertDialog? ParentAlertDialog { get; set; }
+    [CascadingParameter] private OverlayLabelContext? Context { get; set; }
+    [CascadingParameter(Name = SlotAttributes.Name)] private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
+    private QuarkAttributeDictionary _attributes;
     private string? _slotClass;
     private string? _slotStyle;
-
-    private IReadOnlyDictionary<string, object> BuildSlotAttributes()
-    {
-        var attributes = _slotAttributesBuffer.Create(BuildAttributes());
-        SlotAttributes.MergeInto(attributes, SlotAttributeOverrides, ref _slotClass, ref _slotStyle);
-        if (OnClick.HasDelegate)
-            attributes["onclick"] = OnClick;
-        return attributes;
-    }
+    private string? _childTriggerId;
+    private void CaptureTriggerId(string? id) => _childTriggerId = id;
+    private RenderFragment<BradixTriggerContext>? _slottedTrigger;
+    private RenderFragment<BradixTriggerContext> SlottedTrigger => _slottedTrigger ??= trigger =>
+        @<PrimitiveTriggerSlot Context="trigger" OnTriggerIdCaptured="CaptureTriggerId" ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />;
 
     private static readonly CssValue<CursorBuilder> _defaultCursor = Quark.Cursor.Pointer.OnDisabled.NotAllowed;
     private static readonly CssValue<PointerEventsBuilder> _defaultPointerEvents = Quark.PointerEvents.OnDisabled.None;
     private static readonly CssValue<OpacityBuilder> _defaultOpacity = Quark.Opacity.OnDisabled.Is50;
-    private QuarkAttributeDictionary _triggerAttributes;
-    [CascadingParameter(Name = nameof(ParentAlertDialog))]
-    public AlertDialog? ParentAlertDialog { get; set; }
-
-    [CascadingParameter]
-    private OverlayLabelContext? Context { get; set; }
-
-    [CascadingParameter]
-    private BradixDialog? BradixDialog { get; set; }
-
-    [Parameter]
-    public bool AsChild { get; set; }
-
-    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildTriggerAttributes();
-
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
@@ -64,114 +35,28 @@ else
         Opacity ??= _defaultOpacity;
     }
 
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
+    private IReadOnlyDictionary<string, object> TriggerAttributes
     {
-        base.BuildAttributesCore(attributes);
-
-        attributes["data-state"] = ParentAlertDialog?.Visible == true ? "open" : "closed";
-        attributes["aria-haspopup"] = "dialog";
-        attributes["aria-expanded"] = ParentAlertDialog?.Visible == true ? "true" : "false";
-
-        if (Disabled)
-            attributes["disabled"] = QuarkAttributeValues.True;
-
-        if (Context is not null)
-            attributes["aria-controls"] = Context.ContentId;
-
-    }
-
-    private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
-    {
-        var attributes = _triggerAttributes.Create(BuildAttributes());
-
-        attributes.Remove("type");
-        attributes.Remove("id");
-        attributes.Remove("data-state");
-        attributes.Remove("aria-haspopup");
-        attributes.Remove("aria-expanded");
-        attributes.Remove("aria-controls");
-        attributes.Remove("disabled");
-        attributes.Remove("onclick");
-
-        return attributes;
-    }
-
-    private string? _triggerContentId;
-    private string? _overlayTriggerId;
-    private string? GetOverlayTriggerId(OverlayLabelContext? context)
-    {
-        string? contentId = context?.ContentId;
-        if (_triggerContentId != contentId)
+        get
         {
-            _triggerContentId = contentId;
-            _overlayTriggerId = contentId is null ? null : BlazorIdGenerator.Child(contentId, "trigger");
+            var attributes = _attributes.Create(BuildAttributes());
+            SlotAttributes.MergeInto(attributes, SlotAttributeOverrides, ref _slotClass, ref _slotStyle);
+            attributes.Remove("onclick");
+            attributes.Remove("id");
+            if (Context is not null) attributes["aria-controls"] = Context.ContentId;
+            return attributes;
         }
-        return _overlayTriggerId;
-    }
-
-    private (bool, AlertDialog?, bool, BradixDialog?, string?)? _contextSnapshotKey;
-    private TriggerContext? _contextSnapshot;
-    private Func<PointerEventArgs, Task>? _contextOnPointerDownEventCallback;
-    private Action<ElementReference>? _contextRegisterElementCallback;
-    private Func<Task>? _contextToggleCallback;
-    private Func<Task>? _contextOpenCallback;
-    private Func<Task>? _contextCloseCallback;
-
-    private TriggerContext GetTriggerContext()
-    {
-        var key = (Disabled, ParentAlertDialog, ParentAlertDialog?.Visible == true, BradixDialog, Context?.ContentId);
-        if (_contextSnapshot is not null && _contextSnapshotKey == key)
-            return _contextSnapshot;
-        _contextSnapshotKey = key;
-        return _contextSnapshot = new TriggerContext
-        {
-            DataSlot = null,
-            TriggerId = GetOverlayTriggerId(Context),
-            ParentDisabled = Disabled,
-            IsOpen = ParentAlertDialog?.Visible == true,
-            DataState = ParentAlertDialog?.Visible == true ? "open" : "closed",
-            AriaHasPopup = "dialog",
-            AriaControls = Context?.ContentId,
-            OnPointerDownEvent = ParentAlertDialog is null || Disabled ? null : (_contextOnPointerDownEventCallback ??= HandleTriggerPointerDown),
-            SuppressClickAfterPointerDown = true,
-            RegisterElement = (_contextRegisterElementCallback ??= elementReference =>
-            {
-                if (BradixDialog is not null)
-                    BradixDialog.RegisterTrigger(elementReference, GetOverlayTriggerId(Context));
-            }),
-            Toggle = ParentAlertDialog is null
-                ? null
-                : (_contextToggleCallback ??= async () =>
-                {
-                    if (ParentAlertDialog.Visible)
-                        await ParentAlertDialog.Hide();
-                    else
-                        await ParentAlertDialog.Show();
-                }),
-            Open = ParentAlertDialog is null
-                ? null
-                : (_contextOpenCallback ??= async () =>
-                {
-                    await ParentAlertDialog.Show();
-                }),
-            Close = ParentAlertDialog is null ? null : (_contextCloseCallback ??= () => ParentAlertDialog.Hide())
-        };
-    }
-
-    private Task HandleTriggerPointerDown(PointerEventArgs args)
-    {
-        if (ParentAlertDialog is null || Disabled || args.Button != 0 || args.CtrlKey)
-            return Task.CompletedTask;
-
-        return ParentAlertDialog.Visible ? ParentAlertDialog.Hide() : ParentAlertDialog.Show();
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
         hc.Add(AsChild);
+        hc.Add(_childTriggerId);
         hc.Add(Disabled);
-        hc.Add(ParentAlertDialog?.Visible ?? false);
+        hc.Add(TriggerTemplate);
+        hc.Add(OnActivate);
+        hc.Add(SlotAttributeOverrides);
         hc.Add(Context?.ContentId);
     }
 }

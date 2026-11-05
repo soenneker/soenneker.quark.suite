@@ -4,6 +4,7 @@ namespace Soenneker.Quark;
 
 internal sealed class SelectContext
 {
+    public required Func<string?> FieldCssClass { get; init; }
     public required Func<string> Size { get; init; }
     public required Func<bool> IsInvalid { get; init; }
     public required Func<bool> FillFieldWidth { get; init; }

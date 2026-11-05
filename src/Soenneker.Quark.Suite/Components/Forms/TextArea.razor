@@ -276,6 +276,7 @@ else
         {
             Value = next;
             await ValueChanged.InvokeIfHasDelegate(Value);
+            NotifyEditFieldChanged();
             await CapturePendingSelection(Value);
         }
         else
@@ -320,7 +321,10 @@ else
         Value = next;
 
         if (valueChanged)
+        {
             await ValueChanged.InvokeIfHasDelegate(Value);
+            NotifyEditFieldChanged();
+        }
 
         await OnChange.InvokeIfHasDelegate(e);
 

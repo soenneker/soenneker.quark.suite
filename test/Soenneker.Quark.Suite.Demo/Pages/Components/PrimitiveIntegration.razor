@@ -1,0 +1,61 @@
+@page "/components/primitive-integration"
+@using Microsoft.AspNetCore.Components.Forms
+
+<QuarkSeoHead Title="Blazor primitive integration | Quark Suite" Description="Custom triggers, typed EditContext forms, rich Select values, and accessible status updates." />
+
+<AnnounceProvider>
+    <Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+        <Section Space="Space.Y.Is4">
+            <H2>Custom triggers and cancellation</H2>
+            <Switch @bind-Checked="_blocked" Label="Block dialog opening" />
+            <Dialog>
+                <DialogTrigger AsChild OnActivate="Activate">
+                    <Button Id="integration-dialog-trigger" Variant="ButtonVariant.Outline">Open composed dialog</Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Composed dialog</DialogTitle>
+                        <DialogDescription>The existing Quark Button uses Bradix activation and focus management.</DialogDescription>
+                    </DialogHeader>
+                    <DialogClose AsChild><Button>Close dialog</Button></DialogClose>
+                </DialogContent>
+            </Dialog>
+        </Section>
+
+        <Section Space="Space.Y.Is4">
+            <H2>Typed forms and live status</H2>
+            <Form Model="_model" OnValidSubmit="Save">
+                <DataAnnotationsValidator />
+                <QLabel For="integration-city">City</QLabel>
+                    <Select TValue="string" @bind-SelectedValue="_model.City" Name="City">
+                        <SelectTrigger Id="integration-city" aria-describedby="integration-city-errors">
+                            <SelectValue Placeholder="Choose a city">
+                                <ValueTemplate Context="city"><Span FontWeight="FontWeight.Semibold">@city</Span></ValueTemplate>
+                            </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem TValue="string" ItemValue="@("London")" Text="London" />
+                            <SelectItem TValue="string" ItemValue="@("Paris")" Text="Paris" />
+                        </SelectContent>
+                    </Select>
+                <Div Id="integration-city-errors"><ValidationMessage For="@(() => _model.City)" /></Div>
+                <Button Type="ButtonType.Submit">Save city</Button>
+            </Form>
+            <P Id="integration-status">@_status</P>
+            <Announce>@_status</Announce>
+        </Section>
+    </Div>
+</AnnounceProvider>
+
+@code {
+    private readonly PrimitiveIntegrationModel _model = new();
+    private bool _blocked;
+    private string? _status;
+
+    private void Activate(BradixActivationEventArgs args)
+    {
+        if (_blocked) args.PreventDefault();
+    }
+
+    private void Save() => _status = $"Saved {_model.City}.";
+}

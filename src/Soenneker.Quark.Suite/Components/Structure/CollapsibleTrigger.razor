@@ -1,109 +1,50 @@
-@namespace Soenneker.Quark
 @using Soenneker.Bradix
+@namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
+@implements ICollapsibleTrigger
 
-@if (AsChild)
-{
-    <CascadingValue Name="TriggerContext" Value="GetTriggerContext()" IsFixed="false">
-        <CascadingValue Name="@SlotAttributes.Name" Value="TriggerAttributes" IsFixed="false"
-                        ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
-    </CascadingValue>
-}
-else
-{
-    <BradixCollapsibleTrigger Disabled="@Disabled"
-                              OnClick="@OnClick"
-                              AdditionalAttributes="@TriggerAttributes"
-                              ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
-}
+<BradixCollapsibleTrigger  Disabled="@Disabled" OnClick="@OnClick" OnActivate="@OnActivate"
+    TriggerTemplate="@(AsChild ? SlottedTrigger : TriggerTemplate)"
+    AdditionalAttributes="@TriggerAttributes" ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />
 
 @code {
+    [Parameter] public bool AsChild { get; set; }
+    [Parameter] public RenderFragment<BradixTriggerContext>? TriggerTemplate { get; set; }
+    [Parameter] public EventCallback<BradixActivationEventArgs> OnActivate { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+    [CascadingParameter(Name = SlotAttributes.Name)] private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
+    private QuarkAttributeDictionary _attributes;
     private string? _slotClass;
     private string? _slotStyle;
+    private RenderFragment<BradixTriggerContext>? _slottedTrigger;
+    private RenderFragment<BradixTriggerContext> SlottedTrigger => _slottedTrigger ??= trigger =>
+        @<PrimitiveTriggerSlot Context="trigger" ChildContent="@(ChildContent ?? QuarkRenderFragments.Empty)" />;
+
     protected override void ApplyDefaultParameters()
     {
         base.ApplyDefaultParameters();
         DataSlot ??= "collapsible-trigger";
     }
 
-    [Parameter]
-    public bool AsChild { get; set; }
-
-    [Parameter]
-    public bool Disabled { get; set; }
-
-    [Parameter]
-    public EventCallback<MouseEventArgs> OnClick { get; set; }
-
-    [CascadingParameter]
-    private BradixCollapsible? Collapsible { get; set; }
-
-    [CascadingParameter(Name = SlotAttributes.Name)]
-    private IReadOnlyDictionary<string, object>? SlotAttributeOverrides { get; set; }
-
-    private (BradixCollapsible?, bool, bool, string?, string?)? _contextSnapshotKey;
-    private TriggerContext? _contextSnapshot;
-    private Func<Task>? _contextToggleCallback;
-    private Func<Task>? _contextOpenCallback;
-    private Func<Task>? _contextCloseCallback;
-
-    private TriggerContext GetTriggerContext()
+    private IReadOnlyDictionary<string, object> TriggerAttributes
     {
-        var key = (Collapsible, Disabled || Collapsible?.Disabled == true, Collapsible?.IsOpen == true, Collapsible?.TriggerId, Collapsible?.ContentId);
-        if (_contextSnapshot is not null && _contextSnapshotKey == key)
-            return _contextSnapshot;
-        _contextSnapshotKey = key;
-        return _contextSnapshot = new TriggerContext
+        get
         {
-            DataSlot = "collapsible-trigger",
-            TriggerId = Collapsible?.TriggerId,
-            ParentDisabled = Disabled || Collapsible?.Disabled == true,
-            IsOpen = Collapsible?.IsOpen == true,
-            DataState = Collapsible?.IsOpen == true ? "open" : "closed",
-            AriaControls = Collapsible?.ContentId,
-            Toggle = Collapsible is null ? null : (_contextToggleCallback ??= () => Collapsible.Toggle()),
-            Open = Collapsible is null ? null : (_contextOpenCallback ??= () => Collapsible.SetOpen(true)),
-            Close = Collapsible is null ? null : (_contextCloseCallback ??= () => Collapsible.SetOpen(false))
-        };
-    }
-
-    private IReadOnlyDictionary<string, object> TriggerAttributes => BuildAttributes();
-
-    protected override void BuildAttributesCore(Dictionary<string, object> attributes)
-    {
-        base.BuildAttributesCore(attributes);
-
-
-        if (AsChild && Collapsible is not null)
-        {
-            attributes["data-state"] = Collapsible.IsOpen ? "open" : "closed";
-            attributes["aria-expanded"] = Collapsible.IsOpen ? "true" : "false";
-            attributes["id"] = Collapsible.TriggerId;
-            attributes["aria-controls"] = Collapsible.ContentId;
-        }
-
-        if (AsChild && (Disabled || Collapsible?.Disabled == true))
-        {
-            attributes["data-disabled"] = "true";
-        }
-
-        if (AsChild)
-        {
+            var attributes = _attributes.Create(BuildAttributes());
             SlotAttributes.MergeInto(attributes, SlotAttributeOverrides, ref _slotClass, ref _slotStyle);
-            if (OnClick.HasDelegate)
-                attributes["onclick"] = OnClick;
+            attributes.Remove("onclick");
+            return attributes;
         }
     }
 
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
-        hc.Add(Disabled);
         hc.Add(AsChild);
-        hc.Add(OnClick.HasDelegate);
-        hc.Add(Collapsible?.IsOpen == true);
-        hc.Add(Collapsible?.Disabled == true);
-        hc.Add(Collapsible?.TriggerId);
-        hc.Add(SlotAttributeOverrides?.Count ?? 0);
+        hc.Add(Disabled);
+        hc.Add(TriggerTemplate);
+        hc.Add(OnActivate);
+        hc.Add(SlotAttributeOverrides);
     }
 }

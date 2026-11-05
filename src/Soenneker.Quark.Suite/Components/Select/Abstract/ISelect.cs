@@ -9,6 +9,8 @@ namespace Soenneker.Quark;
 /// <typeparam name="TValue">The type of the selected value.</typeparam>
 public interface ISelect<TValue> : IElement
 {
+    /// <summary>Identifies the bound model field for Blazor form validation; supplied automatically by @bind-SelectedValue.</summary>
+    System.Linq.Expressions.Expression<System.Func<TValue?>>? SelectedValueExpression { get; set; }
     /// <summary>
     /// Gets or sets the selected value.
     /// </summary>

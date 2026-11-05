@@ -169,9 +169,9 @@ else
 
     private bool PreventLinkDefault =>
         Disabled || Loading || TriggerContext?.ParentDisabled == true || DialogCloseContext?.Disabled == true ||
-        HasDisabledAttribute(Attributes) || HasDisabledAttribute(AdditionalAttributes) || HasDisabledAttribute(SlotAttributeOverrides) || CollapseTarget.HasContent() || TriggerContext?.Toggle is not null || DialogCloseContext is not null;
+        HasDisabledAttribute(Attributes) || HasDisabledAttribute(AdditionalAttributes) || HasDisabledAttribute(SlotAttributeOverrides) || CollapseTarget.HasContent() || TriggerContext?.Toggle is not null || TriggerContext?.PreventClickDefault == true || DialogCloseContext is not null;
 
-    private bool StopClickPropagation => TriggerContext?.Toggle is not null || InputGroupButton;
+    private bool StopClickPropagation => TriggerContext?.Toggle is not null || TriggerContext?.PreventClickDefault == true || InputGroupButton;
 
     private bool PreventPointerDownDefault => TriggerContext?.PreventPointerDownDefault == true;
 
@@ -276,16 +276,30 @@ else
             Width ??= _defaultWidth;
     }
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    private ElementReference _registeredTriggerElement;
+    private string? _registeredElementId;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (TriggerContext?.RegisterElement is not null && (!_triggerElementRegistered.Value || !string.Equals(_registeredTriggerId, TriggerContext.TriggerId, StringComparison.Ordinal)))
+        if (TriggerContext?.RegisterElement is not null && (!_triggerElementRegistered.Value || !_registeredTriggerElement.Equals(_elementRef) || !string.Equals(_registeredTriggerId, TriggerContext.TriggerId, StringComparison.Ordinal)))
         {
             TriggerContext.RegisterElement(_elementRef);
             _triggerElementRegistered.Value = true;
             _registeredTriggerId = TriggerContext.TriggerId;
+            _registeredTriggerElement = _elementRef;
         }
 
-        return base.OnAfterRenderAsync(firstRender);
+        if (TriggerContext?.RegisterId is not null)
+        {
+            string? elementId = GetAttribute(BuildAttributes(), "id")?.ToString();
+            if (elementId != _registeredElementId)
+            {
+                _registeredElementId = elementId;
+                await TriggerContext.RegisterId(elementId);
+            }
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     /// <summary>
@@ -701,6 +715,7 @@ else
         hc.Add(TriggerContext?.AriaDescribedBy);
         hc.Add(TriggerContext?.IsOpen);
         hc.Add(TriggerContext?.SuppressClickAfterPointerDown == true);
+        hc.Add(TriggerContext?.PreventClickDefault == true);
         hc.Add(TriggerContext?.ParentDisabled == true);
         hc.Add(DialogCloseContext?.Disabled == true);
         hc.Add(DialogCloseContext?.AriaLabel);

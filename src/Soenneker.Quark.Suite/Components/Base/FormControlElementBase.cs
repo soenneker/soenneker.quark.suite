@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -20,6 +21,32 @@ public abstract class FormControlElementBase : InteractiveElement, IValidationFi
     private Validation? BindingValidation { get; set; }
 
     private Validation? _bindingOwner;
+
+    [CascadingParameter]
+    private EditContext? CascadedEditContext { get; set; }
+
+    private EditContext? _editContext;
+    private FieldIdentifier? _editField;
+
+    protected virtual FieldIdentifier? ResolveEditField() => ValidationField;
+
+    protected bool IsEditFieldInvalid => _editContext is not null && _editField is { } identifier && _editContext.GetValidationMessages(identifier).Any();
+
+    protected string? EditFieldCssClass => _editContext is not null && _editField is { } identifier ? _editContext.FieldCssClass(identifier) : null;
+
+    protected void NotifyEditFieldChanged()
+    {
+        if (_editContext is not null && _editField is { } identifier)
+            _editContext.NotifyFieldChanged(identifier);
+    }
+
+    private void OnEditValidationStateChanged(object? sender, ValidationStateChangedEventArgs args) => _ = RefreshOffThread();
+
+    private void OnEditFieldChanged(object? sender, FieldChangedEventArgs args)
+    {
+        if (_editField is { } identifier && identifier.Equals(args.FieldIdentifier))
+            _ = RefreshOffThread();
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -89,6 +116,8 @@ public abstract class FormControlElementBase : InteractiveElement, IValidationFi
     protected override void BuildOwnedClassAndStyle(ref PooledStringBuilder sty, ref PooledStringBuilder cls)
     {
         base.BuildOwnedClassAndStyle(ref sty, ref cls);
+        if (EditFieldCssClass is { } fieldClass)
+            AppendClass(ref cls, fieldClass);
         var preset = AppliedPresetContext;
         AddCss(ref cls, ResolvePresetValue(AccentColor, preset?.AccentColor, nameof(AccentColor)));
         AddCss(ref cls, ResolvePresetValue(NativeAppearance, preset?.NativeAppearance, nameof(NativeAppearance)));
@@ -98,7 +127,9 @@ public abstract class FormControlElementBase : InteractiveElement, IValidationFi
     protected override void BuildOwnedAttributes(Dictionary<string, object> attrs)
     {
         base.BuildOwnedAttributes(attrs);
-        if (AriaInvalid is not null)
+        if (IsEditFieldInvalid)
+            attrs["aria-invalid"] = "true";
+        else if (AriaInvalid is not null)
             attrs["aria-invalid"] = AriaInvalid;
 
         if (Disabled)
@@ -128,6 +159,21 @@ public abstract class FormControlElementBase : InteractiveElement, IValidationFi
 
     protected override void OnParametersSet()
     {
+        if (!ReferenceEquals(_editContext, CascadedEditContext))
+        {
+            if (_editContext is not null)
+            {
+                _editContext.OnValidationStateChanged -= OnEditValidationStateChanged;
+                _editContext.OnFieldChanged -= OnEditFieldChanged;
+            }
+            _editContext = CascadedEditContext;
+            if (_editContext is not null)
+            {
+                _editContext.OnValidationStateChanged += OnEditValidationStateChanged;
+                _editContext.OnFieldChanged += OnEditFieldChanged;
+            }
+        }
+        _editField = ResolveEditField();
         base.OnParametersSet();
 
         if (!ReferenceEquals(_subscribedFieldContext, CurrentFieldContext))
@@ -150,7 +196,7 @@ public abstract class FormControlElementBase : InteractiveElement, IValidationFi
         if (CurrentFieldContext is not null && !attrs.ContainsKey("id"))
             attrs["id"] = CurrentFieldContext.ControlId;
 
-        var effectiveInvalid = isInvalid || CurrentFieldContext?.IsInvalid == true;
+        var effectiveInvalid = IsEditFieldInvalid || isInvalid || CurrentFieldContext?.IsInvalid == true;
 
         var describedBy = CurrentFieldContext?.BuildDescribedBy(attrs.TryGetValue("aria-describedby", out var existingDescribedBy)
             ? existingDescribedBy?.ToString()
@@ -180,6 +226,8 @@ public abstract class FormControlElementBase : InteractiveElement, IValidationFi
         AddIf(ref hc, NativeAppearance);
 
         hc.Add(AriaInvalid);
+        hc.Add(IsEditFieldInvalid);
+        hc.Add(EditFieldCssClass);
 
         hc.Add(Disabled);
         hc.Add(Name);
@@ -199,6 +247,11 @@ public abstract class FormControlElementBase : InteractiveElement, IValidationFi
     /// <returns>A task that represents the asynchronous operation.</returns>
     public override async ValueTask DisposeAsync()
     {
+        if (_editContext is not null)
+        {
+            _editContext.OnValidationStateChanged -= OnEditValidationStateChanged;
+            _editContext.OnFieldChanged -= OnEditFieldChanged;
+        }
         if (_bindingOwner is not null)
             await _bindingOwner.BindGeneratedField(this, null);
         if (_subscribedFieldContext is not null)

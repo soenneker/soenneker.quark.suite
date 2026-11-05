@@ -5,7 +5,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a single-line text input component.
 /// </summary>
-public interface ITextInput : IInput
+public interface ITextInput : IInput, IFormValueExpression<string?>
 {
     /// <summary>Gets or sets the CaretColor utilities, including responsive and state variants.</summary>
     CssValue<CaretColorBuilder>? CaretColor { get; set; }

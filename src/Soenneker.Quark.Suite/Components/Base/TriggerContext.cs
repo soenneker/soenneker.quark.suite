@@ -44,6 +44,8 @@ internal sealed class TriggerContext
 
     public bool PreventPointerDownDefault { get; init; }
 
+    public bool PreventClickDefault { get; init; }
+
     public Func<Task>? OnPointerUp { get; init; }
 
     public Func<Task>? OnMouseEnter { get; init; }
@@ -59,4 +61,6 @@ internal sealed class TriggerContext
     public Func<KeyboardEventArgs, Task>? OnKeyDown { get; init; }
 
     public Action<ElementReference>? RegisterElement { get; init; }
+
+    public Func<string?, Task>? RegisterId { get; init; }
 }

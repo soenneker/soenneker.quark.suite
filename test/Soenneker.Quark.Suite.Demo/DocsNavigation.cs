@@ -23,6 +23,7 @@ public static class DocsNavigation
         new("First Component", "first-component"),
         new("Generators", "generators"),
         new("Properties", "properties"),
+        new("Primitive Integration", ComponentRoute("primitive-integration")),
         new("Grid System", "grid-system"),
         new("Themes", "themes"),
         new("Troubleshooting", "troubleshooting"),

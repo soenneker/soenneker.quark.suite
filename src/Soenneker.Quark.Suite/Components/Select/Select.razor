@@ -41,6 +41,11 @@
 </CascadingValue>
 
 @code {
+    [Parameter] public System.Linq.Expressions.Expression<Func<TValue?>>? SelectedValueExpression { get; set; }
+
+    protected override Microsoft.AspNetCore.Components.Forms.FieldIdentifier? ResolveEditField() => SelectedValueExpression is not null
+        ? Microsoft.AspNetCore.Components.Forms.FieldIdentifier.Create(SelectedValueExpression) : base.ResolveEditField();
+
     private Func<Task>? _autoSaveRefreshCallback;
     private static readonly CssValue<DisplayBuilder> _renderCss0 = Quark.Display.InlineFlex;
     private static readonly CssValue<ItemsBuilder> _renderCss1 = Items.Center;
@@ -131,7 +136,7 @@
     private readonly Dictionary<string, TValue?> _registeredItemValues = new(StringComparer.Ordinal);
     private SelectContext _context = null!;
     private string? SelectedValueString => GetValueString(SelectedValue);
-    private bool IsInvalidState => ParentValidation?.Status == ValidationStatus.Error;
+    private bool IsInvalidState => IsEditFieldInvalid || ParentValidation?.Status == ValidationStatus.Error;
     private bool UsesAutoSaveStatusSlot => AutoSave && OnAutoSave is not null && ShowAutoSaveStatus;
 
     protected override void OnInitialized()
@@ -141,6 +146,7 @@
         _context = new SelectContext
         {
             Size = GetSizeValue,
+            FieldCssClass = () => EditFieldCssClass,
             IsInvalid = () => IsInvalidState || CurrentFieldContext?.IsInvalid == true,
             FillFieldWidth = () => CurrentFieldContext is not null,
             EffectiveTriggerId = () => CurrentFieldContext?.ControlId ?? string.Empty,
@@ -193,6 +199,9 @@
 
         if (valueChanged && SelectedValueChanged.HasDelegate)
             await SelectedValueChanged.InvokeAsync(nextValue);
+
+        if (valueChanged)
+            NotifyEditFieldChanged();
 
         if (valueChanged)
             await _autoSave.NotifyValueChanged(nextValue, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));

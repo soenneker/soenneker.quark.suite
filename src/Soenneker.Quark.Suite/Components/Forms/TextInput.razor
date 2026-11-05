@@ -52,6 +52,11 @@
 </div>
 
 @code {
+    [Parameter] public System.Linq.Expressions.Expression<Func<string?>>? ValueExpression { get; set; }
+
+    protected override Microsoft.AspNetCore.Components.Forms.FieldIdentifier? ResolveEditField() => ValueExpression is not null
+        ? Microsoft.AspNetCore.Components.Forms.FieldIdentifier.Create(ValueExpression) : base.ResolveEditField();
+
     [Parameter]
     public CssValue<CaretColorBuilder>? CaretColor { get; set; }
 
@@ -251,6 +256,7 @@
         if (valueChanged)
         {
             await ValueChanged.InvokeIfHasDelegate(Value);
+            NotifyEditFieldChanged();
         }
     }
 

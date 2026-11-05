@@ -36,6 +36,11 @@
 </Div>
 
 @code {
+    [Parameter] public System.Linq.Expressions.Expression<Func<decimal?>>? ValueExpression { get; set; }
+
+    protected override Microsoft.AspNetCore.Components.Forms.FieldIdentifier? ResolveEditField() => ValueExpression is not null
+        ? Microsoft.AspNetCore.Components.Forms.FieldIdentifier.Create(ValueExpression) : base.ResolveEditField();
+
     private static readonly CssValue<MaxWidthBuilder> _currencyMaxWidth = CssValue<MaxWidthBuilder>.For(Quark.MaxWidth.Is48, "sm:max-w-56");
     private (decimal? Value, int Places, bool Thousands, CultureInfo Culture) _displayKey;
     private (decimal? Value, int Places, CultureInfo Culture) _editingKey;
@@ -242,6 +247,7 @@
         if (valueChanged)
         {
             await ValueChanged.InvokeIfHasDelegate(Value);
+            NotifyEditFieldChanged();
             await _autoSave.NotifyValueChanged(Value, AutoSave, AutoSaveDelay, OnAutoSave, AutoSaveStateChanged, (_autoSaveRefreshCallback ??= RefreshOffThread));
         }
     }

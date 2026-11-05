@@ -5,7 +5,7 @@ namespace Soenneker.Quark;
 /// <summary>
 /// Represents a numeric input component for entering decimal values.
 /// </summary>
-public interface INumericInput : IInput
+public interface INumericInput : IInput, IFormValueExpression<decimal?>
 {
     /// <summary>
     /// Gets or sets the ID of the owning form, including a form outside the control ancestry.

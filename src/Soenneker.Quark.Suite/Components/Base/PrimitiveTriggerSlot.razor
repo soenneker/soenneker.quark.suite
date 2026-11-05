@@ -1,0 +1,36 @@
+@using Soenneker.Bradix
+@namespace Soenneker.Quark
+@inherits ComponentBase
+
+<CascadingValue Name="TriggerContext" Value="_trigger">
+    <CascadingValue Name="@SlotAttributes.Name" Value="_attributes" ChildContent="ChildContent" />
+</CascadingValue>
+
+@code {
+    [Parameter, EditorRequired] public BradixTriggerContext Context { get; set; } = null!;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback<string?> OnTriggerIdCaptured { get; set; }
+    private TriggerContext? _trigger;
+    private Dictionary<string, object> _attributes = new();
+
+    protected override void OnParametersSet()
+    {
+        _attributes = new Dictionary<string, object>(Context.Attributes);
+        _attributes["onclick"] = Context.OnClick;
+        _trigger = new TriggerContext
+        {
+            TriggerId = Read("id"),
+            ParentDisabled = _attributes.TryGetValue("disabled", out var disabled) && disabled is not null &&
+                disabled is not false && !string.Equals(disabled.ToString(), "false", StringComparison.OrdinalIgnoreCase),
+            IsOpen = Read("aria-expanded") == "true",
+            DataState = Read("data-state"),
+            AriaHasPopup = Read("aria-haspopup"),
+            AriaControls = Read("aria-controls"),
+            PreventClickDefault = true,
+            RegisterElement = element => Context.Element = element,
+            RegisterId = id => id == Read("id") ? Task.CompletedTask : OnTriggerIdCaptured.InvokeAsync(id)
+        };
+    }
+
+    private string? Read(string name) => _attributes.TryGetValue(name, out var value) ? value?.ToString() : null;
+}

@@ -68,6 +68,8 @@
     {
         base.BuildAttributesCore(attributes);
 
+        AppendClassAttribute(attributes, Context?.FieldCssClass());
+
         attributes["data-size"] = Context?.Size() ?? "default";
 
         if (!attributes.ContainsKey("id") && Context is not null)
@@ -92,6 +94,7 @@
     protected override void ComputeRenderKeyCore(ref HashCode hc)
     {
         base.ComputeRenderKeyCore(ref hc);
+        hc.Add(Context?.FieldCssClass());
         hc.Add(Context?.IsInvalid() == true);
         hc.Add(Context?.EffectiveTriggerId());
         hc.Add(Context?.AriaDescribedBy());

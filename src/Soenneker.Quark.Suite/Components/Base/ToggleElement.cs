@@ -1,4 +1,6 @@
 using System;
+using System.Linq.Expressions;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components;
 
 namespace Soenneker.Quark;
@@ -8,6 +10,11 @@ namespace Soenneker.Quark;
 /// </summary>
 public abstract class ToggleElement : FormControlElement
 {
+    /// <summary>Identifies the bound model field for Blazor form validation.</summary>
+    [Parameter]
+    public Expression<Func<bool>>? CheckedExpression { get; set; }
+
+    protected override FieldIdentifier? ResolveEditField() => CheckedExpression is not null ? FieldIdentifier.Create(CheckedExpression) : base.ResolveEditField();
     /// <summary>
     /// Gets or sets a value indicating whether checked.
     /// </summary>
