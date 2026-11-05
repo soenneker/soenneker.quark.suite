@@ -33,6 +33,9 @@ internal sealed class FakeSidebarLibrarianDatabase : IBrowserLibrarianDatabase
         return container;
     }
 
+    public ValueTask<ILibrarianContainer> GetOrCreateContainer(string containerName, CancellationToken cancellationToken = default) =>
+        GetContainer(containerName, cancellationToken);
+
     public ValueTask<bool> Execute(LibrarianBatch batch, CancellationToken cancellationToken = default)
     {
         Writes++;

@@ -216,7 +216,7 @@ else
             var database = CreateStorage();
             try
             {
-                var container = await database.GetContainer(key);
+                var container = await database.GetOrCreateContainer(key);
                 saved = await container.GetItem("width");
             }
             finally { await database.Discard(); }
@@ -248,6 +248,7 @@ else
                 var database = CreateStorage();
                 try
                 {
+                    await database.GetOrCreateContainer(ResizeStorageKey);
                     await database.Execute(new LibrarianBatch([
                         new LibrarianWrite(ResizeStorageKey, "width", ExpandedWidth.Value.ToString(CultureInfo.InvariantCulture))
                     ]));

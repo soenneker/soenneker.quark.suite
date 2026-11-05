@@ -141,7 +141,7 @@ public sealed class SidebarResizeTests : BunitContext
         var handle = cut.FindComponent<SidebarResizeHandle>();
         await cut.InvokeAsync(() => handle.Instance.OnWidthChanged(300));
         _storage.Values["sidebar-a"].Should().Be("300");
-        _storage.Reads.Should().Be(1);
+        _storage.Reads.Should().Be(2);
         var next = Render<Sidebar>(p => p.Add(c => c.Resizable, true).Add(c => c.ResizeStorageKey, "sidebar-a"));
         next.WaitForAssertion(() => next.Instance.ExpandedWidth.Should().Be(300));
     }
