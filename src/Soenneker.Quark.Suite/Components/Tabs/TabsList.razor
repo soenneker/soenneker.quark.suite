@@ -11,6 +11,8 @@
     private static readonly CssValue<ItemsBuilder> _staticCss0 = Items.Center;
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.InlineFlex;
     private static readonly CssValue<WidthBuilder> _defaultWidth = Quark.Width.IsFit;
+    private static readonly CssValue<HeightBuilder> _defaultHorizontalHeight = Quark.Height.Is8;
+    private static readonly CssValue<HeightBuilder> _defaultVerticalHeight = Quark.Height.IsFit;
     private static readonly CssValue<JustifyBuilder> _defaultJustify = Quark.Justify.Center;
     private static readonly CssValue<PaddingBuilder> _defaultPadding = Quark.Padding.Token("[3px]");
     private static readonly CssValue<TextColorBuilder> _defaultTextColor = Quark.TextColor.MutedForeground;
@@ -45,6 +47,7 @@
 
         Display ??= _defaultDisplay;
         Width ??= _defaultWidth;
+        Height ??= ParentTabs?.Vertical == true ? _defaultVerticalHeight : _defaultHorizontalHeight;
         ItemsAlign ??= _staticCss0;
         Justify ??= _defaultJustify;
         Padding ??= _defaultPadding;
@@ -76,7 +79,7 @@
         attributes["aria-orientation"] = ParentTabs?.Vertical == true ? "vertical" : "horizontal";
         attributes["tabindex"] = QuarkAttributeValues.MinusOne;
 
-        const string baseClass = "group/tabs-list data-[variant=line]:rounded-none group-data-[orientation=horizontal]/tabs:h-8 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col";
+        const string baseClass = "group/tabs-list data-[variant=line]:rounded-none group-data-[orientation=vertical]/tabs:flex-col";
         PrependClassAttribute(attributes, ParentTabs?.Justified == true
             ? baseClass + " [&>[data-slot=tabs-trigger]]:flex-1" : baseClass, ref _lastBuiltClass);
     }
