@@ -146,7 +146,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         selectModule.SetupVoid("registerSelectContentPointerTracker", _ => true).SetVoidResult();
         selectModule.SetupVoid("unregisterSelectContentPointerTracker", _ => true).SetVoidResult();
 
-        var resourceLoaderModule = JSInterop.SetupModule("./_content/Soenneker.Blazor.Utils.ResourceLoader/js/resourceloader.js");
+        var resourceLoaderModule = JSInterop.SetupModule("./_content/Soenneker.Blazor.Utils.ResourceLoader/js/resourceloader.min.js");
         resourceLoaderModule.SetupVoid("loadScript", _ => true).SetVoidResult();
         resourceLoaderModule.SetupVoid("loadStyle", _ => true).SetVoidResult();
 

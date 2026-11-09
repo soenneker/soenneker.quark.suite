@@ -1,0 +1,26 @@
+@namespace Soenneker.Quark
+@inherits LocalizedComponentBase
+@implements IQueryInput
+
+<div @attributes="@(WorkflowAttributes("query-input", "relative w-full"))">
+    <input @ref="_input" class="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+           value="@Value" placeholder="@Placeholder" disabled="@Disabled" aria-label="@Label"
+           role="combobox" aria-autocomplete="list" aria-expanded="@(_open ? "true" : "false")"
+           aria-controls="@_listId" aria-activedescendant="@(_open && _active >= 0 ? OptionId(_active) : null)"
+           autocomplete="off" @oninput="HandleInput" @onfocus="HandleFocus" @onblur="HandleBlur"
+           @onclick="RefreshSuggestions" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" />
+    @if (_open)
+    {
+        <div id="@_listId" role="listbox" aria-label="@Label" class="absolute z-50 mt-1 max-h-64 w-full overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md">
+            @for (int i = 0; i < _options.Count; i++)
+            {
+                int index = i;
+                <div id="@OptionId(index)" role="option" aria-selected="@(index == _active ? "true" : "false")"
+                     class="@(index == _active ? "cursor-pointer rounded-sm bg-accent px-3 py-2 text-sm text-accent-foreground" : "cursor-pointer rounded-sm px-3 py-2 text-sm")"
+                     @onmousedown:preventDefault="true" @onclick="() => Choose(index)">
+                    @_options[index].Label
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -39,6 +39,7 @@ public static class QuarkSuiteRegistrar
         services.TryAddScoped<IFieldLayoutInterop, FieldLayoutInterop>();
         services.AddBradixSuiteAsScoped()
                 .AddScoped<ICollapseCoordinator, CollapseCoordinator>()
+                .AddScoped<ICollapseInterop, CollapseInterop>()
                 .AddQuarkOverlayAsScoped()
                 .AddQuarkValidationAsScoped()
                 .AddQuarkInputAsScoped()

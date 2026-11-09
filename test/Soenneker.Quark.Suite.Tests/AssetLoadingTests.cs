@@ -22,7 +22,7 @@ public sealed class AssetLoadingTests : BunitContext
         string script = "./_content/Soenneker.Quark.Suite/js/sonnerinterop" + (minifyJavaScript ? ".min.js" : ".js");
         string style = "_content/Soenneker.Quark.Suite/css/sonner" + (minifyCss ? ".min.css" : ".css");
         JSInterop.SetupModule(script);
-        var loader = JSInterop.SetupModule("./_content/Soenneker.Blazor.Utils.ResourceLoader/js/resourceloader.js");
+        var loader = JSInterop.SetupModule("./_content/Soenneker.Blazor.Utils.ResourceLoader/js/resourceloader.min.js");
         loader.SetupVoid("loadStyle", _ => true).SetVoidResult();
 
         await Services.GetRequiredService<ISonnerInterop>().Initialize();

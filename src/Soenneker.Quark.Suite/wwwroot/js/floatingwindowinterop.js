@@ -33,6 +33,7 @@ export function create(id, optionsJson) {
         cleanupActivation: null,
         cleanupActiveInteraction: null,
         showFrame: 0,
+        visibilityVersion: 0,
         interactionFrame: 0,
         pointerX: 0,
         pointerY: 0,
@@ -559,7 +560,9 @@ export function show(id) {
     }
 
     cancelShowFrame(windowData);
+    windowData.visibilityVersion++;
     const element = windowData.element;
+    element.inert = false;
     element.style.display = "flex";
 
     if (windowData.options.centerOnShow) {
@@ -588,6 +591,8 @@ function finishShow(id, windowData) {
     }
 
     windowData.element.style.visibility = "visible";
+    // Establish the closed styles before changing state, including non-centered windows.
+    getComputedStyle(windowData.element).opacity;
     windowData.element.dataset.state = "open";
     windowData.isOpen = true;
     bringToFront(id);
@@ -609,8 +614,23 @@ export async function hide(id) {
     }
 
     const wasOpen = windowData.isOpen || windowData.showFrame !== 0;
+    if (!wasOpen) return;
     cancelShowFrame(windowData);
     cancelActiveInteraction(windowData, true);
+    const version = ++windowData.visibilityVersion;
+    windowData.isOpen = false;
+    windowData.element.inert = true;
+    windowData.element.dataset.state = "closed";
+    // getAnimations flushes styles and returns the actual CSS transitions, including
+    // user-overridden durations. Reduced motion/no transition completes immediately.
+    const transitions = windowData.element.getAnimations().filter(animation =>
+        animation.transitionProperty !== undefined);
+    await Promise.all([
+        Promise.allSettled(transitions.map(animation => animation.finished)),
+        windowData.dotNetRef?.invokeMethodAsync("InvokeOnHiding")
+    ]);
+    if (version !== windowData.visibilityVersion || floatingWindows.get(id) !== windowData)
+        return;
     setHiddenWithoutCallback(windowData);
 
     if (wasOpen && windowData.dotNetRef) {
@@ -620,6 +640,8 @@ export async function hide(id) {
 
 function setHiddenWithoutCallback(windowData) {
     cancelShowFrame(windowData);
+    windowData.visibilityVersion++;
+    windowData.element.inert = true;
     windowData.element.style.display = "none";
     windowData.element.style.visibility = "hidden";
     windowData.element.dataset.state = "closed";
@@ -659,6 +681,7 @@ export function destroy(id) {
     }
 
     cancelShowFrame(windowData);
+    windowData.visibilityVersion++;
     cancelActiveInteraction(windowData, false);
     windowData.cleanupDragging?.();
     windowData.cleanupResizing?.forEach(cleanup => cleanup());

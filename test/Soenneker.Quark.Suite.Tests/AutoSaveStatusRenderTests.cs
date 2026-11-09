@@ -35,7 +35,7 @@ public sealed partial class RenderedShadcnParityTests
         var status = cut.Find("[data-slot='autosave-status']");
         status.GetAttribute("tabindex").Should().Be("0");
         status.ClassList.Should().Contain("pointer-events-auto");
-        status.Focus();
+        status.FocusIn();
         cut.WaitForAssertion(() => cut.Markup.Should().Contain("Could not save. Try again."));
 
         cut.Render(p => p.Add(c => c.State, AutoSaveState.Saving));

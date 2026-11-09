@@ -19,7 +19,7 @@ public sealed class LeafLifecycleTests : BunitContext
         Services.AddLogging();
         Services.AddDefaultQuarkOptionsAsScoped();
         Services.AddResourceLoaderAsScoped();
-        var resources = JSInterop.SetupModule("./_content/Soenneker.Blazor.Utils.ResourceLoader/js/resourceloader.js");
+        var resources = JSInterop.SetupModule("./_content/Soenneker.Blazor.Utils.ResourceLoader/js/resourceloader.min.js");
         resources.SetupVoid("loadStyle", _ => true).SetVoidResult();
     }
 

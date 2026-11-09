@@ -259,6 +259,36 @@ public sealed class QuarkFloatingWindowPlaywrightTests : QuarkPlaywrightTest
         (await window.EvaluateAsync<int>("element => parseInt(element.style.top, 10)")).Should().Be(340);
     }
 
+    [Test]
+    public async ValueTask Closing_animates_and_quick_reopening_cancels_pending_hide(CancellationToken cancellationToken)
+    {
+        await using var session = await CreateHarnessSession();
+        var page = session.Page;
+        var window = page.Locator("#floating-window-a");
+        await page.GetByTestId("open-a").ClickAsync();
+        await Assertions.Expect(window).ToHaveAttributeAsync("data-state", "open");
+        await window.EvaluateAsync("async el => { await Promise.allSettled(el.getAnimations().map(a => a.finished)); el.style.transitionDuration = '1s'; }");
+        await window.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Close", Exact = true }).ClickAsync();
+        await page.WaitForFunctionAsync("() => document.querySelector('#floating-window-a').getAnimations().length > 0");
+        var opacity = await window.EvaluateAsync<double>("""
+            el => {
+                for (const animation of el.getAnimations()) { animation.pause(); animation.currentTime = 500; }
+                return Number(getComputedStyle(el).opacity);
+            }
+            """);
+        opacity.Should().BeInRange(0.01, 0.99);
+        await Assertions.Expect(window).ToBeVisibleAsync();
+        await page.GetByTestId("open-a").ClickAsync();
+        await Assertions.Expect(window).ToHaveAttributeAsync("data-state", "open");
+        await window.EvaluateAsync("async el => { el.getAnimations().forEach(a => a.finish()); await Promise.allSettled(el.getAnimations().map(a => a.finished)); }");
+        await Assertions.Expect(window).ToBeVisibleAsync();
+        await Assertions.Expect(page.GetByTestId("a-show-count")).ToHaveTextAsync("2");
+        await Assertions.Expect(page.GetByTestId("a-hide-count")).ToHaveTextAsync("0");
+        await window.GetByRole(AriaRole.Button, new LocatorGetByRoleOptions { Name = "Close", Exact = true }).ClickAsync();
+        await Assertions.Expect(window).Not.ToBeVisibleAsync();
+        await Assertions.Expect(page.GetByTestId("a-hide-count")).ToHaveTextAsync("1");
+    }
+
     private async ValueTask<Soenneker.Playwrights.Session.BrowserSession> CreateHarnessSession()
     {
         var session = await CreateSession();

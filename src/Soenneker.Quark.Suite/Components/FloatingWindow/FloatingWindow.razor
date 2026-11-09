@@ -290,7 +290,7 @@
     }
 
     [JSInvokable]
-    public async Task InvokeOnHide()
+    public async Task InvokeOnHiding()
     {
         if (_disposed.Read())
             return;
@@ -301,6 +301,14 @@
         if (VisibleChanged.HasDelegate)
             await VisibleChanged.InvokeAsync(false);
 
+        await RefreshOffThread();
+    }
+
+    [JSInvokable]
+    public async Task InvokeOnHide()
+    {
+        if (_disposed.Read())
+            return;
         await OnHide.InvokeIfHasDelegate();
         await RefreshOffThread();
     }
@@ -377,7 +385,7 @@
         attrs["aria-modal"] = "false";
         attrs.TryAdd("tabindex", "-1");
 
-        PrependClassAttribute(attrs, "quark-floating-window hidden min-w-[12.5rem] min-h-[9.375rem] box-border fixed isolate flex-col outline-none transition-[opacity,transform] duration-150 ease-out data-[state=closed]:pointer-events-none data-[state=closed]:opacity-0 data-[state=closed]:scale-95 data-[state=open]:flex data-[state=open]:opacity-100 data-[state=open]:scale-100", ref _lastPrependedClass);
+        PrependClassAttribute(attrs, "quark-floating-window hidden min-w-[12.5rem] min-h-[9.375rem] box-border fixed isolate flex-col outline-none transition-[opacity,transform,scale] duration-150 ease-out data-[state=closed]:pointer-events-none data-[state=closed]:opacity-0 data-[state=closed]:scale-95 data-[state=open]:flex data-[state=open]:opacity-100 data-[state=open]:scale-100", ref _lastPrependedClass);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

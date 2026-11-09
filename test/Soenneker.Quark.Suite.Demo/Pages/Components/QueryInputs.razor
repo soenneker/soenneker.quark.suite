@@ -1,0 +1,64 @@
+@page "/components/query-input"
+
+<QuarkSeoHead Title="Blazor Query Input | Quark Suite" Description="Build search queries with field and value suggestions, quoted values, and exclusions." />
+<Grid Columns="GridCols.Is1" Gap="Gap.Is6" MinWidth="MinWidth.Is0" Width="Width.IsFull">
+    <DemoSection Title="Query building"
+                 Description="Mix search text with filters. Use arrow keys and Enter to select suggestions, and Escape to dismiss them. Quoted values and exclusions are supported."
+                 Code="@Example" CodeLanguage="razor"
+                 PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
+        <Grid Columns="GridCols.Is1" Gap="Gap.Is3" Width="Width.IsFull">
+            <QueryInput Fields="_fields" @bind-Value="_query" ParsedChanged="OnParsed" />
+            <H2>Parsed query</H2>
+            <Paragraph>Text: @_parsed.Text</Paragraph>
+            @foreach (var filter in _parsed.Filters)
+            {
+                <Paragraph>@(filter.Excluded ? "Exclude" : "Include") @filter.Field: @filter.Value</Paragraph>
+            }
+            @foreach (var error in _parsed.Errors)
+            {
+                <Paragraph role="status">@error</Paragraph>
+            }
+        </Grid>
+    </DemoSection>
+</Grid>
+
+@code {
+    private string _query = "state:open";
+    private QueryInputResult _parsed = QueryInputParser.Parse("state:open");
+    private readonly IReadOnlyList<QueryInputField> _fields =
+    [
+        new("state", "State", [new("open", "Open"), new("closed", "Closed")]),
+        new("assignee", "Assignee", [new("me", "Me"), new("soenneker", "Jake Soenneker")]),
+        new("label", "Label", [new("bug", "Bug"), new("needs review", "Needs review")]),
+        new("no", "Missing", [new("assignee", "No assignee"), new("project", "No project")])
+    ];
+    private void OnParsed(QueryInputResult value) => _parsed = value;
+    private const string Example = """
+<Grid Columns="GridCols.Is1" Gap="Gap.Is3" Width="Width.IsFull">
+    <QueryInput Fields="_fields" @bind-Value="_query" ParsedChanged="OnParsed" />
+    <H2>Parsed query</H2>
+    <Paragraph>Text: @_parsed.Text</Paragraph>
+    @foreach (var filter in _parsed.Filters)
+    {
+        <Paragraph>@(filter.Excluded ? "Exclude" : "Include") @filter.Field: @filter.Value</Paragraph>
+    }
+    @foreach (var error in _parsed.Errors)
+    {
+        <Paragraph role="status">@error</Paragraph>
+    }
+</Grid>
+
+@code {
+    private string _query = "state:open";
+    private QueryInputResult _parsed = QueryInputParser.Parse("state:open");
+    private readonly IReadOnlyList<QueryInputField> _fields =
+    [
+        new("state", "State", [new("open", "Open"), new("closed", "Closed")]),
+        new("assignee", "Assignee", [new("me", "Me"), new("soenneker", "Jake Soenneker")]),
+        new("label", "Label", [new("bug", "Bug"), new("needs review", "Needs review")]),
+        new("no", "Missing", [new("assignee", "No assignee"), new("project", "No project")])
+    ];
+    private void OnParsed(QueryInputResult value) => _parsed = value;
+}
+""";
+}

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
     <PropertyGroup>
         <TargetFramework>net11.0</TargetFramework>
         <StaticWebAssetSpaFallbackEnabled>true</StaticWebAssetSpaFallbackEnabled>
@@ -22,8 +22,6 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-        <DebugSymbols>false</DebugSymbols>
-        <DebugType>none</DebugType>
         <BlazorCacheBootResources>false</BlazorCacheBootResources>
         <CompressionEnabled>false</CompressionEnabled>
     </PropertyGroup>
@@ -47,8 +45,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <!-- Icon generators resolve SVG resources from direct package references. -->
-        <PackageReference Include="Soenneker.Lucide.Icons" Version="11.0.116" />
-        <PackageReference Include="Soenneker.SimpleIcons.Icons" Version="11.0.76" />
+        <PackageReference Include="Soenneker.Lucide.Icons" Version="11.0.117" />
+        <PackageReference Include="Soenneker.SimpleIcons.Icons" Version="11.0.77" />
         <PackageReference Include="Soenneker.Quark.Gen.Lucide" Version="11.0.318">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -80,15 +78,4 @@
     </ItemGroup>
     <ItemGroup>
     </ItemGroup>
-    <!-- The latest enum calls Bold LetterB; the SVG package still uses bold.svg. -->
-    <Target Name="PrepareLucideLetterBAlias" BeforeTargets="ResolveLucideBuildTasksPath" DependsOnTargets="ResolveLucideResources">
-        <PropertyGroup>
-            <LucideIconsResourcesPath>$(IntermediateOutputPath)LucideResources</LucideIconsResourcesPath>
-        </PropertyGroup>
-        <ItemGroup>
-            <_DemoLucideSvg Include="$(_LucideIconsPackageResources)/*.svg" />
-        </ItemGroup>
-        <Copy SourceFiles="@(_DemoLucideSvg)" DestinationFolder="$(LucideIconsResourcesPath)" SkipUnchangedFiles="true" />
-        <Copy SourceFiles="$(_LucideIconsPackageResources)/bold.svg" DestinationFiles="$(LucideIconsResourcesPath)/letter-b.svg" SkipUnchangedFiles="true" Condition="!Exists('$(_LucideIconsPackageResources)/letter-b.svg')" />
-    </Target>
 </Project>

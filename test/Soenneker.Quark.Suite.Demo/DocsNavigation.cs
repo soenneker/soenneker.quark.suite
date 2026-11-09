@@ -33,6 +33,7 @@ public static class DocsNavigation
     public static IReadOnlyList<NavigationItem> ComponentLinks { get; } =
     [
         new("Filter Builder", ComponentRoute("filter-builder"), IsNew: true),
+        new("Query Input", ComponentRoute("query-input"), IsNew: true),
         new("Rich Text Editor", ComponentRoute("rich-text-editor"), IsNew: true),
         new("Scheduler", ComponentRoute("scheduler"), IsNew: true),
         new("Notification Center", ComponentRoute("notification-center"), IsNew: true),

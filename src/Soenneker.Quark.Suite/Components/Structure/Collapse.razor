@@ -6,15 +6,30 @@
 @using Soenneker.Blazor.Utils.Ids
 @implements ICollapse
 @inject ICollapseCoordinator CollapseCoordinator
+@inject ICollapseInterop CollapseInterop
 
-<div @attributes="BuildAttributes()">
-    @ChildContent
+<div @ref="_element" @attributes="BuildAttributes()">
+    <div class="flow-root min-w-0" data-slot="collapse-content">
+        @ChildContent
+    </div>
 </div>
 
 @code {
     private static readonly CssValue<OverflowBuilder> _defaultOverflow = Quark.Overflow.Hidden;
-    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.All;
+    private static readonly CssValue<TransitionBuilder> _defaultTransition = Quark.Transition.Token("[max-height,max-width]");
     private string? _lastBuiltClass;
+    private ElementReference _element;
+    private bool _interopInitialized;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (_disposed.Read()) return;
+        await CollapseInterop.Update(_element, Expanded, Horizontal);
+        _interopInitialized = true;
+        if (_disposed.Read())
+            await CollapseInterop.Destroy(_element);
+    }
 
     private ValueAtomicBool _disposed;
     /// <summary>
@@ -101,6 +116,7 @@
             : Horizontal ? "duration-200 ease-in-out max-w-0" : "duration-200 ease-in-out max-h-0", ref _lastBuiltClass);
 
         attributes["id"] = Id!;
+        attributes["data-state"] = Expanded ? "open" : "closed";
         if (!Expanded)
         {
             attributes["inert"] = QuarkAttributeValues.True;
@@ -168,6 +184,11 @@
         try
         {
             await CollapseCoordinator.Unregister(this);
+            if (_interopInitialized)
+                await CollapseInterop.Destroy(_element);
+        }
+        catch (Exception ex) when (ex is Microsoft.JSInterop.JSDisconnectedException or TaskCanceledException)
+        {
         }
         finally
         {

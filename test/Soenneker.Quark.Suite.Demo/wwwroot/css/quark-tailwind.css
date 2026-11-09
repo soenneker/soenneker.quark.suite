@@ -856,6 +856,9 @@
   .flex {
     display: flex;
   }
+  .flow-root {
+    display: flow-root;
+  }
   .grid {
     display: grid;
   }
@@ -4047,8 +4050,13 @@
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
-  .transition-\[opacity\,transform\] {
-    transition-property: opacity,transform;
+  .transition-\[max-height\,max-width\] {
+    transition-property: max-height,max-width;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  .transition-\[opacity\,transform\,scale\] {
+    transition-property: opacity,transform,scale;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
@@ -4114,10 +4122,6 @@
     --tw-duration: 0ms;
     transition-duration: 0ms;
   }
-  .duration-25 {
-    --tw-duration: 25ms;
-    transition-duration: 25ms;
-  }
   .duration-100 {
     --tw-duration: 100ms;
     transition-duration: 100ms;
@@ -4145,10 +4149,6 @@
   .duration-1000 {
     --tw-duration: 1000ms;
     transition-duration: 1000ms;
-  }
-  .duration-\[50ms\] {
-    --tw-duration: 50ms;
-    transition-duration: 50ms;
   }
   .ease-\[cubic-bezier\(0\.22\,1\,0\.36\,1\)\] {
     --tw-ease: cubic-bezier(0.22,1,0.36,1);
@@ -4482,9 +4482,6 @@
   :is(:where(.group\/field)[data-orientation="horizontal"] .group-data-\[orientation\=horizontal\]\/field\:text-balance) {
     text-wrap: balance;
   }
-  :is(:where(.group\/tabs)[data-orientation="horizontal"] .group-data-\[orientation\=horizontal\]\/tabs\:h-8) {
-    height: calc(var(--spacing) * 8);
-  }
   :is(:where(.group\/timeline)[data-orientation="horizontal"] .group-data-\[orientation\=horizontal\]\/timeline\:-top-6) {
     top: calc(var(--spacing) * -6);
   }
@@ -4510,9 +4507,6 @@
   }
   :is(:where(.group\/timeline)[data-orientation="horizontal"] .group-data-\[orientation\=horizontal\]\/timeline\:not-last\:pe-8):not(:last-child) {
     padding-inline-end: calc(var(--spacing) * 8);
-  }
-  :is(:where(.group\/tabs)[data-orientation="vertical"] .group-data-\[orientation\=vertical\]\/tabs\:h-fit) {
-    height: fit-content;
   }
   :is(:where(.group\/tabs)[data-orientation="vertical"] .group-data-\[orientation\=vertical\]\/tabs\:w-full) {
     width: 100%;
@@ -4740,9 +4734,9 @@
       --tw-ring-color: color-mix(in oklab, var(--foreground) 10%, transparent);
     }
   }
-  :is(:where(.group\/navigation-menu)[data-viewport="false"] .group-data-\[viewport\=false\]\/navigation-menu\:duration-300) {
-    --tw-duration: 300ms;
-    transition-duration: 300ms;
+  :is(:where(.group\/navigation-menu)[data-viewport="false"] .group-data-\[viewport\=false\]\/navigation-menu\:duration-150) {
+    --tw-duration: 150ms;
+    transition-duration: 150ms;
   }
   @media (hover: hover) {
     :is(:where(.peer\/menu-button):hover ~ .peer-hover\/menu-button\:text-sidebar-accent-foreground) {
@@ -6762,6 +6756,10 @@
   .data-\[state\=closed\]\:opacity-0[data-state="closed"] {
     opacity: 0%;
   }
+  .data-\[state\=closed\]\:duration-200[data-state="closed"] {
+    --tw-duration: 200ms;
+    transition-duration: 200ms;
+  }
   .data-\[state\=closed\]\:fade-out-0[data-state="closed"] {
     --tw-exit-opacity: calc(0/100);
     --tw-exit-opacity: 0;
@@ -6785,21 +6783,17 @@
     --tw-exit-scale: calc(95*1%);
     --tw-exit-scale: .95;
   }
-  .data-\[side\=bottom\]\:data-\[state\=closed\]\:slide-out-to-bottom-10[data-side="bottom"][data-state="closed"] {
-    --tw-exit-translate-y: calc(10*var(--spacing));
-    --tw-exit-translate-y: calc(.1*100%);
+  .data-\[side\=bottom\]\:data-\[state\=closed\]\:slide-out-to-bottom[data-side="bottom"][data-state="closed"] {
+    --tw-exit-translate-y: 100%;
   }
-  .data-\[side\=left\]\:data-\[state\=closed\]\:slide-out-to-left-10[data-side="left"][data-state="closed"] {
-    --tw-exit-translate-x: calc(10*var(--spacing)*-1);
-    --tw-exit-translate-x: calc(.1*-100%);
+  .data-\[side\=left\]\:data-\[state\=closed\]\:slide-out-to-left[data-side="left"][data-state="closed"] {
+    --tw-exit-translate-x: -100%;
   }
-  .data-\[side\=right\]\:data-\[state\=closed\]\:slide-out-to-right-10[data-side="right"][data-state="closed"] {
-    --tw-exit-translate-x: calc(10*var(--spacing));
-    --tw-exit-translate-x: calc(.1*100%);
+  .data-\[side\=right\]\:data-\[state\=closed\]\:slide-out-to-right[data-side="right"][data-state="closed"] {
+    --tw-exit-translate-x: 100%;
   }
-  .data-\[side\=top\]\:data-\[state\=closed\]\:slide-out-to-top-10[data-side="top"][data-state="closed"] {
-    --tw-exit-translate-y: calc(10*var(--spacing)*-1);
-    --tw-exit-translate-y: calc(.1*-100%);
+  .data-\[side\=top\]\:data-\[state\=closed\]\:slide-out-to-top[data-side="top"][data-state="closed"] {
+    --tw-exit-translate-y: -100%;
   }
   .data-\[state\=delayed-open\]\:animate-in[data-state="delayed-open"] {
     animation: enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
@@ -6877,6 +6871,10 @@
   .data-\[state\=open\]\:opacity-100[data-state="open"] {
     opacity: 100%;
   }
+  .data-\[state\=open\]\:duration-300[data-state="open"] {
+    --tw-duration: 300ms;
+    transition-duration: 300ms;
+  }
   .data-\[state\=open\]\:fade-in-0[data-state="open"] {
     --tw-enter-opacity: calc(0/100);
     --tw-enter-opacity: 0;
@@ -6914,21 +6912,17 @@
   .data-\[state\=open\]\:focus\:bg-muted[data-state="open"]:focus {
     background-color: var(--muted);
   }
-  .data-\[side\=bottom\]\:data-\[state\=open\]\:slide-in-from-bottom-10[data-side="bottom"][data-state="open"] {
-    --tw-enter-translate-y: calc(10*var(--spacing));
-    --tw-enter-translate-y: calc(.1*100%);
+  .data-\[side\=bottom\]\:data-\[state\=open\]\:slide-in-from-bottom[data-side="bottom"][data-state="open"] {
+    --tw-enter-translate-y: 100%;
   }
-  .data-\[side\=left\]\:data-\[state\=open\]\:slide-in-from-left-10[data-side="left"][data-state="open"] {
-    --tw-enter-translate-x: calc(10*var(--spacing)*-1);
-    --tw-enter-translate-x: calc(.1*-100%);
+  .data-\[side\=left\]\:data-\[state\=open\]\:slide-in-from-left[data-side="left"][data-state="open"] {
+    --tw-enter-translate-x: -100%;
   }
-  .data-\[side\=right\]\:data-\[state\=open\]\:slide-in-from-right-10[data-side="right"][data-state="open"] {
-    --tw-enter-translate-x: calc(10*var(--spacing));
-    --tw-enter-translate-x: calc(.1*100%);
+  .data-\[side\=right\]\:data-\[state\=open\]\:slide-in-from-right[data-side="right"][data-state="open"] {
+    --tw-enter-translate-x: 100%;
   }
-  .data-\[side\=top\]\:data-\[state\=open\]\:slide-in-from-top-10[data-side="top"][data-state="open"] {
-    --tw-enter-translate-y: calc(10*var(--spacing)*-1);
-    --tw-enter-translate-y: calc(.1*-100%);
+  .data-\[side\=top\]\:data-\[state\=open\]\:slide-in-from-top[data-side="top"][data-state="open"] {
+    --tw-enter-translate-y: -100%;
   }
   .data-\[state\=selected\]\:bg-muted[data-state="selected"] {
     background-color: var(--muted);
