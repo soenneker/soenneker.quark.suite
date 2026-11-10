@@ -19,6 +19,7 @@ public partial class QueryInput
     [Parameter] public string? Placeholder { get; set; } = "Search or add a filter...";
     [Parameter] public string Label { get; set; } = "Search query";
     [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool UseSuggestionLabels { get; set; }
     [Parameter] public int MaxSuggestions { get; set; } = 10;
 
     private readonly string _listId = $"query-options-{Guid.NewGuid():N}";
@@ -33,12 +34,14 @@ public partial class QueryInput
     private string _observedValue = "";
     private int? _restoreCaret;
     private bool _completeValues;
+    private readonly List<QueryInputSelection> _selections = [];
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(MaxSuggestions);
         Value ??= "";
+        if (Value != _observedValue) _selections.Clear();
         if (Disabled || Value != _observedValue) Close();
         _observedValue = Value;
     }
@@ -84,16 +87,43 @@ public partial class QueryInput
     private async Task Publish(string value)
     {
         Value = _observedValue = value;
-        QueryInputResult parsed = QueryInputParser.Parse(value, Fields);
+        QueryInputResult parsed = Parse(value);
         await ValueChanged.InvokeAsync(value);
         await ParsedChanged.InvokeAsync(parsed);
+    }
+
+    private QueryInputResult Parse(string text)
+    {
+        foreach (QueryInputSelection selection in _selections.OrderByDescending(s => s.Start))
+            text = text.Remove(selection.Start, selection.Length).Insert(selection.Start, selection.Query);
+        return QueryInputParser.Parse(text, Fields);
+    }
+
+    private void TrackEdit(string before, string after)
+    {
+        int start = 0;
+        while (start < before.Length && start < after.Length && before[start] == after[start]) start++;
+        int end = before.Length, nextEnd = after.Length;
+        while (end > start && nextEnd > start && before[end - 1] == after[nextEnd - 1]) { end--; nextEnd--; }
+        int delta = after.Length - before.Length;
+        for (int i = _selections.Count - 1; i >= 0; i--)
+        {
+            QueryInputSelection selection = _selections[i];
+            if (selection.Start + selection.Length < start) continue;
+            if (selection.Start > end)
+                _selections[i] = selection with { Start = selection.Start + delta };
+            else
+                _selections.RemoveAt(i);
+        }
     }
 
     private async Task HandleInput(ChangeEventArgs args)
     {
         if (Disabled) return;
         Close();
-        await Publish(args.Value?.ToString() ?? "");
+        string updated = args.Value?.ToString() ?? "";
+        TrackEdit(Value, updated);
+        await Publish(updated);
         await RefreshSuggestions();
     }
 
@@ -145,7 +175,7 @@ public partial class QueryInput
                 {
                     // Value completion can start after rendering, outside the normal event render cycle.
                     await InvokeAsync(StateHasChanged);
-                    options = await provider(new QueryInputRequest(field.Key, search, query) { Parsed = QueryInputParser.Parse(query, Fields), MaxSuggestions = MaxSuggestions }, request.Token);
+                    options = await provider(new QueryInputRequest(field.Key, search, query) { Parsed = Parse(query), MaxSuggestions = MaxSuggestions }, request.Token);
                 }
                 catch (OperationCanceledException) when (request.IsCancellationRequested) { return; }
                 catch (Exception exception)
@@ -175,13 +205,18 @@ public partial class QueryInput
     private async Task Choose(int index)
     {
         if (Disabled || !_open || index < 0 || index >= _options.Count) return;
-        string value = _options[index].Value;
+        SelectOption option = _options[index];
+        string value = option.Value;
         bool completingField = _field is null;
-        string replacement = (_excluded ? "-" : "") + (completingField ? value + ":" : _field + ":" + QueryInputParser.Quote(value));
+        string replacement = (_excluded ? "-" : "") + (completingField ? value + ":" : _field + ":" + QueryInputParser.Quote(UseSuggestionLabels ? option.Label : value));
         string suffix = Value[_end..];
         if (!completingField && (suffix.Length == 0 || !char.IsWhiteSpace(suffix[0]))) replacement += " ";
         int caret = _start + replacement.Length;
         string updated = Value[.._start] + replacement + suffix;
+        TrackEdit(Value, updated);
+        if (!completingField && UseSuggestionLabels)
+            _selections.Add(new QueryInputSelection(_start, replacement.TrimEnd().Length,
+                (_excluded ? "-" : "") + _field + ":" + QueryInputParser.Quote(value)));
         Close();
         _restoreCaret = caret;
         _completeValues = completingField;

@@ -25,6 +25,9 @@ public interface IQueryInput : IElement
     string Label { get; set; }
     /// <summary>Prevents editing and closes suggestions.</summary>
     bool Disabled { get; set; }
+    /// <summary>Inserts suggestion labels into Value while ParsedChanged and suggestion context retain the selected underlying values.
+    /// Editing a selected token or replacing Value externally discards its selection identity; typed text is parsed literally.</summary>
+    bool UseSuggestionLabels { get; set; }
     /// <summary>Maximum visible suggestions; must be positive.</summary>
     int MaxSuggestions { get; set; }
 }

@@ -21,6 +21,27 @@ public sealed class QueryInputTests : BunitContext
     }
 
     [Test]
+    public async Task Labels_preserve_selected_values_until_the_token_is_edited()
+    {
+        QueryInputResult? parsed = null;
+        var cut = Render<QueryInput>(p => p.Add(x => x.UseSuggestionLabels, true)
+            .Add(x => x.Fields, [new("source", "source", [new("source-id", "Website form")])])
+            .Add(x => x.ParsedChanged, value => parsed = value));
+        await cut.Find("input").FocusAsync(new());
+        await cut.Find("[role=option]").ClickAsync(new());
+        cut.WaitForAssertion(() => cut.FindAll("[role=option]").Should().HaveCount(1));
+        await cut.Find("[role=option]").ClickAsync(new());
+        cut.Instance.Value.Should().Be("source:\"Website form\" ");
+        parsed!.Filters[0].Value.Should().Be("source-id");
+        parsed.Expression.Should().Be(new QueryInputFilterExpression(new("source", "source-id")));
+        _interop.Selection = null;
+        await cut.Find("input").InputAsync(new() { Value = "source:\"Website form\" urgent" });
+        parsed.Filters[0].Value.Should().Be("source-id");
+        await cut.Find("input").InputAsync(new() { Value = "source:\"Different form\" urgent" });
+        parsed.Filters[0].Value.Should().Be("Different form");
+    }
+
+    [Test]
     public void Parser_preserves_free_text_quotes_exclusions_and_repeated_filters()
     {
         QueryInputResult result = QueryInputParser.Parse("login bug state:open -assignee:me label:\"needs review\" label:bug \"literal:term\"");
