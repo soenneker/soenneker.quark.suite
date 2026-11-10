@@ -3,13 +3,14 @@
 <QuarkSeoHead Title="Blazor Query Input | Quark Suite" Description="Build search queries with field and value suggestions, quoted values, and exclusions." />
 <Grid Columns="GridCols.Is1" Gap="Gap.Is6" MinWidth="MinWidth.Is0" Width="Width.IsFull">
     <DemoSection Title="Query building"
-                 Description="Mix search text with filters. Use arrow keys and Enter to select suggestions, and Escape to dismiss them. Quoted values and exclusions are supported."
+                 Description="Mix search text with filters. Use arrow keys and Enter to select suggestions, and Escape to dismiss them. Use AND/OR to combine operands (AND takes precedence). Adjacent operands use AND. Quoted values and exclusions are supported."
                  Code="@Example" CodeLanguage="razor"
                  PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
         <Grid Columns="GridCols.Is1" Gap="Gap.Is3" Width="Width.IsFull">
             <QueryInput Fields="_fields" @bind-Value="_query" ParsedChanged="OnParsed" />
             <H2>Parsed query</H2>
             <Paragraph>Text: @_parsed.Text</Paragraph>
+            <Paragraph>Expression: @_parsed.Expression</Paragraph>
             @foreach (var filter in _parsed.Filters)
             {
                 <Paragraph>@(filter.Excluded ? "Exclude" : "Include") @filter.Field: @filter.Value</Paragraph>
@@ -21,10 +22,11 @@
         </Grid>
     </DemoSection>
 </Grid>
+<Paragraph>For server-backed suggestions, assign SuggestValues on QueryInput or an individual QueryInputField. The async callback receives Field, Search, Query, Parsed, MaxSuggestions, and a cancellation token. Return SelectOption values from your API or database lookup. Translate Parsed.Expression to preserve AND/OR when executing searches, and check Errors before execution.</Paragraph>
 
 @code {
-    private string _query = "state:open";
-    private QueryInputResult _parsed = QueryInputParser.Parse("state:open");
+    private string _query = "state:open OR state:closed AND -assignee:me";
+    private QueryInputResult _parsed = QueryInputParser.Parse("state:open OR state:closed AND -assignee:me");
     private readonly IReadOnlyList<QueryInputField> _fields =
     [
         new("state", "State", [new("open", "Open"), new("closed", "Closed")]),
@@ -38,6 +40,7 @@
     <QueryInput Fields="_fields" @bind-Value="_query" ParsedChanged="OnParsed" />
     <H2>Parsed query</H2>
     <Paragraph>Text: @_parsed.Text</Paragraph>
+    <Paragraph>Expression: @_parsed.Expression</Paragraph>
     @foreach (var filter in _parsed.Filters)
     {
         <Paragraph>@(filter.Excluded ? "Exclude" : "Include") @filter.Field: @filter.Value</Paragraph>
@@ -49,8 +52,8 @@
 </Grid>
 
 @code {
-    private string _query = "state:open";
-    private QueryInputResult _parsed = QueryInputParser.Parse("state:open");
+    private string _query = "state:open OR state:closed AND -assignee:me";
+    private QueryInputResult _parsed = QueryInputParser.Parse("state:open OR state:closed AND -assignee:me");
     private readonly IReadOnlyList<QueryInputField> _fields =
     [
         new("state", "State", [new("open", "Open"), new("closed", "Closed")]),

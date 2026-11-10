@@ -3,12 +3,19 @@
 @implements IQueryInput
 
 <div @attributes="@(WorkflowAttributes("query-input", "relative w-full"))">
-    <input @ref="_input" class="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+    <input @ref="_input" class="h-10 w-full rounded-md border border-input bg-background px-3 pr-10 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
            value="@Value" placeholder="@Placeholder" disabled="@Disabled" aria-label="@Label"
+           aria-busy="@(_request is not null ? "true" : "false")"
            role="combobox" aria-autocomplete="list" aria-expanded="@(_open ? "true" : "false")"
            aria-controls="@_listId" aria-activedescendant="@(_open && _active >= 0 ? OptionId(_active) : null)"
            autocomplete="off" @oninput="HandleInput" @onfocus="HandleFocus" @onblur="HandleBlur"
            @onclick="RefreshSuggestions" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" />
+    @if (_request is not null)
+    {
+        <span class="pointer-events-none absolute right-3 top-3 flex items-center" data-slot="query-input-loading">
+            <Spinner AriaLabel="@Text["Loading"]" />
+        </span>
+    }
     @if (_open)
     {
         <div id="@_listId" role="listbox" aria-label="@Label" class="absolute z-50 mt-1 max-h-64 w-full overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md">

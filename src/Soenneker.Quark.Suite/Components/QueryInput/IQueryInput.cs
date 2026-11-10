@@ -17,7 +17,7 @@ public interface IQueryInput : IElement
     EventCallback<QueryInputResult> ParsedChanged { get; set; }
     /// <summary>Available qualifiers. Suggested values do not restrict typed values.</summary>
     IReadOnlyList<QueryInputField> Fields { get; set; }
-    /// <summary>Optional asynchronous value provider; superseded requests are cancelled and their results ignored.</summary>
+    /// <summary>Optional server-backed value provider for fields without their own provider. Receives decoded search text, parsed query context, and a result limit. Superseded requests are cancelled and their results ignored.</summary>
     Func<QueryInputRequest, CancellationToken, ValueTask<IReadOnlyList<SelectOption>>>? SuggestValues { get; set; }
     /// <summary>Placeholder displayed when empty.</summary>
     string? Placeholder { get; set; }

@@ -119,6 +119,7 @@ public partial class QueryInput
         if (revision != _revision || (selection?.Value is { } live && live != query)) return;
         int caret = Math.Clamp(selection?.Start ?? query.Length, 0, query.Length);
         QueryInputToken? token = QueryInputParser.Tokenize(query).FirstOrDefault(t => t.Start <= caret && caret <= t.End);
+        if (token is not null && QueryInputParser.IsOperator(token)) return;
         _start = token?.Start ?? caret;
         _end = token?.End ?? caret;
         QueryInputToken? prefix = QueryInputParser.Tokenize(query[_start..caret]).FirstOrDefault();
@@ -136,18 +137,30 @@ public partial class QueryInput
             QueryInputField? field = Fields.FirstOrDefault(f => string.Equals(f.Key, _field, StringComparison.OrdinalIgnoreCase));
             if (field is null) return;
             _field = field.Key;
-            if (SuggestValues is { } provider)
+            if ((field.SuggestValues ?? SuggestValues) is { } provider)
             {
                 using var request = new CancellationTokenSource();
                 _request = request;
-                try { options = await provider(new QueryInputRequest(field.Key, search, query), request.Token); }
+                try
+                {
+                    // Value completion can start after rendering, outside the normal event render cycle.
+                    await InvokeAsync(StateHasChanged);
+                    options = await provider(new QueryInputRequest(field.Key, search, query) { Parsed = QueryInputParser.Parse(query, Fields), MaxSuggestions = MaxSuggestions }, request.Token);
+                }
                 catch (OperationCanceledException) when (request.IsCancellationRequested) { return; }
                 catch (Exception exception)
                 {
                     if (revision == _revision) ReportError(exception, "query suggestions");
                     return;
                 }
-                finally { if (ReferenceEquals(_request, request)) _request = null; }
+                finally
+                {
+                    if (ReferenceEquals(_request, request))
+                    {
+                        _request = null;
+                        if (!IsDisposed) await InvokeAsync(StateHasChanged);
+                    }
+                }
             }
             else options = (field.Values ?? []).Where(v => Matches(v.Value, search) || Matches(v.Label, search)).ToArray();
         }

@@ -17,7 +17,7 @@ public static class InputRegistrar
     /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddQuarkInputAsScoped(this IServiceCollection services)
     {
-        services.AddResourceLoaderAsScoped();
+        services.AddResourceLoaderAsScoped().AddQuarkSpinnerAsScoped();
 
         services.AddModuleImportUtilAsScoped()
                 .TryAddScoped<IInputInterop, InputInterop>();
