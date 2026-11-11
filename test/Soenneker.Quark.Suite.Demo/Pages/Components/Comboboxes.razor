@@ -58,6 +58,16 @@
             </Div>
         </DemoSection>
 
+        <DemoSection Title="Virtualized" Description="Search and navigate a large list without rendering every option." Code="@VirtualizedCode" CodeLanguage="razor">
+            <Combobox @bind-Value="_virtualValue" @bind-Search="_virtualSearch" @bind-Open="_virtualOpen">
+                <ComboboxInput Placeholder="Search 1,000 options" />
+                <ComboboxContent>
+                    <ComboboxEmpty>No items found.</ComboboxEmpty>
+                    <ComboboxList Virtualize="true" Options="@VirtualOptions" />
+                </ComboboxContent>
+            </Combobox>
+        </DemoSection>
+
         <DemoSection Title="Multiple"
                      Description="A combobox with multiple selection using multiple and ComboboxChips."
                      PreviewClass="@ComboboxPreviewClass"
@@ -363,6 +373,21 @@
 </Div>
 
 @code {
+    private string? _virtualValue;
+    private string? _virtualSearch;
+    private bool _virtualOpen;
+    private static readonly SelectOption[] VirtualOptions = Enumerable.Range(1, 1000)
+        .Select(index => new SelectOption(index.ToString(), $"Option {index:D4}")).ToArray();
+    private const string VirtualizedCode = """
+        <Combobox @bind-Value="value" @bind-Search="search" @bind-Open="open">
+            <ComboboxInput Placeholder="Search 1,000 options" />
+            <ComboboxContent>
+                <ComboboxEmpty>No items found.</ComboboxEmpty>
+                <ComboboxList Virtualize="true" Options="@options" />
+            </ComboboxContent>
+        </Combobox>
+        """;
+
     private const string ComboboxPreviewClass =
         "preview relative flex min-h-72 w-full justify-center p-10 data-[align=center]:items-center data-[align=end]:items-end data-[align=start]:items-start data-[chromeless=true]:min-h-0 data-[chromeless=true]:p-0";
 

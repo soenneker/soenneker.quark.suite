@@ -1,3 +1,4 @@
+@using Microsoft.AspNetCore.Components.Web.Virtualization
 @namespace Soenneker.Quark
 @inherits Soenneker.Quark.Element
 @implements IComboboxList
@@ -6,14 +7,11 @@
 <div @attributes="BuildAttributes()">
     @if (Virtualize && Options is not null)
     {
-        <VirtualItems @ref="_virtualItems" ParentScroll="true" ItemKeys="@_keys">
-            <ItemTemplate Context="index">
-                @{ var option = _filtered[index]; }
-                <ComboboxItem @key="option.Value" Value="@option.Value" Disabled="@option.Disabled" aria-posinset="@(index + 1)" aria-setsize="@_filtered.Count">
-                    @if (OptionTemplate is not null) { @OptionTemplate(option) } else { @option.Label }
-                </ComboboxItem>
-            </ItemTemplate>
-        </VirtualItems>
+        <Microsoft.AspNetCore.Components.Web.Virtualization.Virtualize TItem="SelectOption" @ref="_virtualItems" Items="@_filtered" Context="option">
+            <ComboboxItem @key="option.Value" Value="@option.Value" Disabled="@option.Disabled" aria-posinset="@(_indexes[option.Value] + 1)" aria-setsize="@_filtered.Count">
+                @if (OptionTemplate is not null) { @OptionTemplate(option) } else { @option.Label }
+            </ComboboxItem>
+        </Microsoft.AspNetCore.Components.Web.Virtualization.Virtualize>
     }
     else if (Options is not null)
     {
@@ -33,8 +31,8 @@
     [Parameter] public IReadOnlyList<SelectOption>? Options { get; set; }
     [Parameter] public RenderFragment<SelectOption>? OptionTemplate { get; set; }
     private List<SelectOption> _filtered = [];
-    private string[] _keys = [];
-    private VirtualItems? _virtualItems;
+    private Dictionary<string, int> _indexes = new(StringComparer.Ordinal);
+    private Virtualize<SelectOption>? _virtualItems;
     private string? _lastSearch;
     private SelectOption[] _optionSnapshot = [];
     private string? _filterSearch;
@@ -50,10 +48,14 @@
         _filterOptions = FilterOptions;
         _filtered = Options?.Where(option => !FilterOptions || string.IsNullOrWhiteSpace(ParentCombobox?.Search) ||
             OptionNavigation.Matches(option.Label, option.Value, ParentCombobox.Search)).ToList() ?? [];
-        _keys = _filtered.Select(option => option.Value).ToArray();
+        _indexes = _filtered.Select((option, index) => (option.Value, index)).ToDictionary(item => item.Value, item => item.index, StringComparer.Ordinal);
         }
         if (Virtualize && Options is not null) ParentCombobox?.SetVirtualOptions(this, _filtered);
-        else ParentCombobox?.ClearVirtualOptions(this);
+        else
+        {
+            _virtualItems = null;
+            ParentCombobox?.ClearVirtualOptions(this);
+        }
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -61,10 +63,15 @@
         if (_lastSearch != ParentCombobox?.Search)
         {
             _lastSearch = ParentCombobox?.Search;
-            if (_virtualItems is not null && _filtered.Count > 0) await _virtualItems.ScrollToIndex(0);
+            if (_virtualItems is not null && _filtered.Count > 0) await Reveal(0);
         }
     }
-    internal ValueTask Reveal(int index) => _virtualItems?.ScrollToIndex(index) ?? ValueTask.CompletedTask;
+    internal async ValueTask Reveal(int index)
+    {
+        if (_virtualItems is null) return;
+        try { await _virtualItems.ScrollToItemAsync(index); }
+        catch (OperationCanceledException) { } // A newer navigation supersedes an in-flight scroll.
+    }
     public void Dispose() => ParentCombobox?.ClearVirtualOptions(this);
     public override async ValueTask DisposeAsync() { Dispose(); await base.DisposeAsync(); }
 

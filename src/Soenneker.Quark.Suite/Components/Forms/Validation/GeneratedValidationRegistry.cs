@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using AnnotationResult = System.ComponentModel.DataAnnotations.ValidationResult;
@@ -31,5 +33,22 @@ public static class GeneratedValidationRegistry
         if (!_validators.TryGetValue(model.GetType(), out var validate))
             throw new InvalidOperationException($"No generated Quark validation exists for '{model.GetType()}'. Add Soenneker.Quark.Gen.Validation to the model project and rebuild. Models without validation attributes must opt in with [GenerateQuarkValidation].");
         validate(model, memberName, results);
+    }
+    /// <summary>Reports whether generated validation for the field must be awaited.</summary>
+    public static bool HasAsyncValidation(object model, string memberName) =>
+        model is IGeneratedQuarkValidation generated && generated.HasAsyncValidation(memberName);
+
+    /// <summary>Validates a generated field, awaiting asynchronous annotations and supplying their services.</summary>
+    public static ValueTask ValidateAsync(object model, string memberName, ICollection<AnnotationResult> results,
+        IServiceProvider? serviceProvider = null, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(memberName);
+        ArgumentNullException.ThrowIfNull(results);
+        cancellationToken.ThrowIfCancellationRequested();
+        if (model is IGeneratedQuarkValidation generated)
+            return generated.ValidateFieldAsync(memberName, results, serviceProvider, cancellationToken);
+        Validate(model, memberName, results);
+        return ValueTask.CompletedTask;
     }
 }

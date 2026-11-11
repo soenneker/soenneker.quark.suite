@@ -41,6 +41,12 @@
     private EditContext? _messageEditContext;
     private ValidationMessageStore? _messageStore;
     private Validations? _registeredValidations;
+    private EditContext? _validationEditContext;
+
+    [Inject] internal IServiceProvider ValidationServices { get; set; } = default!;
+
+    [CascadingParameter]
+    private EditContext? FormEditContext { get; set; }
 
     /// <summary>
     /// Gets or sets the parent validations context.
@@ -155,6 +161,16 @@
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
+        EditContext ??= FormEditContext;
+        if (!ReferenceEquals(_validationEditContext, EditContext))
+        {
+            _cts?.Cancel();
+            if (_validationEditContext is not null)
+                _validationEditContext.OnValidationRequested -= OnFrameworkValidationRequested;
+            _validationEditContext = EditContext;
+            if (_validationEditContext is not null)
+                _validationEditContext.OnValidationRequested += OnFrameworkValidationRequested;
+        }
         if (!Nullable.Equals(_parameterField, Field))
         {
             _parameterField = Field;
@@ -188,6 +204,8 @@
     {
         if (!_disposed.TrySetTrue())
             return;
+        if (_validationEditContext is not null)
+            _validationEditContext.OnValidationRequested -= OnFrameworkValidationRequested;
         ClearDataAnnotationMessages();
         CurrentFieldContext?.SetValidationInvalid(false);
 
@@ -294,6 +312,7 @@
                 throw new ArgumentException("A validation field requires a model and a field name.", nameof(field));
             if (!_hasFieldIdentifier || !fieldIdentifier.Equals(_fieldIdentifier))
             {
+                _cts?.Cancel();
                 ClearDataAnnotationMessages();
                 _fieldIdentifier = fieldIdentifier;
                 _lastKnownValue = currentValue;
@@ -329,7 +348,7 @@
 
         if (mode == ValidationMode.Auto || _explicitlyValidated)
         {
-            return ValidateValueCore(newValidationValue!, explicitlyValidated: false);
+            return ValidateFieldValue(newValidationValue!, explicitlyValidated: false);
         }
 
         return Task.CompletedTask;
@@ -365,9 +384,34 @@
         return ValidateValue(value);
     }
 
-    public Task<ValidationStatus> ValidateValue(object newValidationValue) => ValidateValueCore(newValidationValue, explicitlyValidated: true);
+    public Task<ValidationStatus> ValidateValue(object newValidationValue) => ValidateFieldValue(newValidationValue, explicitlyValidated: true);
 
-    private async Task<ValidationStatus> ValidateValueCore(object newValidationValue, bool explicitlyValidated)
+    private Task<ValidationStatus> ValidateFieldValue(object value, bool explicitlyValidated)
+    {
+        if (EditContext is null || !_hasFieldIdentifier)
+            return ValidateValueCore(value, explicitlyValidated);
+        Task<ValidationStatus> pending = Task.FromResult(Status);
+        EditContext.RegisterAsyncFieldValidator(_fieldIdentifier, token => pending = ValidateValueCore(value, explicitlyValidated, token));
+        return pending;
+    }
+
+    private void OnFrameworkValidationRequested(object? sender, ValidationRequestedEventArgs args)
+    {
+        if (_disposed.Read() || _input is null || _input.Disabled)
+            return;
+        var value = _input.ValidationValue ?? _lastKnownValue ?? string.Empty;
+        if (IsSynchronousHandler(GetValidationHandler()))
+            Validate(value);
+        else
+            args.AddAsyncValidator(token => ValidateValueCore(value, explicitlyValidated: true, token));
+    }
+
+    private bool IsSynchronousHandler(IValidationHandler? handler) =>
+        handler is PatternValidationHandler ||
+        handler is DataAnnotationValidationHandler && (!_hasFieldIdentifier || !GeneratedValidationRegistry.HasAsyncValidation(_fieldIdentifier.Model, _fieldIdentifier.FieldName)) ||
+        handler is ValidatorHandler && (Validator?.IsSynchronous == true || Validator is null && AsyncFunc is null);
+
+    private async Task<ValidationStatus> ValidateValueCore(object newValidationValue, bool explicitlyValidated, CancellationToken frameworkToken = default)
     {
         if (_disposed.Read() || _input is null || _input.Disabled)
             return Status;
@@ -377,13 +421,12 @@
         var handler = GetValidationHandler();
         // Arbitrary IValidator implementations may override async behavior. Only known
         // synchronous handlers/actions or explicitly synchronous validators bypass cancellation infrastructure.
-        if (_cts is null && (handler is PatternValidationHandler or DataAnnotationValidationHandler ||
-                             handler is ValidatorHandler && (Validator?.IsSynchronous == true || Validator is null && AsyncFunc is null)))
+        if (_cts is null && IsSynchronousHandler(handler))
         {
-            handler.Validate(this, newValidationValue);
+            handler!.Validate(this, newValidationValue);
             return Status;
         }
-        var source = new CancellationTokenSource();
+        var source = CancellationTokenSource.CreateLinkedTokenSource(frameworkToken);
         var token = source.Token;
         var previous = _cts;
         _cts = source;
@@ -509,6 +552,7 @@
                 ParentValidations?.NotifyValidationStatusChanged(this);
             }
         }
+        SyncFrameworkMessages();
     }
 
     public void MarkTouched()
@@ -540,6 +584,20 @@
             ValidationStatusChanged?.Invoke(this, new ValidationStatusChangedEventArgs(Status, Messages));
             InvokeAsync(_refreshCallback ??= StateHasChanged);
         }
+    }
+
+    private void SyncFrameworkMessages()
+    {
+        if (EditContext is null)
+            return;
+        var field = _hasFieldIdentifier ? _fieldIdentifier : new FieldIdentifier(EditContext.Model, string.Empty);
+        var store = GetDataAnnotationMessageStore();
+        if (Status == ValidationStatus.Error)
+        {
+            var messages = Messages?.ToArray();
+            store.Add(field, messages is { Length: > 0 } ? messages : ["Invalid"]);
+        }
+        EditContext.NotifyValidationStateChanged();
     }
 
     private void SyncFieldInvalidState()

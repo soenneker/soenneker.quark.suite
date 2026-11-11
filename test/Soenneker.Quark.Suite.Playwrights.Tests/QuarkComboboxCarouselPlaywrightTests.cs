@@ -16,6 +16,27 @@ public sealed class QuarkComboboxCarouselPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
+    public async ValueTask Virtualized_combobox_scrolls_to_keyboard_selection_and_filters(CancellationToken cancellationToken)
+    {
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
+        var page = session.Page;
+        await page.GotoAndWaitForReady($"{BaseUrl}components/combobox", static p => p.GetByPlaceholder("Search 1,000 options"));
+        var input = page.GetByPlaceholder("Search 1,000 options");
+        await input.ClickAsync();
+        await Assertions.Expect(page.GetByRole(AriaRole.Option, new() { Name = "Option 0001", Exact = true })).ToBeVisibleAsync();
+        (await page.GetByRole(AriaRole.Option).CountAsync()).Should().BeLessThan(1000);
+        await input.PressAsync("End");
+        await Assertions.Expect(page.GetByRole(AriaRole.Option, new() { Name = "Option 1000", Exact = true })).ToBeVisibleAsync();
+        await input.PressAsync("Enter");
+        await Assertions.Expect(input).ToHaveValueAsync("1000");
+        await input.ClickAsync();
+        await input.FillAsync("0050");
+        await Assertions.Expect(page.GetByRole(AriaRole.Option, new() { Name = "Option 0050", Exact = true })).ToBeVisibleAsync();
+        await input.FillAsync("no matching option");
+        await Assertions.Expect(page.GetByRole(AriaRole.Option)).ToHaveCountAsync(0);
+    }
+
+    [Test]
     public async ValueTask Combobox_demo_renders_without_open_disabled_results(CancellationToken cancellationToken)
     {
         await using var session = await CreateSession(cancellationToken: cancellationToken);
