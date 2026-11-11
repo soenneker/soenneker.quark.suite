@@ -27,9 +27,10 @@
                         Variant="@ActionVariant"
                         ButtonSize="@ActionSize"
                         Disabled="@ActionsDisabled"
+                        AriaLabel="@DownloadLabel"
+                        Title="@DownloadLabel"
                         OnClick="(_cachedDownloadDelegate ??= Download)">
                     <Icon Name="@DownloadIcon" Size="_renderCss10" />
-                    <Span>@DownloadLabel</Span>
                 </Button>
             }
             @if (ShowCopy)
@@ -42,9 +43,7 @@
                             CopyLabel="@CopyLabel"
                             DoneLabel="@CopiedLabel"
                             OnCopySuccess="@OnCopySuccess"
-                            OnCopyError="@OnCopyError">
-                    @CopyLabel
-                </CopyButton>
+                            OnCopyError="@OnCopyError" />
             }
             @if (_paused && AutoScroll)
             {
@@ -112,7 +111,7 @@
 
     private async Task JumpToLatest() => await ConsolePanelInterop.JumpToLatest(_element);
 
-    private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = ButtonSize.Sm;
+    private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = ButtonSize.IconSm;
     private static readonly CssValue<PositionBuilder> _defaultPosition = Quark.Position.Relative;
     private static readonly CssValue<ShrinkBuilder> _defaultShrink = Quark.Shrink.Is0;
     private static readonly CssValue<OverflowBuilder> _defaultOverflowY = Quark.Overflow.Auto;
