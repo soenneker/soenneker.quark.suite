@@ -145,10 +145,11 @@ function createState(element, options = {}) {
     });
     state.observer.observe(element, { childList: true, subtree: true, characterData: true });
     state.scroll = () => {
-        if (Math.abs(state.scroller.scrollTop - state.expectedTop) < 1) return;
+        if (state.scroller.scrollTop === state.expectedTop) return;
         const upward = state.scroller.scrollTop < (state.expectedTop ?? state.scroller.scrollTop);
         state.expectedTop = state.scroller.scrollTop;
-        state.follow = state.scroller.scrollHeight - state.scroller.clientHeight - state.scroller.scrollTop <= 32;
+        // Even a small upward movement means the user wants to read history.
+        state.follow = !upward && state.scroller.scrollHeight - state.scroller.clientHeight - state.scroller.scrollTop <= 32;
         rememberAnchor(element, state);
         schedule(element, state);
         if (!upward && state.scroller.scrollHeight - state.scroller.clientHeight - state.scroller.scrollTop <= 100 && state.hasAfter && !state.loadingAfter && state.receiver) {

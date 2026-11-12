@@ -23,6 +23,11 @@ function fixture(count = 10000) {
         addEventListener: (name, handler) => listeners.set(name, handler),
         removeEventListener: name => listeners.delete(name)
     };
+    let scrollTop = 0;
+    Object.defineProperty(element, 'scrollTop', {
+        get: () => scrollTop,
+        set: value => { scrollTop = Math.max(0, Math.min(value, element.scrollHeight - element.clientHeight)); }
+    });
     let keys = Array.from({ length: count }, (_, i) => String(i));
     const receiver = { invokeMethodAsync: async (name, ...args) => {
         if (name === 'RequestOlder') { olderCalls++; return; }
@@ -56,6 +61,7 @@ function fixture(count = 10000) {
         assert.equal(frames.size, 0, 'viewport should settle without a render loop');
     }
     return { element, update, flush, get args() { return windowArgs; }, get keys() { return keys; },
+        plain() { context.api.updateViewport(element, receiver, null, true, false); },
         get olderCalls() { return olderCalls; }, get afterCalls() { return afterCalls; },
         generic(next = keys, after = false) { keys = next; context.api.updateItems(element, receiver, keys, false, true, after, false); },
         focusFirst() { rows[0].focus(); },
@@ -88,6 +94,36 @@ test('reading history pauses following, survives prepends and resumes explicitly
     assert.equal(f.args[0] + f.args[1], f.keys.length);
     assert.equal(f.args[4], false);
 });
+
+test('plain consoles preserve an upward scroll through updates and resume on jump to latest', async () => {
+    const f = fixture(); f.plain(); await f.flush();
+    const position = f.element.scrollTop - 8;
+    f.scroll(position); await f.flush();
+    assert.equal(f.args[4], true);
+    assert.equal(f.element.scrollTop, position);
+    f.element.scrollHeight += 24;
+    f.plain(); await f.flush();
+    assert.equal(f.element.scrollTop, position);
+    assert.equal(f.args[4], true);
+    f.latest(); await f.flush();
+    assert.equal(f.element.scrollTop, f.element.scrollHeight - f.element.clientHeight);
+    assert.equal(f.args[4], false);
+});
+
+for (const distance of [0.5, 8, 32]) {
+    test(`scrolling up ${distance}px pauses following until scrolling back down`, async () => {
+        const f = fixture(); f.update(); await f.flush();
+        const bottom = f.element.scrollTop;
+        f.scroll(bottom - distance); await f.flush();
+        assert.equal(f.element.scrollTop, bottom - distance);
+        assert.equal(f.args[4], true);
+        f.update(); await f.flush();
+        assert.equal(f.element.scrollTop, bottom - distance);
+        f.scroll(bottom); await f.flush();
+        assert.equal(f.element.scrollTop, bottom);
+        assert.equal(f.args[4], false);
+    });
+}
 
 test('expanding an overscan row preserves the visible anchor and paging is upward only', async () => {
     const f = fixture(); f.update(); await f.flush();
