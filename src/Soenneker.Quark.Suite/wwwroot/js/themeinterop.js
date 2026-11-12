@@ -6,6 +6,9 @@ const themeChangedRefs = new Map();
 let themeChangedListener = null;
 const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 let initialized = false;
+// Hosts can declare the startup default before loading this module.
+let defaultMode = document.querySelector('meta[name="quark-default-theme"]')?.content ?? "system";
+if (!["system", "light", "dark"].includes(defaultMode)) defaultMode = "system";
 let preference;
 let useMemoryPreference = false;
 
@@ -74,28 +77,31 @@ function applyTheme(isDark) {
 
 export function getMode() {
     const stored = readPreference();
-    return stored === "light" || stored === "dark" ? stored : "system";
+    return stored === "light" || stored === "dark" || stored === "system" ? stored : defaultMode;
 }
 
 export function setMode(mode) {
     if (mode !== "system" && mode !== "light" && mode !== "dark") throw new Error("Invalid theme mode");
-    savePreference(mode === "system" ? null : mode);
+    savePreference(mode);
     return initialize();
 }
 
 export function resolveIsDark() {
-    const stored = readPreference();
+    const stored = getMode();
     if (stored === "dark") return true;
     if (stored === "light") return false;
     return systemTheme.matches;
 }
 
-export function initialize() {
+export function initialize(mode) {
+    if (mode != null) {
+        if (!["system", "light", "dark"].includes(mode)) throw new Error("Invalid default theme mode");
+        defaultMode = mode;
+    }
     if (!initialized) {
         initialized = true;
         systemTheme.addEventListener("change", () => {
-            const stored = readPreference();
-            if (stored !== "dark" && stored !== "light") applyTheme(resolveIsDark());
+            if (getMode() === "system") applyTheme(resolveIsDark());
         });
         window.addEventListener("storage", event => {
             if (event.key === storageKey || event.key === null) {
@@ -114,7 +120,7 @@ export function toggle() {
 }
 
 export function useSystem() {
-    savePreference(null);
+    savePreference("system");
     return initialize();
 }
 
@@ -140,9 +146,9 @@ export function unregisterThemeChangedCallback(dotNetRef) {
 }
 
 // Return the preference and resolved appearance in the same interop call.
-export function initializeState(dotNetRef) {
+export function initializeState(dotNetRef, defaultMode) {
     registerThemeChangedCallback(dotNetRef);
-    return { isDark: initialize(), mode: getMode() };
+    return { isDark: initialize(defaultMode), mode: getMode() };
 }
 
 export function toggleState() {

@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const source = readFileSync(new URL('../../src/Soenneker.Quark.Suite/wwwroot/js/themeinterop.js', import.meta.url), 'utf8')
-    .replace(/^await import\(new URL\(import\.meta\.url\)\.pathname\.endsWith\("\.min\.js"\) \? "\.\/picture\.min\.js" : "\.\/picture\.js"\);\r?\n/m, '')
+const asset = process.env.QUARK_THEME_MINIFIED ? 'themeinterop.min.js' : 'themeinterop.js';
+const source = readFileSync(new URL(`../../src/Soenneker.Quark.Suite/wwwroot/js/${asset}`, import.meta.url), 'utf8')
+    .replace(/^await[\s\S]*?;/, '')
     .replaceAll('export function', 'function');
 
-function fixture(dark, stored, blocked = false) {
+function fixture(dark, stored, blocked = false, defaultMode) {
     const media = new EventTarget();
     media.matches = dark;
     const window = new EventTarget();
@@ -15,7 +16,7 @@ function fixture(dark, stored, blocked = false) {
     const root = { style: {}, classList: { toggle(_, value) { root.dark = value; } } };
     const storage = new Map(stored === undefined ? [] : [['quark-theme', stored]]);
     const check = () => { if (blocked) throw new Error('Storage disabled'); };
-    const context = vm.createContext({ window, document: { documentElement: root }, CustomEvent,
+    const context = vm.createContext({ window, document: { documentElement: root, querySelector() { return defaultMode ? { content: defaultMode } : null; } }, CustomEvent,
         localStorage: {
             getItem(key) { check(); return storage.get(key) ?? null; },
             setItem(key, value) { check(); storage.set(key, value); },
@@ -46,7 +47,7 @@ for (const dark of [false, true]) {
     });
 }
 
-test('manual choices survive OS changes; useSystem clears the override', () => {
+test('manual choices survive OS changes; useSystem persists System', () => {
     const f = fixture(true);
     f.context.initialize();
     assert.equal(f.context.toggle(), false);
@@ -55,7 +56,7 @@ test('manual choices survive OS changes; useSystem clears the override', () => {
     f.changeSystem(true);
     assert.equal(f.root.dark, false);
     assert.equal(f.context.useSystem(), true);
-    assert.equal(f.storage.size, 0);
+    assert.equal(f.storage.get('quark-theme'), 'system');
     f.changeSystem(false);
     assert.equal(f.root.dark, false);
 });
@@ -117,7 +118,7 @@ for (const dark of [false, true]) {
             assert.equal(f.context.setMode(mode), mode === 'system' ? dark : mode === 'dark');
             assert.equal(f.context.getMode(), mode);
             assert.equal(updates.at(-1)[2], mode);
-            assert.equal(f.storage.get('quark-theme'), mode === 'system' ? undefined : mode);
+            assert.equal(f.storage.get('quark-theme'), mode);
         }
         f.changeSystem(!dark);
         assert.equal(f.root.dark, !dark);
@@ -157,3 +158,45 @@ for (const dark of [false, true]) {
         f.context.unregisterThemeChangedCallback(ref);
     });
 }
+
+for (const blocked of [false, true]) {
+    test(`dark default respects choices with blocked storage=${blocked}`, () => {
+        const f = fixture(false, undefined, blocked, 'dark');
+        assert.equal(f.context.initialize(), true);
+        assert.equal(f.context.getMode(), 'dark');
+        assert.equal(f.storage.size, 0);
+        f.changeSystem(true);
+        f.changeSystem(false);
+        assert.equal(f.root.dark, true);
+        assert.equal(f.context.setMode('light'), false);
+        assert.equal(f.context.initialize('dark'), false);
+        assert.equal(f.context.useSystem(), false);
+        assert.equal(f.context.initialize('dark'), false);
+        f.changeSystem(true);
+        assert.equal(f.root.dark, true);
+    });
+}
+
+test('saved System survives reload with a dark default', () => {
+    const f = fixture(false, undefined, false, 'dark');
+    f.context.initialize();
+    f.context.useSystem();
+    const reloaded = fixture(false, f.storage.get('quark-theme'), false, 'dark');
+    assert.equal(reloaded.context.initialize(), false);
+    assert.equal(reloaded.context.getMode(), 'system');
+});
+
+test('interop default and storage removal use the same fallback', () => {
+    const f = fixture(false);
+    assert.equal(f.context.initializeState(null, 'dark').isDark, true);
+    f.changeStorage('light');
+    assert.equal(f.root.dark, false);
+    f.changeStorage(null);
+    assert.equal(f.root.dark, true);
+    assert.throws(() => f.context.initialize('invalid'));
+});
+
+test('saved light and invalid defaults are handled at startup', () => {
+    assert.equal(fixture(true, 'light', false, 'dark').context.initialize(), false);
+    assert.equal(fixture(false, undefined, false, 'invalid').context.initialize(), false);
+});

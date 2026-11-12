@@ -25,11 +25,17 @@ public interface IThemeInterop : IAsyncDisposable
     event Action<bool>? ThemeChanged;
 
     /// <summary>
-    /// Initializes and applies the saved preference, or follows the operating system when no explicit preference exists. Call after the first interactive render.
+    /// Initializes and applies the saved preference, or uses the configured default when no explicit preference exists. The startup default can be declared with a meta element named quark-default-theme whose content is system, light, or dark. Without configuration, System is used. Call after the first interactive render.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns><c>true</c> if dark mode is active; otherwise, <c>false</c>.</returns>
     ValueTask<bool> Initialize(CancellationToken cancellationToken = default);
+
+    /// <summary>Configures the fallback mode and initializes the theme without replacing a saved Light, Dark, or System preference.</summary>
+    /// <param name="defaultMode">The mode to use when no valid saved preference exists.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>Whether dark mode is active.</returns>
+    ValueTask<bool> Initialize(ThemeMode defaultMode, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Toggles between light and dark mode.
@@ -45,7 +51,7 @@ public interface IThemeInterop : IAsyncDisposable
     /// <returns><c>true</c> if dark mode is active; otherwise, <c>false</c>.</returns>
     ValueTask<bool> GetIsDark(CancellationToken cancellationToken = default);
 
-    /// <summary>Clears the explicit preference and resumes following the operating system, including subsequent changes.</summary>
+    /// <summary>Saves System mode and resumes following the operating system, including subsequent changes.</summary>
     /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>Whether dark mode is active.</returns>
     ValueTask<bool> UseSystem(CancellationToken cancellationToken = default);

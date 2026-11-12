@@ -27,7 +27,15 @@ public sealed class ThemeInterop : IThemeInterop
         _moduleImportUtil = moduleImportUtil;
     }
 
-    public async ValueTask<bool> Initialize(CancellationToken cancellationToken = default)
+    public ValueTask<bool> Initialize(CancellationToken cancellationToken = default) => InitializeCore(null, cancellationToken);
+
+    public ValueTask<bool> Initialize(ThemeMode defaultMode, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(defaultMode);
+        return InitializeCore(defaultMode, cancellationToken);
+    }
+
+    private async ValueTask<bool> InitializeCore(ThemeMode? defaultMode, CancellationToken cancellationToken)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
 
@@ -35,7 +43,7 @@ public sealed class ThemeInterop : IThemeInterop
         {
             var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
             _callback ??= DotNetObjectReference.Create(this);
-            var state = await module.InvokeWithContextAsync("initializeState", QuarkInteropJsonContext.Default.ThemeInteropState, linked, _callback);
+            var state = await module.InvokeWithContextAsync("initializeState", QuarkInteropJsonContext.Default.ThemeInteropState, linked, _callback, defaultMode?.Value);
             OnThemeChanged(state.IsDark, state.Mode);
             return state.IsDark;
         }
