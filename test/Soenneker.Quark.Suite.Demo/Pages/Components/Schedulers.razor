@@ -1,16 +1,23 @@
 @page "/components/scheduler"
 <QuarkSeoHead Title="Blazor Appointment Scheduler | Quark Suite" Description="Plan appointments in timezone-aware day, week, month and agenda views with resource lanes." />
 <Div Class="space-y-6">
-    <H1>Scheduler</H1>
     <Paragraph>Create appointments in a slot, drag an appointment to move it, or drag its bottom edge to resize. Click an appointment to edit dates with the keyboard. This demo displays UTC.</Paragraph>
     <Scheduler @bind-Events="_events" Resources="_resources" @bind-Date="_date" @bind-View="_view" />
     <PreCode Language="razor">@Example</PreCode>
 </Div>
 @code {
     private DateOnly _date = DateOnly.FromDateTime(DateTime.UtcNow);
-    private SchedulerView _view = SchedulerView.Day;
+    private SchedulerView _view = SchedulerView.Agenda;
     private readonly IReadOnlyList<SchedulerResource> _resources = [new("alex", "Alex"), new("sam", "Sam")];
-    private IReadOnlyList<SchedulerEvent> _events = [new("intro", "Discovery call", new DateTimeOffset(DateTime.UtcNow.Date.AddHours(9), TimeSpan.Zero), new DateTimeOffset(DateTime.UtcNow.Date.AddHours(10), TimeSpan.Zero), "alex")];
+    private IReadOnlyList<SchedulerEvent> _events =
+    [
+        Appointment("intro", "Discovery call", 9, 10, "alex"),
+        Appointment("design", "Design review", 10.5, 11.5, "sam"),
+        Appointment("planning", "Project planning", 13, 14, "alex"),
+        Appointment("handoff", "Product handoff", 15, 15.5, "sam")
+    ];
+    private static SchedulerEvent Appointment(string id, string title, double start, double end, string resource) =>
+        new(id, title, new DateTimeOffset(DateTime.UtcNow.Date.AddHours(start), TimeSpan.Zero), new DateTimeOffset(DateTime.UtcNow.Date.AddHours(end), TimeSpan.Zero), resource);
     private const string Example = """
 <Scheduler @bind-Events="appointments" Resources="staff"
            @bind-Date="date" @bind-View="view" TimeZone="TimeZoneInfo.Utc" />

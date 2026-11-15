@@ -6,101 +6,169 @@
 @using System.Linq
 @using System.Globalization
 @using System.Threading
-<div @ref="_interactionRoot" @attributes="@(WorkflowAttributes("scheduler", "space-y-3"))" aria-busy="@(_busy ? "true" : "false")">
-    <div class="flex flex-wrap items-center gap-2">
-        <button type="button" class="rounded border px-3 py-2" @onclick="() => Navigate(-1)">@Text["Previous"]</button>
-        <button type="button" class="rounded border px-3 py-2" @onclick="Today">@Text["Today"]</button>
-        <button type="button" class="rounded border px-3 py-2" @onclick="() => Navigate(1)">@Text["Next"]</button>
-        <strong aria-live="polite">@Date.ToString("D", Text.Culture)</strong>
-        <select aria-label="@Text["Select"]" value="@View" @onchange="ChangeView">
-            @foreach (var view in Enum.GetValues<SchedulerView>()) { <option value="@view">@Text[view.ToString()]</option> }
-        </select>
-        <span class="text-sm text-muted-foreground">@TimeZone.DisplayName</span>
-        @if (!ReadOnly) { <button type="button" class="rounded border px-3 py-2" disabled="@_busy" @onclick="() => New(Date, 9 * 60, null)">@Text["NewEvent"]</button> }
-    </div>
-    @if (_error is not null) { <div role="alert" class="text-destructive">@Text[_error]</div> }
-    @if (_editing)
-    {
-        <fieldset disabled="@_busy" class="space-y-2 rounded border p-3">
-            <legend>@Text[_editId is null ? "NewEvent" : "Edit"]</legend>
-            <label class="block">@Text["Title"] <input class="rounded border bg-background p-2" @bind="_title" /></label>
-            <label class="block">@Text["Start"] <input type="datetime-local" class="rounded border bg-background p-2" @bind="_start" @bind:format="yyyy-MM-ddTHH:mm" /></label>
-            <label class="block">@Text["End"] <input type="datetime-local" class="rounded border bg-background p-2" @bind="_end" @bind:format="yyyy-MM-ddTHH:mm" /></label>
-            @if (Resources.Count > 0) { <label>@Text["Resource"] <select @bind="_resource"><option value="">@Text["NoResource"]</option>@foreach (var resource in Resources) { <option value="@resource.Id">@resource.Label</option> }</select></label> }
-            <div class="flex gap-3"><button type="button" @onclick="SaveDraft">@Text["Save"]</button><button type="button" @onclick="() => _editing = false">@Text["Cancel"]</button>
-                @if (_editId is not null) { <button type="button" @onclick="DeleteDraft">@Text["Delete"]</button> }
+<div @ref="_interactionRoot" @attributes="@(WorkflowAttributes("scheduler", "overflow-hidden rounded-xl border bg-background text-foreground shadow-sm"))" aria-busy="@(_busy ? "true" : "false")">
+    <div class="grid min-w-0 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <aside class="space-y-5 border-b bg-muted/20 p-5 lg:border-b-0 lg:border-e">
+            <div class="flex items-center justify-between gap-2">
+                <button type="button" class="@IconButtonClass" aria-label="@Text["Previous"]" @onclick="() => BrowseMonth(-1)">‹</button>
+                <span class="text-sm font-semibold">@CalendarMonth.ToString("Y", Text.Culture)</span>
+                <button type="button" class="@IconButtonClass" aria-label="@Text["Next"]" @onclick="() => BrowseMonth(1)">›</button>
             </div>
-        </fieldset>
-    }
-    @if (View == SchedulerView.Month)
-    {
-        <div class="grid grid-cols-7 overflow-auto rounded border">
-            @foreach (var day in MonthDays())
+            <div class="grid grid-cols-7 gap-1">
+                @foreach (var day in CalendarDays().Take(7))
+                {
+                    <span class="py-2 text-center text-[10px] font-medium uppercase tracking-wide text-muted-foreground">@day.ToString("ddd", Text.Culture)</span>
+                }
+                @foreach (var day in CalendarDays())
+                {
+                    <button type="button" class="@CalendarDayClass(day)" aria-label="@day.ToString("D", Text.Culture)" aria-pressed="@(day == Date ? "true" : "false")" aria-current="@(day == LocalToday ? "date" : null)" @onclick="() => SelectDate(day)">
+                        @day.Day
+                        @if (DayEvents(day).Any()) { <span class="absolute bottom-1 size-1 rounded-full bg-current" aria-hidden="true"></span> }
+                    </button>
+                }
+            </div>
+            <button type="button" class="@($"{ControlClass} w-full justify-center")" @onclick="Today">@Text["Today"]</button>
+            <div class="border-t pt-4 text-xs leading-relaxed text-muted-foreground">@TimeZone.DisplayName</div>
+        </aside>
+        <div class="min-w-0 p-4 sm:p-5">
+            <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center rounded-md border">
+                        <button type="button" class="@IconButtonClass" aria-label="@Text["Previous"]" @onclick="() => Navigate(-1)">‹</button>
+                        <button type="button" class="@IconButtonClass" aria-label="@Text["Next"]" @onclick="() => Navigate(1)">›</button>
+                    </div>
+                    <strong class="text-sm font-semibold" aria-live="polite">@PeriodLabel</strong>
+                </div>
+                <div class="flex items-center gap-2">
+                    <select class="@ControlClass" aria-label="@Text["Select"]" value="@View" @onchange="ChangeView">
+                        @foreach (var view in Enum.GetValues<SchedulerView>()) { <option value="@view">@Text[view.ToString()]</option> }
+                    </select>
+                    @if (!ReadOnly) { <button type="button" class="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50" disabled="@_busy" @onclick="() => New(Date, 9 * 60, null)"><span aria-hidden="true">+</span>@Text["NewEvent"]</button> }
+                </div>
+            </div>
+            @if (_error is not null) { <div role="alert" class="text-destructive">@Text[_error]</div> }
+            @if (_editing)
             {
-                <div class="min-h-28 min-w-24 border p-2" @ondragover:preventDefault @ondrop="() => Drop(day, null, null)">
-                    <button type="button" class="font-medium" disabled="@ReadOnly" aria-label="@(Text["NewEvent"] + " " + day.ToString("D", Text.Culture))" @onclick="() => New(day, 9 * 60, null)">@day.ToString("ddd d", Text.Culture)</button>
-                    @foreach (var appointment in DayEvents(day))
-                    { <button @key="appointment.Id" type="button" class="mt-1 block w-full truncate rounded bg-accent p-1 text-start text-xs" draggable="@(!ReadOnly)" @ondragstart="() => Drag(appointment, false)" @ondragend="ClearDrag" @onclick="() => Edit(appointment)">@TimeLabel(appointment) @appointment.Title</button> }
+                <fieldset disabled="@_busy" class="mb-5 grid gap-4 rounded-lg border bg-muted/20 p-4 sm:grid-cols-2">
+                    <legend class="px-1 text-sm font-semibold">@Text[_editId is null ? "NewEvent" : "Edit"]</legend>
+                    <label class="grid gap-1.5 text-sm font-medium">@Text["Title"] <input class="h-10 w-full min-w-0 rounded-md border bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" @bind="_title" /></label>
+                    <label class="grid gap-1.5 text-sm font-medium">@Text["Start"] <input type="datetime-local" class="h-10 w-full min-w-0 rounded-md border bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" @bind="_start" @bind:format="yyyy-MM-ddTHH:mm" /></label>
+                    <label class="grid gap-1.5 text-sm font-medium">@Text["End"] <input type="datetime-local" class="h-10 w-full min-w-0 rounded-md border bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" @bind="_end" @bind:format="yyyy-MM-ddTHH:mm" /></label>
+                    @if (Resources.Count > 0) { <label class="grid gap-1.5 text-sm font-medium">@Text["Resource"] <select class="@ControlClass" @bind="_resource"><option value="">@Text["NoResource"]</option>@foreach (var resource in Resources) { <option value="@resource.Id">@resource.Label</option> }</select></label> }
+                    <div class="flex flex-wrap gap-2 sm:col-span-2"><button type="button" class="@ControlClass" @onclick="SaveDraft">@Text["Save"]</button><button type="button" class="@ControlClass" @onclick="() => _editing = false">@Text["Cancel"]</button>
+                        @if (_editId is not null) { <button type="button" class="@ControlClass" @onclick="DeleteDraft">@Text["Delete"]</button> }
+                    </div>
+                </fieldset>
+            }
+            @if (View == SchedulerView.Month)
+            {
+                <div class="grid grid-cols-7 overflow-auto rounded-lg border">
+                    @foreach (var day in MonthDays())
+                    {
+                        <div class="min-h-28 min-w-24 border-b border-e p-2" @ondragover:preventDefault @ondrop="() => Drop(day, null, null)">
+                            <button type="button" class="font-medium" disabled="@ReadOnly" aria-label="@(Text["NewEvent"] + " " + day.ToString("D", Text.Culture))" @onclick="() => New(day, 9 * 60, null)">@day.ToString("ddd d", Text.Culture)</button>
+                            @foreach (var appointment in DayEvents(day))
+                            { <button @key="appointment.Id" type="button" class="mt-1 block w-full truncate rounded border-s-2 border-primary bg-primary/10 px-2 py-1.5 text-start text-xs font-medium hover:bg-primary/20" draggable="@(!ReadOnly)" @ondragstart="() => Drag(appointment, false)" @ondragend="ClearDrag" @onclick="() => Edit(appointment)">@TimeLabel(appointment) @appointment.Title</button> }
+                        </div>
+                    }
+                </div>
+            }
+            else if (View == SchedulerView.Agenda)
+            {
+                <div class="max-h-[36rem] space-y-5 overflow-auto">
+                    @{ var agendaStart = StartInstant(Date); var agendaEnd = StartInstant(Date.AddDays(31));
+                       var agenda = Events.Where(e => e.End > agendaStart && e.Start < agendaEnd).OrderBy(e => e.Start).ToArray(); }
+                    @if (agenda.Length == 0)
+                    {
+                        <div class="rounded-lg border border-dashed px-6 py-16 text-center text-sm text-muted-foreground">@Text["NoResults"]</div>
+                    }
+                    @foreach (var group in agenda.GroupBy(e => SchedulerDates.LocalDate(e.Start, TimeZone)))
+                    {
+                        <section class="space-y-2">
+                            <h3 class="text-xs font-medium text-muted-foreground">@group.Key.ToString("D", Text.Culture)</h3>
+                            @foreach (var appointment in group)
+                            {
+                                <button @key="appointment.Id" type="button" class="group flex w-full items-center gap-4 rounded-lg border bg-background p-4 text-start shadow-sm transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" @onclick="() => Edit(appointment)">
+                                    <span class="h-10 w-1 shrink-0 rounded-full bg-primary/60" aria-hidden="true"></span>
+                                    <span class="min-w-0 flex-1 space-y-1.5">
+                                        <strong class="block truncate text-sm font-semibold">@appointment.Title</strong>
+                                        <span class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                                            <span>@TimeLabel(appointment) – @TimeZoneInfo.ConvertTime(appointment.End, TimeZone).ToString("t", Text.Culture)</span>
+                                            @if (Resources.Count > 0) { <span class="rounded-md bg-muted px-2 py-0.5">@ResourceLabel(appointment.ResourceId)</span> }
+                                        </span>
+                                    </span>
+                                    <span class="text-muted-foreground" aria-hidden="true">›</span>
+                                </button>
+                            }
+                        </section>
+                    }
+                </div>
+            }
+
+            else
+            {
+                @if (Resources.Count + 1 > ResourcePageSize)
+                {
+                    <nav aria-label="Scheduler resources">
+                        <button type="button" disabled="@(_resourcePage == 0)" @onclick="() => _resourcePage--">Previous resources</button>
+                        <span>Resources @(_resourcePage * ResourcePageSize + 1)–@Math.Min(Resources.Count + 1, (_resourcePage + 1) * ResourcePageSize) of @(Resources.Count + 1)</span>
+                        <button type="button" disabled="@((_resourcePage + 1) * ResourcePageSize >= Resources.Count + 1)" @onclick="() => _resourcePage++">Next resources</button>
+                    </nav>
+                }
+                <div class="max-h-[36rem] overflow-auto rounded-lg border">
+                    <div class="flex" style="min-width:max-content">
+                        @foreach (var day in VisibleDays())
+                        {
+                            @foreach (var resource in Lanes())
+                            {
+                                var appointments = LaneEvents(day, resource);
+                                <div class="relative border-e" style="width:180px;flex:1 0 180px">
+                                    <div class="sticky top-0 z-10 border-b bg-background px-3 py-3 text-xs font-semibold">@day.ToString("ddd d", Text.Culture) @resource?.Label</div>
+                                    <div class="relative" style="height:960px" data-scheduler-lane="@day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" data-resource="@resource?.Id">
+                                        @for (var minute = 0; minute < 1440; minute += 30)
+                                        {
+                                            var slot = minute;
+                                            <button type="button" class="absolute w-full border-b text-start text-xs text-muted-foreground" style="@SlotStyle(slot)" aria-label="@(Text["NewEvent"] + " " + day.ToString("d", Text.Culture) + " " + TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(slot)).ToString("t", Text.Culture) + " " + resource?.Label)" @ondragover:preventDefault @ondrop="() => Drop(day, slot, resource?.Id)" @onclick="() => New(day, slot, resource?.Id)">@(slot % 60 == 0 ? TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(slot)).ToString("t", Text.Culture) : "")</button>
+                                        }
+                                        @for (var i = 0; i < appointments.Count; i++)
+                                        {
+                                            var placement = appointments[i];
+                                            var appointment = placement.Event;
+                                            <div @key="appointment.Id" class="absolute overflow-hidden rounded-md border border-primary/20 border-s-2 border-s-primary bg-accent p-1.5 text-xs shadow-sm" style="@EventStyle(placement)">
+                                                <button type="button" data-touch-event="@(ReadOnly ? null : appointment.Id)" style="touch-action:none" class="w-full text-start" draggable="@(!ReadOnly)" @ondragstart="() => Drag(appointment, false)" @ondragend="ClearDrag" @onclick="() => Edit(appointment)">@TimeLabel(appointment) @appointment.Title</button>
+                                                @if (!ReadOnly) { <button type="button" data-touch-event="@appointment.Id" data-touch-resize="true" style="touch-action:none" class="absolute bottom-0 start-0 h-2 w-full cursor-ns-resize border-t" aria-label="@(Text["End"] + " " + appointment.Title)" draggable="true" @ondragstart="() => Drag(appointment, true)" @ondragend="ClearDrag" @onclick="() => Edit(appointment)"></button> }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
                 </div>
             }
         </div>
-    }
-    else if (View == SchedulerView.Agenda)
-    {
-        <div class="divide-y rounded border">
-            @{ var agendaStart = StartInstant(Date); var agendaEnd = StartInstant(Date.AddDays(31)); }
-            @foreach (var appointment in Events.Where(e => e.End > agendaStart && e.Start < agendaEnd).OrderBy(e => e.Start))
-            {
-                <button @key="appointment.Id" type="button" class="block w-full p-3 text-start" @onclick="() => Edit(appointment)">
-                    <strong>@appointment.Title</strong> <span>@TimeZoneInfo.ConvertTime(appointment.Start, TimeZone).ToString("g", Text.Culture) – @TimeZoneInfo.ConvertTime(appointment.End, TimeZone).ToString("g", Text.Culture)</span>
-                    <span>@ResourceLabel(appointment.ResourceId)</span>
-                </button>
-            }
-        </div>
-    }
-    else
-    {
-        @if (Resources.Count + 1 > ResourcePageSize)
-        {
-            <nav aria-label="Scheduler resources">
-                <button type="button" disabled="@(_resourcePage == 0)" @onclick="() => _resourcePage--">Previous resources</button>
-                <span>Resources @(_resourcePage * ResourcePageSize + 1)–@Math.Min(Resources.Count + 1, (_resourcePage + 1) * ResourcePageSize) of @(Resources.Count + 1)</span>
-                <button type="button" disabled="@((_resourcePage + 1) * ResourcePageSize >= Resources.Count + 1)" @onclick="() => _resourcePage++">Next resources</button>
-            </nav>
-        }
-        <div class="max-h-[40rem] overflow-auto rounded border">
-            <div class="flex" style="min-width:max-content">
-                @foreach (var day in VisibleDays())
-                {
-                    @foreach (var resource in Lanes())
-                    {
-                        var appointments = LaneEvents(day, resource);
-                        <div class="relative border-e" style="width:240px;flex:1 0 240px">
-                            <div class="sticky top-0 z-10 border-b bg-background p-2 font-medium">@day.ToString("ddd d", Text.Culture) @resource?.Label</div>
-                            <div class="relative" style="height:960px" data-scheduler-lane="@day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" data-resource="@resource?.Id">
-                                @for (var minute = 0; minute < 1440; minute += 30)
-                                {
-                                    var slot = minute;
-                                    <button type="button" class="absolute w-full border-b text-start text-xs text-muted-foreground" style="@SlotStyle(slot)" aria-label="@(Text["NewEvent"] + " " + day.ToString("d", Text.Culture) + " " + TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(slot)).ToString("t", Text.Culture) + " " + resource?.Label)" @ondragover:preventDefault @ondrop="() => Drop(day, slot, resource?.Id)" @onclick="() => New(day, slot, resource?.Id)">@TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(slot)).ToString("t", Text.Culture)</button>
-                                }
-                                @for (var i = 0; i < appointments.Count; i++)
-                                {
-                                    var placement = appointments[i];
-                                    var appointment = placement.Event;
-                                    <div @key="appointment.Id" class="absolute overflow-hidden rounded border bg-accent p-1 text-xs" style="@EventStyle(placement)">
-                                        <button type="button" data-touch-event="@(ReadOnly ? null : appointment.Id)" style="touch-action:none" class="w-full text-start" draggable="@(!ReadOnly)" @ondragstart="() => Drag(appointment, false)" @ondragend="ClearDrag" @onclick="() => Edit(appointment)">@TimeLabel(appointment) @appointment.Title</button>
-                                        @if (!ReadOnly) { <button type="button" data-touch-event="@appointment.Id" data-touch-resize="true" style="touch-action:none" class="absolute bottom-0 start-0 h-2 w-full cursor-ns-resize border-t" aria-label="@(Text["End"] + " " + appointment.Title)" draggable="true" @ondragstart="() => Drag(appointment, true)" @ondragend="ClearDrag" @onclick="() => Edit(appointment)"></button> }
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
-                }
-            </div>
-        </div>
-    }
+    </div>
 </div>
 @code {
+    private const string ControlClass = "inline-flex h-9 items-center rounded-md border bg-background px-3 text-sm font-medium shadow-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50";
+    private const string IconButtonClass = "inline-flex size-8 items-center justify-center rounded-md text-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+    private DateOnly? _calendarMonth;
+    private DateOnly CalendarMonth => _calendarMonth ?? new DateOnly(Date.Year, Date.Month, 1);
+    private DateOnly LocalToday => SchedulerDates.LocalDate(DateTimeOffset.UtcNow, TimeZone);
+    private string PeriodLabel => View == SchedulerView.Month ? Date.ToString("Y", Text.Culture)
+        : View == SchedulerView.Week ? $"{WeekStart.ToString("m", Text.Culture)} – {WeekStart.AddDays(6).ToString("m", Text.Culture)}"
+        : Date.ToString("D", Text.Culture);
+    private IEnumerable<DateOnly> CalendarDays()
+    {
+        var first = SchedulerDates.WeekStart(CalendarMonth, Text.Culture.DateTimeFormat.FirstDayOfWeek);
+        return Enumerable.Range(0, 42).Select(first.AddDays);
+    }
+    private string CalendarDayClass(DateOnly day) => "relative flex h-9 items-center justify-center rounded-md text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring " +
+        (day == Date ? "bg-primary font-semibold text-primary-foreground shadow-sm" :
+            day == LocalToday ? "bg-accent font-semibold text-accent-foreground hover:bg-muted" :
+            day.Month != CalendarMonth.Month ? "text-muted-foreground/50 hover:bg-muted" : "bg-muted/40 hover:bg-muted");
+    private void BrowseMonth(int direction) => _calendarMonth = CalendarMonth.AddMonths(direction);
+    private async Task SelectDate(DateOnly day) { Date = day; _calendarMonth = null; await DateChanged.InvokeAsync(day); }
     private ElementReference _interactionRoot;
     private DotNetObjectReference<Scheduler>? _interactionReference;
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -182,9 +250,9 @@
     private string ResourceLabel(string? id) => Resources.FirstOrDefault(r => r.Id == id)?.Label ?? Text["NoResource"];
     private string TimeLabel(SchedulerEvent e) => TimeZoneInfo.ConvertTime(e.Start, TimeZone).ToString("t", Text.Culture);
     private static string SlotStyle(int minute) => FormattableString.Invariant($"top:{minute * 2d / 3}px;height:20px;");
-    private static string EventStyle(SchedulerEventPlacement p) => FormattableString.Invariant($"top:{p.StartMinute * 2d / 3}px;height:{Math.Max(20, (p.EndMinute - p.StartMinute) * 2d / 3)}px;inset-inline-start:{40 + p.Column * (196d / p.ColumnCount)}px;width:{196d / p.ColumnCount}px;");
-    private async Task Navigate(int direction) { Date = View is SchedulerView.Month or SchedulerView.Agenda ? Date.AddMonths(direction) : Date.AddDays(direction * (View == SchedulerView.Week ? 7 : 1)); await DateChanged.InvokeAsync(Date); }
-    private async Task Today() { Date = SchedulerDates.LocalDate(DateTimeOffset.UtcNow, TimeZone); await DateChanged.InvokeAsync(Date); }
+    private static string EventStyle(SchedulerEventPlacement p) => FormattableString.Invariant($"top:{p.StartMinute * 2d / 3}px;height:{Math.Max(20, (p.EndMinute - p.StartMinute) * 2d / 3)}px;inset-inline-start:calc(42px + (100% - 46px) * {p.Column} / {p.ColumnCount});width:calc((100% - 46px) / {p.ColumnCount} - 2px);");
+    private async Task Navigate(int direction) { _calendarMonth = null; Date = View is SchedulerView.Month or SchedulerView.Agenda ? Date.AddMonths(direction) : Date.AddDays(direction * (View == SchedulerView.Week ? 7 : 1)); await DateChanged.InvokeAsync(Date); }
+    private async Task Today() { _calendarMonth = null; Date = SchedulerDates.LocalDate(DateTimeOffset.UtcNow, TimeZone); await DateChanged.InvokeAsync(Date); }
     private async Task ChangeView(ChangeEventArgs e) { if (Enum.TryParse<SchedulerView>(e.Value?.ToString(), out var view)) { View = view; await ViewChanged.InvokeAsync(view); } }
     private void New(DateOnly day, int minute, string? resource) { if (ReadOnly || _busy) return; _originalEvent = null; _editId = null; _title = ""; _resource = resource; _start = day.ToDateTime(TimeOnly.MinValue).AddMinutes(minute); _end = _start.AddHours(1); _editing = true; _error = null; }
     private void Edit(SchedulerEvent e) { if (ReadOnly || _busy) return; _originalEvent = e; _editId = e.Id; _title = e.Title; _resource = e.ResourceId; _start = TimeZoneInfo.ConvertTime(e.Start, TimeZone).DateTime; _end = TimeZoneInfo.ConvertTime(e.End, TimeZone).DateTime; _editing = true; _error = null; }
