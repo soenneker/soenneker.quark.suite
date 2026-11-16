@@ -11,6 +11,32 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void Preset_date_range_picker_renders_responsive_layout_and_allows_trigger_style_overrides()
+    {
+        var preset = new QuarkPresetToken("test-date-range-trigger", context =>
+        {
+            context.Width = Width.IsFull;
+            context.FontWeight = FontWeight.Medium;
+        });
+        var cut = Render<PresetDateRangePicker>(parameters => parameters
+            .Add(component => component.DefaultOpen, true)
+            .Add(component => component.Preset, preset));
+
+        var trigger = cut.Find("button[data-slot='preset-date-range-picker-trigger']");
+        trigger.ClassList.Should().Contain("w-full").And.NotContain("w-[212px]");
+        trigger.ClassList.Should().Contain("font-medium").And.NotContain("font-normal");
+
+        var panel = cut.Find("[data-slot='preset-date-range-picker-panel'] > div");
+        panel.ClassList.Should().Contain("grid-cols-1").And.Contain("md:grid-cols-[10rem_auto]");
+        panel.HasAttribute("gridcolumns").Should().BeFalse();
+        cut.Find(".rdp-root").ClassList.Should().Contain("bg-transparent").And.NotContain("bg-background");
+
+        cut.Render(parameters => parameters.Add(component => component.ShowPresets, false));
+        cut.FindAll("[role='group'][aria-label='Date range presets']").Should().BeEmpty();
+        cut.Find("[data-slot='preset-date-range-picker-panel'] > div").ClassList.Should().NotContain("md:grid-cols-[10rem_auto]");
+    }
+
+    [Test]
     public void Preset_date_range_picker_loading_preserves_space_and_does_not_disable_trigger()
     {
         var cut = Render<PresetDateRangePicker>();

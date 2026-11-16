@@ -13,6 +13,21 @@ namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
     [Test]
+    public void Audit_core_typed_composition_styles_preserve_important_and_state_utilities()
+    {
+        var command = Render<CommandInput>();
+        command.Find("[data-slot='input-group']").ClassList.Should()
+            .Contain("h-8!").And.Contain("rounded-lg!")
+            .And.Contain("border-input/30").And.Contain("bg-input/30");
+
+        var copyable = Render<CopyableText>(parameters => parameters
+            .Add(component => component.ActionHref, "/details"));
+        copyable.Find("[data-slot='copyable-text-action']").ClassList.Should()
+            .Contain("size-6!").And.Contain("p-0!")
+            .And.Contain("hover:bg-transparent").And.Contain("active:translate-y-0");
+    }
+
+    [Test]
     public void Audit_core_command_checkmark_styles_are_conditional()
     {
         var cut = Render<CommandItem>();

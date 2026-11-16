@@ -350,6 +350,13 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
         public ValueTask<bool> Initialize(CancellationToken cancellationToken = default) => ValueTask.FromResult(IsDark);
 
+        public ValueTask<bool> Initialize(ThemeMode defaultMode, CancellationToken cancellationToken = default)
+        {
+            Mode = defaultMode;
+            IsDark = defaultMode == ThemeMode.Dark;
+            return ValueTask.FromResult(IsDark);
+        }
+
         public ValueTask<bool> SetMode(ThemeMode mode, CancellationToken cancellationToken = default)
         {
             Mode = mode;

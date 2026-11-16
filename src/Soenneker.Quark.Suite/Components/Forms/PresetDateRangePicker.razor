@@ -8,7 +8,7 @@
 
 <Popover Open="@EffectiveOpen"
          OpenChanged="(_cachedHandleOpenChangedDelegate ??= HandleOpenChanged)">
-    <div class="relative flex w-fit items-center gap-2">
+    <Div Position="Quark.Position.Relative" Display="Quark.Display.Flex" Width="Quark.Width.IsFit" ItemsAlign="Items.Center" Gap="Quark.Gap.Is2">
         <PopoverTrigger AsChild="true" Id="@TriggerId">
             <Button Id="@TriggerId"
                     Type="@ButtonType.Button"
@@ -20,17 +20,17 @@
                 {
                     <Icon Name="LucideIcon.CalendarDays" Size="_renderCss1" Shrink="_renderCss2" />
                 }
-                <span class="min-w-0 flex-1 truncate text-left">@TriggerLabel</span>
+                <Span MinWidth="_staticCss0" Flex="Quark.Flex.Is1" Truncate="Quark.Truncate.Default" TextAlign="Quark.TextAlign.Left">@TriggerLabel</Span>
                 <Icon Name="@ChevronIcon" Margin="_renderCss3" Size="_renderCss1" Opacity="_renderCss4" />
             </Button>
         </PopoverTrigger>
 
-        <span class="flex size-4 shrink-0" data-slot="preset-date-range-picker-loading">
+        <Span Display="Quark.Display.Flex" Size="_renderCss1" Shrink="_renderCss2" DataSlot="preset-date-range-picker-loading">
             @if (Loading)
             {
                 <Spinner Size="_renderCss1" AriaLabel="@LoadingLabel" />
             }
-        </span>
+        </Span>
 
         <PopoverContent Side="@Side"
                         Align="@Align"
@@ -38,33 +38,43 @@
                         Width="_renderCss5"
                         Padding="_renderCss6"
                         @attributes="BuildPanelAttributes()">
-            <div class="@PanelClass">
+            <Grid Width="Quark.Width.IsFit" MaxWidth='Quark.MaxWidth.Token("[calc(100vw-2rem)]")'
+                  OverflowX="Quark.Overflow.X.Auto" OverflowY="Quark.Overflow.Y.Hidden"
+                  Rounded="Quark.Rounded.Lg" BackgroundColor="Quark.BackgroundColor.Popover" Padding="Quark.Padding.Is3" ItemsAlign="Items.Start"
+                 GridColumns="@(HasPresets ? GridCols.Is1.OnMd.Token("[10rem_auto]") : GridCols.Is1)">
                 @if (HasPresets)
                 {
-                    <div class="grid gap-1 border-b pb-3 md:border-b-0 md:border-r md:pb-0 md:pr-3" role="group" aria-label="@Localizer["DateRangePresets"]">
+                    <Grid Gap="Quark.Gap.Is1" Border="Quark.Border.FromBottom.Is1.OnMd.FromBottom.Is0.OnMd.FromRight.Is1"
+                          Padding="Quark.Padding.FromBottom.Is3.OnMd.FromBottom.Is0.OnMd.FromRight.Is3"
+                          ContentAlign="Quark.ContentAlign.Start" role="group" aria-label="@Localizer["DateRangePresets"]">
                     @for (int presetIndex = 0; presetIndex < EffectivePresets.Count; presetIndex++)
                     {
                         var preset = EffectivePresets[presetIndex];
-                    var presetView = GetPresetView(presetIndex, preset);
-                    var active = IsPresetActive(preset);
+                        var presetView = GetPresetView(presetIndex, preset);
+                        var active = IsPresetActive(preset);
 
                         <Button Type="@ButtonType.Button"
                                 Variant="ButtonVariant.Ghost"
                                 Justify="_renderCss0"
-                                Class="@PresetButtonClass(active)"
+                                Height="Quark.Height.Is8"
+                                Display="Quark.Display.Flex" Width="Quark.Width.IsFull" ItemsAlign="Items.Center" Gap="Quark.Gap.Is2"
+                                Rounded="Quark.Rounded.Md" Padding="Quark.Padding.OnX.Is3" TextAlign="Quark.TextAlign.Left"
+                                TextSize="Quark.TextSize.Sm" FontWeight="Quark.FontWeight.Medium"
+                                BackgroundColor="@(active ? Quark.BackgroundColor.Accent : Quark.BackgroundColor.Transparent.OnHover.Accent)"
+                                TextColor="@(active ? Quark.TextColor.AccentForeground : Quark.TextColor.Foreground.OnHover.AccentForeground)"
                                 aria-pressed="@GetAriaBoolean(active)"
                                 Disabled="@(Disabled || ReadOnly)"
                                 OnClick="presetView.Click">
-                            <span class="min-w-0 flex-1 truncate text-left">@preset.Label</span>
+                            <Span MinWidth="_staticCss0" Flex="Quark.Flex.Is1" Truncate="Quark.Truncate.Default" TextAlign="Quark.TextAlign.Left">@preset.Label</Span>
                             @if (active)
                             {
                                 <Icon Name="LucideIcon.Check" Size="_renderCss1" Shrink="_renderCss2" />
                             }
                         </Button>
                     }
-                    </div>
+                    </Grid>
                 }
-                <div class="@CalendarPanelClass">
+                <Div MinWidth="_staticCss0" Padding="@(HasPresets ? Quark.Padding.FromTop.Is3.OnMd.FromLeft.Is3.OnMd.FromTop.Is0 : Quark.Padding.Is0)">
                     <Calendar Mode="CalendarSelectionMode.Range"
                               SelectedRange="@CalendarRange"
                               SelectedRangeChanged="(_cachedSetDateRangeDelegate ??= SetDateRange)"
@@ -77,15 +87,16 @@
                               Border="_renderCss7"
                               Shadow="_renderCss8"
                               Padding="_renderCss6"
+                              BackgroundColor="Quark.BackgroundColor.Transparent"
                               MinWidth="_staticCss0" />
-                </div>
-            </div>
+                </Div>
+            </Grid>
         </PopoverContent>
-    </div>
+    </Div>
 </Popover>
 
 @code {
-    private string? _triggerClass, _rangeLabel;
+    private string? _rangeLabel;
     private ((DateOnly Start, DateOnly End) Range, string Format)? _rangeLabelKey;
     private CalendarDateRange? _calendarRange;
     private PresetView?[]? _presetViews;
@@ -112,6 +123,9 @@
     private static readonly CssValue<PaddingBuilder> _renderCss6 = Quark.Padding.Is0;
     private static readonly CssValue<BorderBuilder> _renderCss7 = Quark.Border.Is0;
     private static readonly CssValue<ShadowBuilder> _renderCss8 = Quark.Shadow.None;
+    private static readonly CssValue<WidthBuilder> _defaultTriggerWidth = Quark.Width.Token("[212px]");
+    private static readonly CssValue<TextAlignBuilder> _defaultTriggerTextAlign = Quark.TextAlign.Left;
+    private static readonly CssValue<FontWeightBuilder> _defaultTriggerFontWeight = Quark.FontWeight.Normal;
     private Func<bool, Task>? _cachedHandleOpenChangedDelegate;
     private Func<CalendarDateRange?, Task>? _cachedSetDateRangeDelegate;
     private Func<DateOnly?, Task>? _cachedHandleCalendarMonthChangedDelegate;
@@ -261,12 +275,6 @@
 
     private string TriggerLabel => ActivePresetLabel() ?? RangeLabel() ?? GetPlaceholderText();
 
-    private string PanelClass =>
-        HasPresets
-            ? "grid w-fit max-w-[calc(100vw-2rem)] grid-cols-1 overflow-x-auto overflow-y-hidden rounded-lg bg-popover p-3 md:grid-cols-[14rem_auto]"
-            : "grid w-fit max-w-[calc(100vw-2rem)] grid-cols-1 overflow-x-auto overflow-y-hidden rounded-lg bg-popover p-3";
-
-    private string CalendarPanelClass => HasPresets ? "min-w-0 pt-3 md:pl-3 md:pt-0" : "min-w-0";
 
     protected override void OnInitialized()
     {
@@ -283,13 +291,22 @@
             SyncDisplayMonthToSelection();
     }
 
+    protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
+    {
+        base.BuildDefaultClasses(ref cls);
+        if (ResolvePresetValue(Width, AppliedPresetContext?.Width, nameof(Width)) is null)
+            AddCss<WidthBuilder>(ref cls, _defaultTriggerWidth);
+        if (ResolvePresetValue(TextAlign, AppliedPresetContext?.TextAlign, nameof(TextAlign)) is null)
+            AddCss<TextAlignBuilder>(ref cls, _defaultTriggerTextAlign);
+        if (ResolvePresetValue(FontWeight, AppliedPresetContext?.FontWeight, nameof(FontWeight)) is null)
+            AddCss<FontWeightBuilder>(ref cls, _defaultTriggerFontWeight);
+    }
+
     private IReadOnlyDictionary<string, object> BuildTriggerAttributes()
     {
         var attributes = _triggerAttributesBuffer.Create(BuildAttributes(), 3);
         foreach (var key in _triggerExcludedAttributes)
             attributes.Remove(key);
-        attributes.TryGetValue("class", out var userClass);
-        attributes["class"] = QuarkStringCache.Concat("w-[212px] text-left font-normal", " ", userClass?.ToString() ?? string.Empty, ref _triggerClass);
         if (Disabled || ReadOnly)
             attributes["disabled"] = QuarkAttributeValues.True;
         attributes["data-slot"] = "preset-date-range-picker-trigger";
@@ -426,15 +443,6 @@
         }
 
         return null;
-    }
-
-    private static string PresetButtonClass(bool active)
-    {
-        const string baseClass = "flex h-10 w-full items-center gap-2 rounded-md px-3 text-left text-sm font-medium";
-
-        return active
-            ? $"{baseClass} bg-accent text-accent-foreground"
-            : $"{baseClass} bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground";
     }
 
     private string FormatDate(DateOnly value)

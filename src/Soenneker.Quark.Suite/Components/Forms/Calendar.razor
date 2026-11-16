@@ -179,13 +179,21 @@ else
     protected override void BuildDefaultClasses(ref PooledStringBuilder cls)
     {
         base.BuildDefaultClasses(ref cls);
-        AppendClass(ref cls, "w-fit rdp-root group/calendar bg-background");
-        AppendClass(ref cls, "p-2");
+        AppendClass(ref cls, "rdp-root group/calendar");
+        if (ResolvePresetValue(Width, AppliedPresetContext?.Width, nameof(Width)) is null)
+            AddCss<WidthBuilder>(ref cls, _defaultCalendarWidth);
+        if (ResolvePresetValue(BackgroundColor, AppliedPresetContext?.BackgroundColor, nameof(BackgroundColor)) is null)
+            AddCss<BackgroundColorBuilder>(ref cls, _defaultCalendarBackground);
+        if (ResolvePresetValue(Padding, AppliedPresetContext?.Padding, nameof(Padding)) is null)
+            AddCss<PaddingBuilder>(ref cls, _defaultCalendarPadding);
         AppendClass(ref cls, "[--cell-radius:var(--radius-md)]");
         AppendClass(ref cls, "[--cell-size:--spacing(7)]");
         AppendClass(ref cls, "in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent");
     }
 
+    private static readonly CssValue<WidthBuilder> _defaultCalendarWidth = Quark.Width.IsFit;
+    private static readonly CssValue<BackgroundColorBuilder> _defaultCalendarBackground = Quark.BackgroundColor.Background;
+    private static readonly CssValue<PaddingBuilder> _defaultCalendarPadding = Quark.Padding.Is2;
     private static readonly CssValue<PositionBuilder> _renderCss0 = Quark.Position.Relative;
     private static readonly CssValue<DisplayBuilder> _renderCss1 = Quark.Display.Flex;
     private static readonly CssValue<FlexDirectionBuilder> _renderCss2 = Quark.FlexDirection.Col.OnMd.Row;
