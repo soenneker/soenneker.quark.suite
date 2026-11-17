@@ -307,7 +307,7 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             }
 
             object? value = parameter.Value;
-            if (!IsStableParameter(value))
+            if (!_requiresDetailedRenderKey && !IsStableParameter(value))
                 _requiresDetailedRenderKey = true;
             var previousParameters = _previousParameters ??= new List<KeyValuePair<string, object?>>();
             if (index >= previousParameters.Count)
@@ -318,8 +318,11 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             else
             {
                 var previous = previousParameters[index];
-                equal &= previous.Key == parameter.Name && RenderedEquals(previous.Value, value);
-                previousParameters[index] = new(parameter.Name, value);
+                if (previous.Key != parameter.Name || !ReferenceEquals(previous.Value, value))
+                {
+                    equal = equal && previous.Key == parameter.Name && RenderedEquals(previous.Value, value);
+                    previousParameters[index] = new(parameter.Name, value);
+                }
             }
             index++;
         }

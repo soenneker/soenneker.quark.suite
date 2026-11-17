@@ -8,7 +8,7 @@
         <strong>@Text["Notifications"] <span role="status">@Unread @Text["Unread"]</span></strong>
         <button type="button" disabled="@(_loading || _marking)" @onclick="OnRefreshClick">@Text["Refresh"]</button>
         <label><input type="checkbox" @bind="_unreadOnly" /> @Text["Unread"]</label>
-        <button type="button" disabled="@(_marking || !Items.Any(n => !n.IsRead))" @onclick="() => Read(Items.Where(n => !n.IsRead).Select(n => n.Id).ToArray())">@Text["MarkAllRead"]</button>
+        <button type="button" disabled="@(_marking || !Items.Any(n => !n.IsRead))" @onclick="() => Read(null)">@Text["MarkAllRead"]</button>
     </header>
     @foreach (var group in Items.Where(n => !_unreadOnly || !n.IsRead).OrderByDescending(n => n.CreatedAt).GroupBy(n => n.Group))
     {
@@ -22,7 +22,7 @@
                     @if (notification.Body is not null) { <p>@notification.Body</p> }
                     <div class="flex gap-3">
                         @if (Action.HasDelegate) { <button type="button" disabled="@(_marking || _acting)" @onclick="() => Activate(notification)">@(notification.ActionLabel ?? Text["Action"])</button> }
-                        @if (!notification.IsRead) { <button type="button" disabled="@_marking" @onclick="() => Read([notification.Id])">@Text["MarkRead"]</button> }
+                        @if (!notification.IsRead) { <button type="button" disabled="@_marking" @onclick="() => Read(notification.Id)">@Text["MarkRead"]</button> }
                     </div>
                     @if (ItemContent is not null) { @ItemContent(notification) }
                 </article>
@@ -87,16 +87,25 @@
         catch (Exception exception) { ReportError(exception, "load notifications"); if (version == _loadVersion) _loadError = true; }
         finally { if (version == _loadVersion) _loading = false; if (ReferenceEquals(_pageCancellation, cancellation)) _pageCancellation = null; }
     }
-    private async Task Read(IReadOnlyList<string> ids)
+    private async Task Read(string? id)
     {
         if (_marking || IsDisposed) return; _marking = true; _mutationError = false;
         try
         {
-            var unreadIds = Items.Where(n => !n.IsRead && ids.Contains(n.Id)).Select(n => n.Id).Distinct().ToArray();
+            HashSet<string>? changedIds = id is null ? new(StringComparer.Ordinal) : null;
+            string[] unreadIds = changedIds is not null
+                ? Items.Where(n => !n.IsRead && changedIds.Add(n.Id)).Select(n => n.Id).ToArray()
+                : Items.Any(n => !n.IsRead && n.Id == id) ? [id!] : [];
             if (MarkRead is not null) await MarkRead(unreadIds, _lifetime.Token);
             if (IsDisposed) return;
             _readIds.UnionWith(unreadIds); _readRevision += unreadIds.Length;
-            var updated = Items.Select(n => unreadIds.Contains(n.Id) ? n with { IsRead = true } : n).ToArray();
+            var updated = new QuarkNotification[Items.Count];
+            for (int i = 0; i < updated.Length; i++)
+            {
+                var item = Items[i];
+                bool changed = changedIds?.Contains(item.Id) ?? (unreadIds.Length == 1 && unreadIds[0] == item.Id);
+                updated[i] = changed ? item with { IsRead = true } : item;
+            }
             Items = updated;
             if (UnreadCount is not null) { UnreadCount = Math.Max(0, UnreadCount.Value - unreadIds.Length); await UnreadCountChanged.InvokeAsync(UnreadCount); }
             await ItemsChanged.InvokeAsync(updated);
@@ -108,7 +117,7 @@
     private async Task Activate(QuarkNotification notification)
     {
         if (_acting) return; _acting = true; _mutationError = false;
-        try { await Action.InvokeAsync(notification); if (!notification.IsRead) await Read([notification.Id]); }
+        try { await Action.InvokeAsync(notification); if (!notification.IsRead) await Read(notification.Id); }
         catch (Exception exception) { ReportError(exception, "activate notification"); _mutationError = true; }
         finally { _acting = false; }
     }

@@ -24,7 +24,7 @@
                     <label><input type="checkbox" checked="@preference.Visible" @onchange="e => UpdateColumn(preference with { Visible = e.Value is true })" /> @column.Title</label>
                     <input type="range" min="64" max="1200" step="8" aria-label="@(column.Title + " " + Text["Width"])" value="@preference.Width" @oninput="e => ResizeColumn(preference, e)" />
                     <select aria-label="@(column.Title + " " + Text["Pin"])" value="@preference.Pin" @onchange="e => Pin(preference, e)">
-                        @foreach (var pin in Enum.GetValues<DataTableColumnPin>()) { <option value="@pin">@Text[pin.ToString()]</option> }
+                        @foreach (var pin in ColumnPins) { <option value="@pin">@Text[pin.ToString()]</option> }
                     </select>
                     <button type="button" aria-label="@(column.Title + " " + Text["MoveUp"])" @onclick="() => Move(column.Key, -1)">↑</button>
                     <button type="button" aria-label="@(column.Title + " " + Text["MoveDown"])" @onclick="() => Move(column.Key, 1)">↓</button>
@@ -51,7 +51,7 @@
         <span role="status">@Text["Page"] @(_page + 1) / @PageCount</span>
         <button type="button" disabled="@(_page + 1 >= PageCount)" @onclick="() => GoToPage(_page + 1)">@Text["Next"]</button>
         <select aria-label="@Text["Page"]" value="@State.PageSize" @onchange="e => Change(State with { PageSize = int.TryParse(e.Value?.ToString(), out var size) ? size : 25 })">
-            @foreach (var size in new[] { 10, 25, 50, 100 }) { <option value="@size">@size</option> }
+            @foreach (var size in PageSizes) { <option value="@size">@size</option> }
         </select>
     </div>
     }
@@ -65,21 +65,44 @@
 
     [Parameter] public Dictionary<string, object>? RootAttributes { get; set; }
     [Parameter] public CssValue<HeightBuilder>? ViewportHeight { get; set; } = Quark.Height.Is96;
+    private static readonly DataTableColumnPin[] ColumnPins = Enum.GetValues<DataTableColumnPin>();
+    private static readonly int[] PageSizes = [10, 25, 50, 100];
     private DataTable? _table;
     private bool UseVirtualRows => Virtualize && DetailTemplate is null;
     private int RenderedColumnCount => Math.Max(1, VisibleColumns().Count + (SelectionEnabled ? 1 : 0) + (DetailTemplate is null ? 0 : 1));
+    private QuarkAttributeDictionary _viewAttributes;
     private Dictionary<string, object> ViewAttributes()
     {
-        var result = RootAttributes is null ? new Dictionary<string, object>() : new(RootAttributes);
+        var result = _viewAttributes.Create(RootAttributes, 2);
         result["data-slot"] = "datatable-data";
         PrependClassAttribute(result, "space-y-3");
         return result;
     }
     private IReadOnlyList<string> VisibleRowKeys() { _ = PageItems(); return _pageKeys; }
-    private RenderFragment<int> VirtualRow => index => RowCells(PageItems()[index]);
+    // The nested table indexes ordinal selections whenever it receives parameters.
+    // Other collection implementations may supply their own membership semantics.
+    private bool IsSelected(string key) =>
+        SelectedKeys is string[] or List<string> && _table is not null && ReferenceEquals(_table.SelectedKeys, SelectedKeys)
+            ? _table.IsRowSelected(key)
+            : SelectedKeys.Contains(key);
+
+    private RenderFragment<int> VirtualRow => index => RowCells(PageItems()[index], VisibleRowKeys()[index]);
     private RenderFragment Headers => @<text>
             <thead><tr class="border-b">
-                @if (SelectionEnabled) { <th style="width:40px"><input type="checkbox" aria-label="@Text["SelectAll"]" data-mixed="@(PageItems().Any(x => SelectedKeys.Contains(RowKey(x))) && !PageItems().All(x => SelectedKeys.Contains(RowKey(x))) ? "true" : "false")" checked="@(PageItems().Count > 0 && PageItems().All(x => SelectedKeys.Contains(RowKey(x))))" @onchange="SelectPage" /></th> }
+                @if (SelectionEnabled)
+                {
+                    var keys = VisibleRowKeys();
+                    var anySelected = false;
+                    var allSelected = keys.Count > 0;
+                    for (var i = 0; i < keys.Count; i++)
+                    {
+                        var selected = IsSelected(keys[i]);
+                        anySelected |= selected;
+                        allSelected &= selected;
+                        if (anySelected && !allSelected) break;
+                    }
+                    <th style="width:40px"><input type="checkbox" aria-label="@Text["SelectAll"]" data-mixed="@(anySelected && !allSelected ? "true" : "false")" checked="@allSelected" @onchange="SelectPage" /></th>
+                }
                 @if (DetailTemplate is not null) { <th style="width:40px"><span class="sr-only">@Text["Details"]</span></th> }
                 @foreach (var preference in VisibleColumns())
                 {
@@ -99,8 +122,8 @@
                 @foreach (var item in PageItems())
                 {
                     var key = RowKey(item);
-                    <tr @key="key" class="border-b" aria-selected="@(SelectionEnabled ? SelectedKeys.Contains(key).ToString().ToLowerInvariant() : null)">
-                        @RowCells(item)
+                    <tr @key="key" class="border-b" aria-selected="@(SelectionEnabled ? (IsSelected(key) ? "true" : "false") : null)">
+                        @RowCells(item, key)
                     </tr>
                     @if (_expanded.Contains(key) && DetailTemplate is not null) { <tr><td colspan="@(VisibleColumns().Count + (SelectionEnabled ? 1 : 0) + 1)" class="p-3">@DetailTemplate(item)</td></tr> }
                 }
@@ -108,9 +131,8 @@
             </tbody>
     </text>;
 
-    private RenderFragment RowCells(TItem item) => @<text>
-        @{ var key = RowKey(item); }
-                        @if (SelectionEnabled) { <td class="p-2"><input type="checkbox" aria-label="@(Text["Select"] + " " + key)" checked="@SelectedKeys.Contains(key)" @onchange="e => SelectRow(key, e.Value is true)" /></td> }
+    private RenderFragment RowCells(TItem item, string key) => @<text>
+                        @if (SelectionEnabled) { <td class="p-2"><input type="checkbox" aria-label="@(Text["Select"] + " " + key)" checked="@IsSelected(key)" @onchange="e => SelectRow(key, e.Value is true)" /></td> }
                         @if (DetailTemplate is not null) { <td><button type="button" aria-label="@Text[_expanded.Contains(key) ? "Collapse" : "Expand"]" aria-expanded="@(_expanded.Contains(key) ? "true" : "false")" @onclick="() => Toggle(key)">@(_expanded.Contains(key) ? "−" : "+")</button></td> }
                         @foreach (var preference in VisibleColumns())
                         {

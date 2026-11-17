@@ -1,5 +1,6 @@
 using BenchmarkDotNet.Attributes;
 using Bunit;
+using Soenneker.Bradix;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -53,12 +54,12 @@ public class ChartRenderingBenchmarks
     }
 
     [GlobalCleanup]
-    public void Cleanup()
+    public async Task Cleanup()
     {
-        _stableContext.Dispose();
-        _changingContext.Dispose();
-        _hoverContext.Dispose();
-        _repeatHoverContext.Dispose();
+        await _stableContext.DisposeAsync();
+        await _changingContext.DisposeAsync();
+        await _hoverContext.DisposeAsync();
+        await _repeatHoverContext.DisposeAsync();
     }
 
     [Benchmark(Baseline = true, Description = "Chart: stable data and options")]
@@ -98,6 +99,9 @@ public class ChartRenderingBenchmarks
         var context = new BunitContext();
         context.Services.AddLogging();
         context.Services.AddDefaultQuarkOptionsAsScoped();
+        context.Services.AddQuarkChartScrollAsScoped();
+        context.Services.AddBradixSuiteAsScoped();
+        context.JSInterop.Mode = JSRuntimeMode.Loose;
         return context;
     }
 }

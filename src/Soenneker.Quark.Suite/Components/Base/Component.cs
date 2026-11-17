@@ -32,7 +32,7 @@ public abstract class Component : RenderComponent, IComponent
     private BackgroundUtilities? _backgroundUtilities;
     private EffectUtilities? _effectUtilities;
     private AdvancedLayoutUtilities? _advancedLayoutUtilities;
-    private PresetParameterBits _explicitParameters;
+    private ComponentPresetState? _presetState;
     private AdvancedTypographyUtilities? _advancedTypographyUtilities;
     private Transform3DUtilities? _transform3DUtilities;
     private MaskUtilities? _maskUtilities;
@@ -1168,10 +1168,26 @@ public abstract class Component : RenderComponent, IComponent
     public bool Container { get; set; }
 
     [Parameter]
-    public QuarkPresetToken? Preset { get; set; }
+    public QuarkPresetToken? Preset
+    {
+        get => _presetState?.Preset;
+        set
+        {
+            if (value is not null) (_presetState ??= new()).Preset = value;
+            else if (_presetState is not null) _presetState.Preset = null;
+        }
+    }
 
     [Parameter]
-    public IReadOnlyList<QuarkPresetToken>? Presets { get; set; }
+    public IReadOnlyList<QuarkPresetToken>? Presets
+    {
+        get => _presetState?.Presets;
+        set
+        {
+            if (value is not null) (_presetState ??= new()).Presets = value;
+            else if (_presetState is not null) _presetState.Presets = null;
+        }
+    }
 
     [Parameter]
     public string? Title { get; set; }
@@ -2296,7 +2312,15 @@ public abstract class Component : RenderComponent, IComponent
     /// <summary>
     /// Gets the preset context already applied during the current attribute build.
     /// </summary>
-    protected QuarkPresetContext? AppliedPresetContext { get; private set; }
+    protected QuarkPresetContext? AppliedPresetContext
+    {
+        get => _presetState?.AppliedPresetContext;
+        private set
+        {
+            if (value is not null) (_presetState ??= new()).AppliedPresetContext = value;
+            else if (_presetState is not null) _presetState.AppliedPresetContext = null;
+        }
+    }
 
     protected override bool AlwaysRender => QuarkOptions.AlwaysRender;
 
@@ -2328,7 +2352,7 @@ public abstract class Component : RenderComponent, IComponent
         // ParameterView enumeration and HashSet work for the overwhelmingly common no-preset path.
         if (resolvedPreset is null && (resolvedPresets is null || resolvedPresets.Count == 0))
         {
-            _explicitParameters = default;
+            if (_presetState is not null) _presetState.ExplicitParameters = default;
             return base.SetParametersAsync(parameters);
         }
 
@@ -2337,14 +2361,15 @@ public abstract class Component : RenderComponent, IComponent
             foreach (var preset in resolvedPresets)
                 if (!preset.IsFrozen) { InvalidateRender(); break; }
 
-        _explicitParameters = default;
+        var state = _presetState ??= new();
+        state.ExplicitParameters = default;
 
         foreach (var parameter in parameters)
         {
             int slot = GetPresetParameterSlot(parameter.Name);
             if (slot >= 0)
             {
-                _explicitParameters[slot / 64] |= 1UL << (slot % 64);
+                state.ExplicitParameters[slot / 64] |= 1UL << (slot % 64);
             }
         }
 
@@ -2357,7 +2382,7 @@ public abstract class Component : RenderComponent, IComponent
         return HasExplicitPresetSlot(slot);
     }
 
-    private bool HasExplicitPresetSlot(int slot) => slot >= 0 && (_explicitParameters[slot / 64] & (1UL << (slot % 64))) != 0;
+    private bool HasExplicitPresetSlot(int slot) => slot >= 0 && _presetState is not null && (_presetState.ExplicitParameters[slot / 64] & (1UL << (slot % 64))) != 0;
 
     private static int GetPresetParameterSlot(string name) => name switch
     {
@@ -3786,7 +3811,6 @@ public abstract class Component : RenderComponent, IComponent
         return Task.CompletedTask;
     }
 
-    private PresetEvaluationState? _presetState;
 
     protected QuarkPresetContext? BuildPresetContext()
     {
@@ -3796,7 +3820,7 @@ public abstract class Component : RenderComponent, IComponent
         if (preset is null && (presets is null || presets.Count == 0))
             return null;
 
-        return (_presetState ??= new PresetEvaluationState()).Evaluate(preset, presets);
+        return ((_presetState ??= new()).Evaluation ??= new()).Evaluate(preset, presets);
     }
 
     private bool HasExplicitDataSlotAttribute()

@@ -955,6 +955,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
 
     private void CalculateDerivedDataState()
     {
+        bool radial = IsRadial;
         var maximumValueCount = 0;
         var hasFiniteValue = false;
         _radialTotal = 0;
@@ -972,6 +973,9 @@ data requires proportional horizontal spacing instead of categorical spacing.
             _allLineOrAreaSeries &= seriesType == ChartType.Line || seriesType == ChartType.Area;
             var values = Series[seriesIndex].Values;
             maximumValueCount = Math.Max(maximumValueCount, values.Count);
+            if (hasFiniteValue && !radial || radial && seriesIndex != 0)
+                continue;
+
             for (var valueIndex = 0; valueIndex < values.Count; valueIndex++)
             {
                 var value = values[valueIndex];
@@ -979,8 +983,8 @@ data requires proportional horizontal spacing instead of categorical spacing.
                     continue;
 
                 hasFiniteValue = true;
-                if (IsRadial && seriesIndex == 0)
-                    _radialTotal += Math.Max(0, finiteValue);
+                if (!radial) break;
+                _radialTotal += Math.Max(0, finiteValue);
             }
         }
 
