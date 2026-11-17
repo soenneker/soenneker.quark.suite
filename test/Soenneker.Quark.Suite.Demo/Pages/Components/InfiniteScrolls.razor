@@ -1,0 +1,70 @@
+@page "/components/infinite-scroll"
+
+<QuarkSeoHead Title="Blazor Infinite Scroll | Quark Suite" Description="Load additional list items automatically as you scroll with Quark InfiniteScroll." />
+
+<DemoSection Description="Scroll to fetch the next page. Loading stops after 60 items." Code="@ExampleCode" CodeLanguage="razor">
+    <Div Height="Height.Is80" Overflow="Overflow.Y.Auto">
+        <InfiniteScroll HasMore="@(_count < 60)" Loading="@_loading" LoadMore="LoadNextPage" PreloadDistance="100">
+            <ChildContent>
+                @for (int index = 1; index <= _count; index++)
+                {
+                    <Paragraph Padding="Padding.OnY.Is3">Item @index</Paragraph>
+                }
+            </ChildContent>
+            <LoadingContent><Paragraph>Loading more items...</Paragraph></LoadingContent>
+        </InfiniteScroll>
+    </Div>
+</DemoSection>
+
+@code {
+    private int _count = 20;
+    private bool _loading;
+
+    private async Task LoadNextPage()
+    {
+        _loading = true;
+        try
+        {
+            await Task.Delay(500);
+            _count = Math.Min(_count + 20, 60);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private const string ExampleCode = """
+        <Div Height="Height.Is80" Overflow="Overflow.Y.Auto">
+            <InfiniteScroll HasMore="@(_count < 60)" Loading="@_loading"
+                            LoadMore="LoadNextPage" PreloadDistance="100">
+                <ChildContent>
+                    @for (int index = 1; index <= _count; index++)
+                    {
+                        <Paragraph Padding="Padding.OnY.Is3">Item @index</Paragraph>
+                    }
+                </ChildContent>
+                <LoadingContent><Paragraph>Loading more items...</Paragraph></LoadingContent>
+            </InfiniteScroll>
+        </Div>
+
+        @code {
+            private int _count = 20;
+            private bool _loading;
+
+            private async Task LoadNextPage()
+            {
+                _loading = true;
+                try
+                {
+                    await Task.Delay(500);
+                    _count = Math.Min(_count + 20, 60);
+                }
+                finally
+                {
+                    _loading = false;
+                }
+            }
+        }
+        """;
+}

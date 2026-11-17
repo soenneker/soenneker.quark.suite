@@ -104,6 +104,7 @@ public static class DocsNavigation
         new("Radio Group", ComponentRoute("radio-group")),
         new("Resizable", ComponentRoute("resizable")),
         new("Score", ComponentRoute("scores")),
+        new("Infinite Scroll", ComponentRoute("infinite-scroll"), IsNew: true),
         new("Scroll Area", ComponentRoute("scroll-area")),
         new("Scroll Reveal", ComponentRoute("scroll-reveal")),
         new("Select", ComponentRoute("select")),

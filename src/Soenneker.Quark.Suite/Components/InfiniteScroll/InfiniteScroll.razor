@@ -1,0 +1,98 @@
+@namespace Soenneker.Quark
+@using Microsoft.JSInterop
+@using Soenneker.Asyncs.Locks
+@inherits Element
+@implements IInfiniteScroll
+@inject IInfiniteScrollInterop InfiniteScrollInterop
+
+<div @attributes="BuildAttributes()">
+    @ChildContent
+    <div @ref="_sentinel" aria-hidden="true"></div>
+    @if (Loading || _requesting)
+    {
+        <div role="status">@LoadingContent</div>
+    }
+</div>
+
+@code {
+    [Parameter] public bool HasMore { get; set; }
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public int PreloadDistance { get; set; } = 300;
+    [Parameter] public EventCallback LoadMore { get; set; }
+    [Parameter] public RenderFragment? LoadingContent { get; set; }
+
+    private ElementReference _sentinel;
+    private DotNetObjectReference<InfiniteScroll>? _callback;
+    private readonly AsyncLock _interopLock = new();
+    private bool _disposed;
+    private bool _requesting;
+    private bool _observed;
+    private bool CanLoad => !_disposed && !_requesting && !Loading && !Disabled && HasMore && LoadMore.HasDelegate;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "infinite-scroll";
+    }
+
+    protected override void ComputeRenderKeyCore(ref HashCode hc)
+    {
+        base.ComputeRenderKeyCore(ref hc);
+        hc.Add(HasMore);
+        hc.Add(Loading);
+        hc.Add(Disabled);
+        hc.Add(PreloadDistance);
+        hc.Add(LoadMore);
+        hc.Add(LoadingContent);
+        hc.Add(_requesting);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        using (await _interopLock.Lock())
+        {
+            if (_disposed) return;
+            _callback ??= DotNetObjectReference.Create(this);
+            _observed = true;
+            await InfiniteScrollInterop.Observe(_sentinel, _callback, CanLoad, Math.Max(0, PreloadDistance));
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    [JSInvokable]
+    public Task RequestMore() => InvokeAsync(async () =>
+    {
+        if (!CanLoad) return;
+        _requesting = true;
+        RequestContentRender();
+        try
+        {
+            await LoadMore.InvokeAsync();
+        }
+        finally
+        {
+            _requesting = false;
+            if (!_disposed) RequestContentRender();
+        }
+    });
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        try
+        {
+            using (await _interopLock.Lock())
+            {
+                if (_observed) await InfiniteScrollInterop.Destroy(_sentinel);
+            }
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException) { }
+        finally
+        {
+            _callback?.Dispose();
+            await base.DisposeAsync();
+        }
+    }
+}

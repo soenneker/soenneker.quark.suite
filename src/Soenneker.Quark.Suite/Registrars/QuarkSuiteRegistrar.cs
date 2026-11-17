@@ -58,6 +58,7 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkThreadsAsScoped()
                 .AddQuarkScrollspyAsScoped()
                 .AddQuarkScrollRevealAsScoped()
+                .AddQuarkInfiniteScrollAsScoped()
                 .AddQuarkComparisonChartAsScoped()
                 .AddQuarkChartScrollAsScoped()
                 .AddQuarkSidebarAsScoped()
