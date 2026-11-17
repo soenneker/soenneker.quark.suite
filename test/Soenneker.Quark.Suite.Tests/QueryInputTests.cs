@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Threading;
@@ -93,16 +94,16 @@ public sealed class QueryInputTests : BunitContext
         Task choose = mouse
             ? cut.Find("[role=option]").ClickAsync(new())
             : cut.Find("input").KeyDownAsync(new Microsoft.AspNetCore.Components.Web.KeyboardEventArgs { Key = "Enter" });
-        cut.WaitForAssertion(() => requested.Should().NotBeNull());
+        await cut.WaitForAssertionAsync(() => requested.Should().NotBeNull(), TimeSpan.FromSeconds(10));
         cut.FindAll("[data-slot=query-input-loading]").Should().HaveCount(1);
         cut.Find("input").GetAttribute("aria-busy").Should().Be("true");
         requested!.Field.Should().Be(field);
         requested.Search.Should().BeEmpty();
         response.SetResult([new("option-id", "Available option")]);
         await choose;
-        cut.WaitForAssertion(() => cut.FindAll("[data-slot=query-input-loading]").Should().BeEmpty());
+        await cut.WaitForAssertionAsync(() => cut.FindAll("[data-slot=query-input-loading]").Should().BeEmpty(), TimeSpan.FromSeconds(10));
         cut.Find("input").GetAttribute("aria-busy").Should().Be("false");
-        cut.WaitForAssertion(() => cut.Find("[role=option]").TextContent.Should().Be("Available option"));
+        await cut.WaitForAssertionAsync(() => cut.Find("[role=option]").TextContent.Should().Be("Available option"), TimeSpan.FromSeconds(10));
         await cut.Find("[role=option]").ClickAsync(new());
         cut.Instance.Value.Should().Be(field + ":option-id ");
     }

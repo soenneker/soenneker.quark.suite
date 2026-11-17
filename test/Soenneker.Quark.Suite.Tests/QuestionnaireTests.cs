@@ -69,10 +69,18 @@ public sealed partial class RenderedShadcnParityTests
             .AddChildContent<QuestionnaireItem>(item => item.Add(c => c.Name, "text")
                 .AddChildContent<QuestionnaireInput>(input => input.Add(c => c.Value, "initial"))));
         saves.Should().BeEmpty();
-        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "first" });
-        await cut.Find("input").InputAsync(new ChangeEventArgs { Value = "latest" });
-        cut.WaitForAssertion(() => saves.Should().ContainSingle());
-        saves[0]["text"].Should().Equal("latest");
+        // Dispatch both edits together so runner scheduling cannot consume the debounce window between them.
+        await cut.InvokeAsync(() =>
+        {
+            var input = cut.Find("input");
+            input.Input("first");
+            input.Input("latest");
+        });
+        await cut.WaitForAssertionAsync(() =>
+        {
+            saves.Should().ContainSingle();
+            saves[0]["text"].Should().Equal("latest");
+        }, TimeSpan.FromSeconds(5));
     }
 
     [Test]

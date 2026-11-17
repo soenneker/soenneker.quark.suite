@@ -33,6 +33,7 @@ class ElementStub {
   getClientRects() { return [this.getBoundingClientRect()]; }
   closest() { return null; }
   focus() {}
+  getAnimations() { return []; }
   setPointerCapture(id) { this.capture = id; }
   hasPointerCapture(id) { return this.capture !== null && this.capture === id; }
   releasePointerCapture(id) { assert.equal(this.capture, id); this.capture = null; }
@@ -44,6 +45,7 @@ function environment() {
   globalThis.requestAnimationFrame = callback => { const id = next++; frames.set(id, callback); return id; };
   globalThis.cancelAnimationFrame = id => frames.delete(id);
   globalThis.Element = ElementStub;
+  globalThis.getComputedStyle = () => ({ opacity: '1' });
   globalThis.document = new ElementStub();
   globalThis.window = Object.assign(new ElementStub(), { innerWidth: 1000, innerHeight: 800 });
   globalThis.MutationObserver = globalThis.ResizeObserver = class {
@@ -65,6 +67,7 @@ function floatingFixture(t) {
   element.querySelectorAll = () => [handle];
   document.getElementById = () => element;
   floating.create('window', JSON.stringify({ autoSizeToContent: false, centerOnShow: false }));
+  floating.show('window');
   floating.setCallbacks('window', env.receiver);
   t.after(() => floating.destroy('window'));
   element.writes = element.reads = 0;

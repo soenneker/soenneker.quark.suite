@@ -255,6 +255,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
         Services.AddScoped<ILucideIconSvgProvider, FakeLucideIconSvgProvider>();
         Services.AddScoped<ISimpleIconsSvgProvider, FakeSimpleIconsSvgProvider>();
         Services.AddScoped<ICollapseCoordinator, CollapseCoordinator>();
+        Services.AddScoped<ICollapseInterop, CollapseInterop>();
         Services.AddScoped<IScoreInterop, FakeScoreInterop>();
         Services.AddScoped<ISpinnerInterop, FakeSpinnerInterop>();
         Services.AddScoped<IScrollspyInterop, FakeScrollspyInterop>();

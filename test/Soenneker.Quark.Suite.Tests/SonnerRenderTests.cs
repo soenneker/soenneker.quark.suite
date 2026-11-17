@@ -25,11 +25,11 @@ public sealed partial class RenderedShadcnParityTests
                 await service.Toast("First", cancellationToken: cancellationToken);
                 await service.Toast("Second", cancellationToken: cancellationToken);
             });
-            cut.WaitForAssertion(() =>
+            await cut.WaitForAssertionAsync(() =>
             {
                 cut.Find("ol").GetAttribute("style").Should().Contain("--front-toast-height: 73.3px;");
                 cut.Find("[data-index='1']").GetAttribute("style").Should().Contain("--offset: 87.3px;");
-            });
+            }, System.TimeSpan.FromSeconds(10));
         }
         finally
         {

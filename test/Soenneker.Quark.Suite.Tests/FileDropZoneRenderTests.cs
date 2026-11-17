@@ -269,21 +269,21 @@ public sealed partial class RenderedShadcnParityTests
         try
         {
             await transferred.Task.WaitAsync(TimeSpan.FromSeconds(10), cancellationToken);
-            cut.WaitForAssertion(() =>
+            await cut.WaitForAssertionAsync(() =>
             {
                 cut.Instance.Files.Single().State.Should().Be(FileDropZoneState.Processing);
                 cut.Instance.Files.Single().ServerId.Should().BeNull();
                 cut.Find("[role='progressbar']").HasAttribute("aria-valuenow").Should().BeFalse();
                 cut.Find("[role='progressbar']").GetAttribute("aria-valuetext").Should().Be("Finishing upload");
                 cut.Find("button[aria-label='Cancel upload of document.pdf']").Should().NotBeNull();
-            });
+            }, TimeSpan.FromSeconds(10));
         }
         finally
         {
             response.TrySetResult();
             await upload.WaitAsync(TimeSpan.FromSeconds(10), cancellationToken);
         }
-        cut.WaitForAssertion(() => cut.Instance.Files.Single().State.Should().Be(fail ? FileDropZoneState.Failed : FileDropZoneState.Complete));
+        await cut.WaitForAssertionAsync(() => cut.Instance.Files.Single().State.Should().Be(fail ? FileDropZoneState.Failed : FileDropZoneState.Complete), TimeSpan.FromSeconds(10));
         if (fail)
             cut.Find("[role='alert']").TextContent.Should().Contain("Storage unavailable");
         else
