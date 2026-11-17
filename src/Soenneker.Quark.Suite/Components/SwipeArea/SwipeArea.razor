@@ -1,0 +1,89 @@
+@namespace Soenneker.Quark
+@using Microsoft.JSInterop
+@using Soenneker.Asyncs.Locks
+@inherits Element
+@implements ISwipeArea
+@inject ISwipeAreaInterop SwipeAreaInterop
+
+<div @ref="_element" @attributes="BuildAttributes()">@ChildContent</div>
+
+@code {
+    [Parameter] public EventCallback OnSwipeLeft { get; set; }
+    [Parameter] public EventCallback OnSwipeRight { get; set; }
+    [Parameter] public EventCallback OnSwipeUp { get; set; }
+    [Parameter] public EventCallback OnSwipeDown { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public double Threshold { get; set; } = 60;
+    [Parameter] public int MaxDuration { get; set; } = 1000;
+    [Parameter] public SwipeEdge StartEdge { get; set; } = SwipeEdge.None;
+    [Parameter] public double EdgeSize { get; set; } = 32;
+    [Parameter] public bool PreserveNativeEdgeGestures { get; set; } = true;
+    [Parameter] public bool EnableMouse { get; set; }
+
+    private ElementReference _element;
+    private DotNetObjectReference<SwipeArea>? _callback;
+    private readonly AsyncLock _interopLock = new();
+    private bool _disposed;
+    private bool _configured;
+    private bool _dispatching;
+
+    protected override void ApplyDefaultParameters()
+    {
+        base.ApplyDefaultParameters();
+        DataSlot ??= "swipe-area";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        using (await _interopLock.Lock())
+        {
+            if (_disposed) return;
+            _callback ??= DotNetObjectReference.Create(this);
+            _configured = true;
+            await SwipeAreaInterop.Configure(_element, _callback, new SwipeAreaInteropOptions
+            {
+                Left = OnSwipeLeft.HasDelegate, Right = OnSwipeRight.HasDelegate,
+                Up = OnSwipeUp.HasDelegate, Down = OnSwipeDown.HasDelegate,
+                Disabled = Disabled, Threshold = double.IsFinite(Threshold) ? Math.Max(10, Threshold) : 60,
+                MaxDuration = Math.Max(1, MaxDuration), StartEdge = StartEdge.Value,
+                EdgeSize = double.IsFinite(EdgeSize) ? Math.Max(1, EdgeSize) : 32,
+                PreserveNativeEdgeGestures = PreserveNativeEdgeGestures, EnableMouse = EnableMouse
+            });
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    [JSInvokable]
+    public Task NotifySwipe(string direction) => InvokeAsync(async () =>
+    {
+        if (_disposed || Disabled || _dispatching) return;
+        EventCallback callback = direction switch
+        {
+            "left" => OnSwipeLeft, "right" => OnSwipeRight,
+            "up" => OnSwipeUp, "down" => OnSwipeDown, _ => default
+        };
+        if (!callback.HasDelegate) return;
+        _dispatching = true;
+        try { await callback.InvokeAsync(); }
+        finally { _dispatching = false; }
+    });
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        try
+        {
+            using (await _interopLock.Lock())
+            {
+                if (_configured) await SwipeAreaInterop.Destroy(_element);
+            }
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or InvalidOperationException or TaskCanceledException) { }
+        finally
+        {
+            _callback?.Dispose();
+            await base.DisposeAsync();
+        }
+    }
+}

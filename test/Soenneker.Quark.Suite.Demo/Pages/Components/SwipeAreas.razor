@@ -1,0 +1,60 @@
+@page "/components/swipe-area"
+
+<QuarkSeoHead Title="Blazor Swipe Area | Quark Suite" Description="Recognize directional swipes for navigation and drawers while preserving unhandled scrolling gestures." />
+
+<Div Space="Space.Y.Is6">
+    <DemoSection Description="Swipe horizontally or drag with the mouse to change pages. Vertical gestures remain available for scrolling. Buttons provide the same actions." Code="@ExampleCode" CodeLanguage="razor">
+        <SwipeArea OnSwipeLeft="Next" OnSwipeRight="Previous" EnableMouse="true"
+                   Padding="Padding.Is6" Border="Border.Default" Rounded="Rounded.Lg">
+            <Paragraph>Page @_page</Paragraph>
+            <Paragraph>Swipe left for next or right for previous.</Paragraph>
+            <Div Display="Display.Flex" Gap="Gap.Is2">
+                <Button OnClick="Previous">Previous</Button>
+                <Button OnClick="Next">Next</Button>
+            </Div>
+        </SwipeArea>
+    </DemoSection>
+    <DemoSection Title="Edge-only gestures" Description="Begin within 48 pixels of this area's left edge and swipe right. The outer 24 pixels of the screen remain reserved for native navigation." Code="@EdgeCode" CodeLanguage="razor">
+        <SwipeArea StartEdge="SwipeEdge.Left" EdgeSize="48" OnSwipeRight="RequestMenu" EnableMouse="true"
+                   Padding="Padding.Is6" Border="Border.Default" Rounded="Rounded.Lg">
+            <Paragraph>@_menuStatus</Paragraph>
+            <Button OnClick="RequestMenu">Request menu</Button>
+        </SwipeArea>
+    </DemoSection>
+</Div>
+
+@code {
+    private int _page = 1;
+    private string _menuStatus = "Swipe right from this area's left edge to request the menu.";
+    private void Next() => _page++;
+    private void Previous() => _page = Math.Max(1, _page - 1);
+    private void RequestMenu() => _menuStatus = "Menu requested. Connect this callback to your drawer's open state.";
+
+    private const string ExampleCode = """
+        <SwipeArea OnSwipeLeft="Next" OnSwipeRight="Previous" EnableMouse="true"
+                   Padding="Padding.Is6" Border="Border.Default" Rounded="Rounded.Lg">
+            <Paragraph>Page @_page</Paragraph>
+            <Paragraph>Swipe left for next or right for previous.</Paragraph>
+            <Div Display="Display.Flex" Gap="Gap.Is2">
+                <Button OnClick="Previous">Previous</Button>
+                <Button OnClick="Next">Next</Button>
+            </Div>
+        </SwipeArea>
+        @code {
+            private int _page = 1;
+            private void Next() => _page++;
+            private void Previous() => _page = Math.Max(1, _page - 1);
+        }
+        """;
+    private const string EdgeCode = """
+        <SwipeArea StartEdge="SwipeEdge.Left" EdgeSize="48" OnSwipeRight="RequestMenu" EnableMouse="true"
+                   Padding="Padding.Is6" Border="Border.Default" Rounded="Rounded.Lg">
+            <Paragraph>@_menuStatus</Paragraph>
+            <Button OnClick="RequestMenu">Request menu</Button>
+        </SwipeArea>
+        @code {
+            private string _menuStatus = "Swipe right from this area's left edge to request the menu.";
+            private void RequestMenu() => _menuStatus = "Menu requested. Connect this callback to your drawer's open state.";
+        }
+        """;
+}

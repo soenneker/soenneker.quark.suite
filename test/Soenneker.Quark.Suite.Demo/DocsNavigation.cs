@@ -123,6 +123,7 @@ public static class DocsNavigation
         new("Stack", ComponentRoute("stack")),
         new("Stepper", ComponentRoute("stepper")),
         new("Summary", ComponentRoute("summary")),
+        new("Swipe Area", ComponentRoute("swipe-area"), IsNew: true),
         new("Switch", ComponentRoute("switch")),
         new("Table", ComponentRoute("table")),
         new("Tabs", ComponentRoute("tabs")),

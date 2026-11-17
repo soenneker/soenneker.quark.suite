@@ -26,6 +26,7 @@ namespace Soenneker.Quark;
 [JsonSerializable(typeof(OnThisPageTocItem[]))]
 [JsonSerializable(typeof(PromptInputAttachmentInfo[]))]
 [JsonSerializable(typeof(ScrollRevealInteropOptions))]
+[JsonSerializable(typeof(SwipeAreaInteropOptions))]
 [JsonSerializable(typeof(ScrollspyInteropOptions))]
 [JsonSerializable(typeof(SortableReorderEventArgs))]
 [JsonSerializable(typeof(IReadOnlyList<string>))]
