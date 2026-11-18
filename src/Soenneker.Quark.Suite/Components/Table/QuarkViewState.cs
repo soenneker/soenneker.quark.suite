@@ -9,5 +9,7 @@ public sealed record QuarkViewState
     public IReadOnlyList<DataTableColumnState> Columns { get; init; } = [];
     public IReadOnlyList<DataTableSort> Sorts { get; init; } = [];
     public string Search { get; init; } = "";
+    /// <summary>Expanded parent records in a hierarchical data table.</summary>
+    public IReadOnlyList<string> ExpandedRowKeys { get; init; } = [];
     public int PageSize { get; init; } = 25;
 }

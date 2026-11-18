@@ -1,0 +1,66 @@
+@namespace Soenneker.Quark
+@typeparam TModel where TModel : class
+@using Microsoft.AspNetCore.Components.Forms
+@implements IDisposable
+
+<EditForm EditContext="@_context" OnValidSubmit="Submit">
+    @foreach (var field in Fields)
+    {
+        <div @key="field.Key">
+            @if (field.Editor is not null)
+            {
+                <fieldset><legend>@field.Label</legend>@field.Editor(Model)</fieldset>
+            }
+            else
+            {
+                <label>@field.Label <input value="@field.Read(Model)" @onchange="e => Update(field, e.Value?.ToString())" /></label>
+            }
+            @foreach (var message in _context.GetValidationMessages(new FieldIdentifier(Model, field.Key)))
+            {
+                <div role="alert">@message</div>
+            }
+        </div>
+    }
+    <button type="submit">@SubmitLabel</button>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired] public TModel Model { get; set; } = null!;
+    [Parameter] public IReadOnlyList<SchemaField<TModel>> Fields { get; set; } = [];
+    [Parameter] public EventCallback<TModel> OnValidSubmit { get; set; }
+    [Parameter] public string SubmitLabel { get; set; } = "Save";
+    private EditContext _context = null!;
+    private ValidationMessageStore _messages = null!;
+    protected override void OnParametersSet()
+    {
+        if (_context?.Model == Model) return;
+        Dispose();
+        _context = new EditContext(Model);
+        _messages = new ValidationMessageStore(_context);
+        _context.OnValidationRequested += Validate;
+        _context.OnFieldChanged += FieldChanged;
+    }
+    private void Update(SchemaField<TModel> field, string? value)
+    {
+        field.Write(Model, value);
+        _context.NotifyFieldChanged(new FieldIdentifier(Model, field.Key));
+    }
+    private void Validate(object? sender, ValidationRequestedEventArgs args) => Check();
+    private void FieldChanged(object? sender, FieldChangedEventArgs args) => Check();
+    private void Check()
+    {
+        _messages.Clear();
+        foreach (var field in Fields)
+            if (field.Validate?.Invoke(Model) is { Length: > 0 } error)
+                _messages.Add(new FieldIdentifier(Model, field.Key), error);
+        _context.NotifyValidationStateChanged();
+        StateHasChanged();
+    }
+    private Task Submit() => OnValidSubmit.InvokeAsync(Model);
+    public void Dispose()
+    {
+        if (_context is null) return;
+        _context.OnValidationRequested -= Validate;
+        _context.OnFieldChanged -= FieldChanged;
+    }
+}

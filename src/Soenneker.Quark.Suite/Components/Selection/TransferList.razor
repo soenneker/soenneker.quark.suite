@@ -1,0 +1,31 @@
+@namespace Soenneker.Quark
+
+<div class="flex flex-wrap items-center gap-2">
+    <ListBox Label="@AvailableLabel" Options="@Pane(false)" Multiple @bind-Value="_available" />
+    <div class="flex flex-col gap-1">
+        <button type="button" disabled="@(_available.Count == 0)" @onclick="() => Move(true)">@AddLabel</button>
+        <button type="button" disabled="@(_selected.Count == 0)" @onclick="() => Move(false)">@RemoveLabel</button>
+    </div>
+    <ListBox Label="@SelectedLabel" Options="@Pane(true)" Multiple @bind-Value="_selected" />
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<SelectOption> Options { get; set; } = [];
+    [Parameter] public IReadOnlyList<string> Value { get; set; } = [];
+    [Parameter] public EventCallback<IReadOnlyList<string>> ValueChanged { get; set; }
+    [Parameter] public string AvailableLabel { get; set; } = "Available";
+    [Parameter] public string SelectedLabel { get; set; } = "Selected";
+    [Parameter] public string AddLabel { get; set; } = "Add →";
+    [Parameter] public string RemoveLabel { get; set; } = "← Remove";
+    private IReadOnlyList<string> _available = [], _selected = [];
+    private SelectOption[] Pane(bool selected) => Options.Where(o => Value.Contains(o.Value) == selected).ToArray();
+
+    private Task Move(bool add)
+    {
+        var highlighted = add ? _available : _selected;
+        var keys = Pane(!add).Where(o => !o.Disabled && highlighted.Contains(o.Value)).Select(o => o.Value);
+        var next = (add ? Value.Union(keys) : Value.Except(keys)).ToArray();
+        _available = _selected = [];
+        return ValueChanged.InvokeAsync(next);
+    }
+}

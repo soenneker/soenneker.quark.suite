@@ -1,0 +1,35 @@
+@namespace Soenneker.Quark
+
+@if (ReadOnly)
+{
+    <span aria-label="@($"{Label}: {Value} / {Maximum}")">@Stars</span>
+}
+else
+{
+    <fieldset class="inline-flex gap-1">
+        <legend>@Label</legend>
+        @for (int i = 1; i <= Maximum; i++)
+        {
+            int score = i;
+            <label class="cursor-pointer">
+                <input class="peer sr-only" type="radio" name="@_group" checked="@(Value == score)" aria-label="@($"{score} / {Maximum}")" @onchange="() => ValueChanged.InvokeAsync(score)" />
+                <span aria-hidden="true" class="peer-focus-visible:outline">@(score <= Value ? "★" : "☆")</span>
+            </label>
+        }
+    </fieldset>
+}
+
+@code {
+    [Parameter] public int Value { get; set; }
+    [Parameter] public EventCallback<int> ValueChanged { get; set; }
+    [Parameter] public int Maximum { get; set; } = 5;
+    [Parameter] public string Label { get; set; } = "Rating";
+    [Parameter] public bool ReadOnly { get; set; }
+    private readonly string _group = Guid.NewGuid().ToString();
+    private string Stars => new string('★', Value) + new string('☆', Maximum - Value);
+    protected override void OnParametersSet()
+    {
+        if (Maximum < 1 || Value < 0 || Value > Maximum)
+            throw new ArgumentOutOfRangeException(nameof(Value), "Rating must be between zero and the positive maximum.");
+    }
+}

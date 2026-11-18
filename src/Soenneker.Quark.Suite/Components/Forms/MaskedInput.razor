@@ -1,0 +1,52 @@
+@namespace Soenneker.Quark
+@inject IInputInterop Interop
+
+<input @ref="_input" @attributes="AdditionalAttributes" type="text" inputmode="numeric" value="@DisplayValue" @oninput="Change" />
+
+@code {
+    /// <summary>Each # accepts one ASCII digit. Other non-digit characters are formatting literals.</summary>
+    [Parameter, EditorRequired] public string Mask { get; set; } = "";
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
+    [CascadingParameter] private Microsoft.AspNetCore.Components.Forms.EditContext? EditContext { get; set; }
+    [Parameter] public System.Linq.Expressions.Expression<Func<string?>>? ValueExpression { get; set; }
+    private ElementReference _input;
+    private string? _registeredMask;
+
+    protected override void OnParametersSet()
+    {
+        if (!Mask.Contains('#') || Mask.Any(char.IsAsciiDigit))
+            throw new ArgumentException("A mask requires a # digit slot and cannot contain literal digits.", nameof(Mask));
+    }
+    private string DisplayValue
+    {
+        get
+        {
+            string raw = Digits(Value);
+            var display = new System.Text.StringBuilder();
+            int index = 0;
+            bool complete = raw.Length == Mask.Count(c => c == '#');
+            foreach (char token in Mask)
+            {
+                if (index == raw.Length && !complete) break;
+                display.Append(token == '#' ? raw[index++] : token);
+            }
+            return display.ToString();
+        }
+    }
+    private string Digits(string? text) => new((text ?? "").Where(char.IsAsciiDigit).Take(Mask.Count(c => c == '#')).ToArray());
+    private async Task Change(ChangeEventArgs e)
+    {
+        await ValueChanged.InvokeAsync(Digits(e.Value?.ToString()));
+        if (ValueExpression is not null && EditContext is not null)
+            EditContext.NotifyFieldChanged(Microsoft.AspNetCore.Components.Forms.FieldIdentifier.Create(ValueExpression));
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_registeredMask == Mask) return;
+        string mask = Mask;
+        await Interop.RegisterDigitMask(_input, mask);
+        _registeredMask = mask;
+    }
+}

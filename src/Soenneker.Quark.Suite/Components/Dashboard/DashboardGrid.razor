@@ -1,0 +1,42 @@
+@namespace Soenneker.Quark
+
+<div class="grid gap-2" style="@($"grid-template-columns:repeat({Columns}, minmax(0, 1fr));grid-auto-rows:minmax({RowHeight}px, auto)")">
+    @foreach (var widget in Layout)
+    {
+        <section @key="widget.Key" aria-label="@widget.Key" style="@($"grid-column:{widget.Column} / span {widget.Width};grid-row:{widget.Row} / span {widget.Height}")">
+            @WidgetTemplate(widget)
+            @if (Editable)
+            {
+                <div class="flex flex-wrap gap-1" role="group" aria-label="@($"Arrange {widget.Key}")">
+                    @Action("Move left", "←", widget with { Column = widget.Column - 1 })
+                    @Action("Move right", "→", widget with { Column = widget.Column + 1 })
+                    @Action("Move up", "↑", widget with { Row = widget.Row - 1 })
+                    @Action("Move down", "↓", widget with { Row = widget.Row + 1 })
+                    @Action("Narrower", "−W", widget with { Width = widget.Width - 1 })
+                    @Action("Wider", "+W", widget with { Width = widget.Width + 1 })
+                    @Action("Shorter", "−H", widget with { Height = widget.Height - 1 })
+                    @Action("Taller", "+H", widget with { Height = widget.Height + 1 })
+                </div>
+            }
+        </section>
+    }
+</div>
+
+@code {
+    [Parameter] public int Columns { get; set; } = 4;
+    [Parameter] public int RowHeight { get; set; } = 80;
+    [Parameter] public bool Editable { get; set; } = true;
+    [Parameter] public IReadOnlyList<DashboardWidget> Layout { get; set; } = [];
+    [Parameter] public EventCallback<IReadOnlyList<DashboardWidget>> LayoutChanged { get; set; }
+    [Parameter, EditorRequired] public RenderFragment<DashboardWidget> WidgetTemplate { get; set; } = null!;
+
+    private RenderFragment Action(string label, string symbol, DashboardWidget next) =>
+        @<button type="button" title="@label" aria-label="@label" disabled="@(!Fits(next))" @onclick="() => Apply(next)">@symbol</button>;
+
+    private bool Fits(DashboardWidget next) =>
+        next.Row >= 1 && next.Column >= 1 && next.Width >= 1 && next.Height >= 1 && (long)next.Column + next.Width - 1 <= Columns &&
+        !Layout.Any(w => w.Key != next.Key && next.Column < (long)w.Column + w.Width && w.Column < (long)next.Column + next.Width &&
+                         next.Row < (long)w.Row + w.Height && w.Row < (long)next.Row + next.Height);
+
+    private Task Apply(DashboardWidget next) => LayoutChanged.InvokeAsync(Layout.Select(w => w.Key == next.Key ? next : w).ToArray());
+}

@@ -1,0 +1,16 @@
+@namespace Soenneker.Quark
+@inject IScrollspyInterop ScrollInterop
+
+<FloatingActionButton AriaLabel="@Label" Title="@Label" OnClick="Scroll" Bottom="@Bottom" Right="@Right">
+    @if (ChildContent is not null) { @ChildContent }
+    else { <Icon Name="LucideIcon.ArrowUp" /> }
+</FloatingActionButton>
+
+@code {
+    [Parameter] public string Label { get; set; } = "Scroll to top";
+    [Parameter] public bool Smooth { get; set; } = true;
+    [Parameter] public CssValue<BottomBuilder>? Bottom { get; set; }
+    [Parameter] public CssValue<RightBuilder>? Right { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    private async Task Scroll(MouseEventArgs _) => await ScrollInterop.ScrollPageToTop(Smooth);
+}

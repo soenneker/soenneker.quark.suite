@@ -43,6 +43,16 @@ public sealed class InputInterop : IInputInterop
         }
     }
 
+    public async ValueTask RegisterDigitMask(ElementReference input, string mask, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(_modulePath, linked);
+            await module.InvokeVoidWithContextAsync("registerDigitMask", linked, input, mask);
+        }
+    }
+
     public async ValueTask RegisterComboboxKeys(ElementReference input, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);

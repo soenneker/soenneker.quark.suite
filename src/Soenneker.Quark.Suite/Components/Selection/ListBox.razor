@@ -1,0 +1,25 @@
+@namespace Soenneker.Quark
+
+<select @attributes="AdditionalAttributes" aria-label="@Label" size="@Math.Max(2, Rows)" multiple="@Multiple" @onchange="Change">
+    @foreach (SelectOption option in Options)
+    {
+        <option @key="option.Value" value="@option.Value" selected="@Value.Contains(option.Value)" disabled="@option.Disabled">@option.Label</option>
+    }
+</select>
+
+@code {
+    [Parameter, EditorRequired] public string Label { get; set; } = "";
+    [Parameter] public int Rows { get; set; } = 6;
+    [Parameter] public bool Multiple { get; set; }
+    [Parameter] public IReadOnlyList<SelectOption> Options { get; set; } = [];
+    [Parameter] public IReadOnlyList<string> Value { get; set; } = [];
+    [Parameter] public EventCallback<IReadOnlyList<string>> ValueChanged { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private Task Change(ChangeEventArgs e) => ValueChanged.InvokeAsync(e.Value switch
+    {
+        string[] keys => keys,
+        string key => [key],
+        _ => []
+    });
+}

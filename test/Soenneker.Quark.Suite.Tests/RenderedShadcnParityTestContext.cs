@@ -310,6 +310,13 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
     private sealed class FakeScrollspyInterop : IScrollspyInterop
     {
+        public bool? LastScrollSmooth { get; private set; }
+        public ValueTask ScrollPageToTop(bool smooth, CancellationToken cancellationToken = default)
+        {
+            LastScrollSmooth = smooth;
+            return ValueTask.CompletedTask;
+        }
+
         public ValueTask Initialize(ElementReference element, ScrollspyInteropOptions options, DotNetObjectReference<Scrollspy> callbackReference,
             CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
@@ -430,6 +437,7 @@ public sealed partial class RenderedShadcnParityTests : BunitContext
 
         public ValueTask RegisterTagInputKeys(ElementReference input, string[] delimiters, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
+        public ValueTask RegisterDigitMask(ElementReference input, string mask, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
         public ValueTask RegisterComboboxKeys(ElementReference input, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask UnregisterComboboxKeys(ElementReference input, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;

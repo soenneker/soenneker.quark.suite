@@ -10,6 +10,9 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IInputInterop : IAsyncDisposable
 {
+    /// <summary>Formats a digit input during native editing and restores its logical caret position.</summary>
+    ValueTask RegisterDigitMask(ElementReference input, string mask, CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Ensures input resources are loaded.
     /// </summary>

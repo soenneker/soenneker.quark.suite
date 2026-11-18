@@ -1,0 +1,24 @@
+@namespace Soenneker.Quark
+@using Soenneker.Bradix
+
+<div data-slot="speed-dial" class="fixed end-4 z-40" style="@($"bottom:{BottomOffset}")">
+    <Dropdown Side="Side.Top">
+        <DropdownToggle AsChild="true">
+            <FloatingActionButton Position="Quark.Position.Static" AriaLabel="@Label">
+                @if (TriggerContent is not null) { @TriggerContent }
+                else { <Icon Name="LucideIcon.Plus" /> }
+            </FloatingActionButton>
+        </DropdownToggle>
+        <DropdownMenu Side="Side.Top" RightAligned="true" SideOffset="8">
+            @ChildContent
+        </DropdownMenu>
+    </Dropdown>
+</div>
+
+@code {
+    [Parameter] public string Label { get; set; } = "Quick actions";
+    [Parameter] public string BottomOffset { get; set; } = "calc(1rem + env(safe-area-inset-bottom))";
+    [Parameter] public RenderFragment? TriggerContent { get; set; }
+    /// <summary>Quick actions rendered as DropdownItem components.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

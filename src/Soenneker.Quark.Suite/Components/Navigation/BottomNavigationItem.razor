@@ -1,0 +1,15 @@
+@namespace Soenneker.Quark
+@using Microsoft.AspNetCore.Components.Routing
+
+<NavLink href="@Href" Match="@Match" ActiveClass="font-semibold text-primary"
+         class="flex min-h-11 flex-1 flex-col items-center justify-center gap-1 px-2 text-sm" data-slot="bottom-navigation-item">
+    @if (IconContent is not null) { <span aria-hidden="true">@IconContent</span> }
+    @Label
+</NavLink>
+
+@code {
+    [Parameter, EditorRequired] public string Href { get; set; } = "";
+    [Parameter, EditorRequired] public string Label { get; set; } = "";
+    [Parameter] public NavLinkMatch Match { get; set; } = NavLinkMatch.All;
+    [Parameter] public RenderFragment? IconContent { get; set; }
+}

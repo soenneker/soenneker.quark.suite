@@ -15,6 +15,8 @@ public sealed class DataTableData<TItem> : DataTableData
     public required IReadOnlyList<DataTableColumn<TItem>> Columns { get; init; }
     /// <summary>Stable unique identity of a record.</summary>
     public required Func<TItem, string> RowKey { get; init; }
+    /// <summary>Parent identity for local tree-grid records. Null identifies a root. Paging applies to visible rows.</summary>
+    public Func<TItem, string?>? ParentKey { get; set; }
     /// <summary>Optional content beneath an expanded row.</summary>
     public RenderFragment<TItem>? DetailTemplate { get; set; }
     /// <summary>Persists an edit. Throw to keep the draft open. Update Items after success.</summary>
@@ -47,6 +49,7 @@ public sealed class DataTableData<TItem> : DataTableData
         builder.AddAttribute(17, "RootAttributes", owner.DataAttributes());
         builder.AddAttribute(18, "Owner", owner);
         builder.AddAttribute(19, "DataVersion", DataVersion);
+        builder.AddAttribute(20, "ParentKey", ParentKey);
         builder.CloseComponent();
     };
 }

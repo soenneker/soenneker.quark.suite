@@ -1,3 +1,40 @@
+// State follows the DOM node lifetime, including when a component changes masks.
+const digitMasks = new WeakMap();
+const onlyDigits = value => value.replace(/[^0-9]/g, "");
+
+function applyDigitMask(input) {
+    const mask = digitMasks.get(input);
+    const raw = onlyDigits(input.value);
+    const before = onlyDigits(input.value.slice(0, input.selectionStart)).length;
+    let formatted = "", count = 0, caret = 0;
+    const complete = raw.length >= mask.split("#").length - 1;
+    for (const token of mask) {
+        if (count === raw.length && !complete) break;
+        formatted += token === "#" ? raw[count++] : token;
+        if (count <= before) caret = formatted.length;
+    }
+    input.value = formatted;
+    input.setSelectionRange(caret, caret);
+}
+
+export function registerDigitMask(input, mask) {
+    if (!digitMasks.has(input)) {
+        input.addEventListener("beforeinput", event => {
+            if (input.selectionStart !== input.selectionEnd) return;
+            let start = input.selectionStart, end = start;
+            if (event.inputType === "deleteContentBackward") {
+                while (start > 0 && !/[0-9]/.test(input.value[start - 1])) start--;
+                if (start !== end) input.setSelectionRange(Math.max(0, start - 1), end);
+            } else if (event.inputType === "deleteContentForward") {
+                while (end < input.value.length && !/[0-9]/.test(input.value[end])) end++;
+                if (start !== end) input.setSelectionRange(start, Math.min(input.value.length, end + 1));
+            }
+        });
+        input.addEventListener("input", () => applyDigitMask(input));
+    }
+    digitMasks.set(input, mask);
+}
+
 export function getSelection(input) {
     if (!input || typeof input.selectionStart !== "number" || typeof input.selectionEnd !== "number") {
         return null;

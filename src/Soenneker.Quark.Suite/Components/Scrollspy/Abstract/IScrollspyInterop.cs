@@ -10,6 +10,9 @@ namespace Soenneker.Quark;
 /// </summary>
 public interface IScrollspyInterop
 {
+    /// <summary>Scrolls the document viewport to the top, honoring the user's reduced-motion preference.</summary>
+    ValueTask ScrollPageToTop(bool smooth, CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Initializes the Scrollspy so it is ready for use.
     /// </summary>

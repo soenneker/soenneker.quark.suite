@@ -1,0 +1,62 @@
+@namespace Soenneker.Quark
+
+<div class="relative" @onkeydown="HandleKey">
+
+    <button @ref="_trigger" type="button" aria-expanded="@(Open ? "true" : "false")" @onclick="() => Open = !Open">@Caption</button>
+    @if (Open)
+    {
+    <div class="absolute z-10 rounded border bg-background p-2">
+        @Branch(Nodes)
+    </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Label { get; set; } = "Select";
+    [Parameter] public bool Multiple { get; set; }
+    [Parameter] public IReadOnlyList<TreeSelectNode> Nodes { get; set; } = [];
+    [Parameter] public IReadOnlyList<string> Value { get; set; } = [];
+    [Parameter] public EventCallback<IReadOnlyList<string>> ValueChanged { get; set; }
+    private bool Open;
+    private ElementReference _trigger;
+    private async Task HandleKey(KeyboardEventArgs e)
+    {
+        if (Open && e.Key == "Escape")
+        {
+            Open = false;
+            await _trigger.FocusAsync();
+        }
+    }
+    private readonly HashSet<string> _expanded = [];
+    private string Caption => Value.Count == 0 ? Label : string.Join(", ", Labels(Nodes));
+    private IEnumerable<string> Labels(IReadOnlyList<TreeSelectNode> nodes)
+    {
+        foreach (var node in nodes)
+        {
+            if (Value.Contains(node.Key)) yield return node.Label;
+            if (node.Children is not null)
+                foreach (var label in Labels(node.Children)) yield return label;
+        }
+    }
+
+    private RenderFragment Branch(IReadOnlyList<TreeSelectNode> nodes) => @<ul class="ps-3">
+        @foreach (var node in nodes)
+        {
+            <li @key="node.Key">
+                @if (node.Children is { Count: > 0 })
+                {
+                    <button type="button" aria-label="@node.Label" aria-expanded="@(_expanded.Contains(node.Key) ? "true" : "false")" @onclick="() => Toggle(node.Key)">@(_expanded.Contains(node.Key) ? "▾" : "▸")</button>
+                }
+                <button type="button" aria-pressed="@(Value.Contains(node.Key) ? "true" : "false")" @onclick="() => Select(node.Key)">@(Value.Contains(node.Key) ? "✓ " : "")@node.Label</button>
+                @if (_expanded.Contains(node.Key) && node.Children is not null) { @Branch(node.Children) }
+            </li>
+        }
+    </ul>;
+
+    private void Toggle(string key) { if (!_expanded.Remove(key)) _expanded.Add(key); }
+    private Task Select(string key)
+    {
+        if (!Multiple) Open = false;
+        return ValueChanged.InvokeAsync(!Multiple ? [key] : Value.Contains(key) ? Value.Where(k => k != key).ToArray() : Value.Append(key).ToArray());
+    }
+}

@@ -36,6 +36,16 @@ public sealed class ScrollspyInterop : IScrollspyInterop, IAsyncDisposable
         }
     }
 
+    public async ValueTask ScrollPageToTop(bool smooth, CancellationToken cancellationToken = default)
+    {
+        var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);
+        using (source)
+        {
+            var module = await _moduleImportUtil.GetContentModuleReference(ModulePath, linked);
+            await module.InvokeVoidWithContextAsync("scrollPageToTop", linked, smooth);
+        }
+    }
+
     public async ValueTask Destroy(ElementReference element, CancellationToken cancellationToken = default)
     {
         var linked = _cancellationScope.CancellationToken.Link(cancellationToken, out var source);

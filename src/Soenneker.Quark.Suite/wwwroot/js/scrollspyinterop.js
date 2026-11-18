@@ -247,3 +247,8 @@ export function destroy(element) {
   instance.dispose();
   instances.delete(element);
 }
+
+export function scrollPageToTop(smooth) {
+  const animate = smooth && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: 0, behavior: animate ? "smooth" : "instant" });
+}

@@ -41,7 +41,7 @@
                HasMoreRows="HasNextRows" LoadMoreRows="LoadNextRows" TableContent="Rows"
                SelectionContent="Owner.SelectionContent" OverlayContent="Owner.OverlayContent" IsLoading="Owner.IsLoading"
                SelectionEnabled="SelectionEnabled" SelectableRowKeys="VisibleRowKeys()" SelectedKeys="SelectedKeys" SelectedKeysChanged="Select"
-               Style="@GridStyle" Width="Quark.Width.IsFull" TextSize="Quark.TextSize.Sm" aria-label="@Label" AdaptiveLayout="false" />
+               Style="@GridStyle" Width="Quark.Width.IsFull" TextSize="Quark.TextSize.Sm" role="@(ParentKey is null ? null : "treegrid")" aria-label="@Label" AdaptiveLayout="false" />
     @if (UseVirtualRows && !_loading && PageItems().Count == 0) { <p role="status">@Text["NoResults"]</p> }
     @if (Owner.BottomContent is not null) { @Owner.BottomContent }
     else if (!UseVirtualRows)
@@ -68,7 +68,7 @@
     private static readonly DataTableColumnPin[] ColumnPins = Enum.GetValues<DataTableColumnPin>();
     private static readonly int[] PageSizes = [10, 25, 50, 100];
     private DataTable? _table;
-    private bool UseVirtualRows => Virtualize && DetailTemplate is null;
+    private bool UseVirtualRows => Virtualize && DetailTemplate is null && ParentKey is null;
     private int RenderedColumnCount => Math.Max(1, VisibleColumns().Count + (SelectionEnabled ? 1 : 0) + (DetailTemplate is null ? 0 : 1));
     private QuarkAttributeDictionary _viewAttributes;
     private Dictionary<string, object> ViewAttributes()
@@ -122,7 +122,7 @@
                 @foreach (var item in PageItems())
                 {
                     var key = RowKey(item);
-                    <tr @key="key" class="border-b" aria-selected="@(SelectionEnabled ? (IsSelected(key) ? "true" : "false") : null)">
+                    <tr @key="key" aria-level="@(ParentKey is null ? null : (int?)(_depth[key] + 1))" aria-expanded="@Expansion(key)" class="border-b" aria-selected="@(SelectionEnabled ? (IsSelected(key) ? "true" : "false") : null)">
                         @RowCells(item, key)
                     </tr>
                     @if (_expanded.Contains(key) && DetailTemplate is not null) { <tr><td colspan="@(VisibleColumns().Count + (SelectionEnabled ? 1 : 0) + 1)" class="p-3">@DetailTemplate(item)</td></tr> }
@@ -138,6 +138,14 @@
                         {
                             var column = _columnMap[preference.Key];
                             <td @key="column.Key" class="bg-background p-2 align-top" style="@ColumnStyle(preference)">
+                                @if (ParentKey is not null && preference == VisibleColumns()[0])
+                                {
+                                    <button @ref="_rowButtons[key]" type="button" style="@($"margin-inline-start:{_depth[key]}rem")"
+                                            aria-label="@key" aria-expanded="@Expansion(key)"
+                                            @onkeydown="e => Navigate(key, e.Key)" @onclick="() => ToggleBranch(key)">
+                                        @(_branches.Contains(key) ? (State.ExpandedRowKeys.Contains(key) ? "▾" : "▸") : "•")
+                                    </button>
+                                }
                                 @if (_editing is not null && _editingKey == key && _editing.ColumnKey == column.Key)
                                 {
                                     @if (column.EditTemplate is not null) { @column.EditTemplate(_editing) }
@@ -222,7 +230,7 @@
     protected override async Task OnParametersSetAsync()
     {
         if (!ReferenceEquals(State, _loadedState)) _page = 0;
-        bool cached = DataVersion.HasValue && DataVersion == _preparedVersion && ReferenceEquals(Items, _preparedItems) &&
+        bool cached = ParentKey is null && _depth.Count == 0 && DataVersion.HasValue && DataVersion == _preparedVersion && ReferenceEquals(Items, _preparedItems) &&
             ReferenceEquals(Columns, _preparedColumns) && RowKey == _preparedRowKey && SameQuery(State, _preparedState);
         Prepare(!cached);
         if (LoadData is not null && (!ReferenceEquals(State, _loadedState) || LoadData != _loadedProvider)) { _page = 0; await Reload(); }
@@ -290,6 +298,7 @@
         if (!prepareData) return;
         _preparedVersion = DataVersion; _preparedItems = Items; _preparedColumns = Columns; _preparedRowKey = RowKey; _preparedState = State;
         _pageItems = null;
+        if (ParentKey is not null && LoadData is not null) throw new ArgumentException("ParentKey requires a local record collection.");
         if (RowKey is null) throw new ArgumentException("RowKey is required.");
         if (LoadData is not null) { _filtered = _remoteItems; Owner.UpdateDataStatus(_remoteCount, _page, PageSize, VisibleRowKeys()); return; }
         if (Items.Select(RowKey).Distinct().Count() != Items.Count) throw new ArgumentException("Row keys must be unique.");
@@ -306,8 +315,77 @@
             ordered = ordered is null ? sort.Descending ? query.OrderByDescending(column.Value, comparer) : query.OrderBy(column.Value, comparer)
                 : sort.Descending ? ordered.ThenByDescending(column.Value, comparer) : ordered.ThenBy(column.Value, comparer);
         }
-        _filtered = (ordered ?? query).ToList(); _page = Math.Clamp(_page, 0, PageCount - 1); Owner.UpdateDataStatus(_filtered.Count, _page, PageSize, VisibleRowKeys());
+        _filtered = (ordered ?? query).ToList();
+        _depth.Clear();
+        if (ParentKey is not null) _filtered = Flatten(_filtered);
+        _page = Math.Clamp(_page, 0, PageCount - 1); Owner.UpdateDataStatus(_filtered.Count, _page, PageSize, VisibleRowKeys());
     }
+    [Parameter] public Func<TItem, string?>? ParentKey { get; set; }
+    private readonly Dictionary<string, int> _depth = [];
+    private readonly HashSet<string> _branches = [];
+    private readonly Dictionary<string, ElementReference> _rowButtons = [];
+
+    private List<TItem> Flatten(List<TItem> rows)
+    {
+        var keys = rows.Select(RowKey).ToHashSet();
+        var children = rows.ToLookup(ParentKey!);
+        var expanded = State.ExpandedRowKeys.ToHashSet();
+        var visible = new List<TItem>();
+        _branches.Clear();
+        foreach (string stale in _rowButtons.Keys.Where(k => !keys.Contains(k)).ToArray()) _rowButtons.Remove(stale);
+        var pending = new Stack<(TItem Item, int Depth)>();
+        // A matching child whose parent was filtered out becomes a visible root.
+        foreach (var root in rows.Where(r => ParentKey!(r) is not { } parent || !keys.Contains(parent)).Reverse())
+            pending.Push((root, 0));
+        while (pending.TryPop(out var entry))
+        {
+            var key = RowKey(entry.Item);
+            _depth.Add(key, entry.Depth);
+            visible.Add(entry.Item);
+            if (!children.Contains(key)) continue;
+            _branches.Add(key);
+            if (expanded.Contains(key))
+                foreach (var child in children[key].Reverse()) pending.Push((child, entry.Depth + 1));
+        }
+        return visible;
+    }
+
+    private string? Expansion(string key) => ParentKey is null || !_branches.Contains(key) ? null :
+        State.ExpandedRowKeys.Contains(key) ? "true" : "false";
+
+    private async Task ToggleBranch(string key)
+    {
+        if (!_branches.Contains(key)) return;
+        var keys = State.ExpandedRowKeys.ToHashSet();
+        if (!keys.Remove(key)) keys.Add(key);
+        State = State with { ExpandedRowKeys = keys.ToArray() };
+        _loadedState = State;
+        Prepare();
+        await StateChanged.InvokeAsync(State);
+    }
+
+    private async Task Navigate(string key, string pressed)
+    {
+        var keys = VisibleRowKeys().ToList();
+        int index = keys.IndexOf(key);
+        if (pressed == "ArrowRight" && Expansion(key) == "false" || pressed == "ArrowLeft" && Expansion(key) == "true")
+        {
+            await ToggleBranch(key);
+            return;
+        }
+        string? target = pressed switch
+        {
+            "ArrowDown" when index + 1 < keys.Count => keys[index + 1],
+            "ArrowUp" when index > 0 => keys[index - 1],
+            "ArrowRight" when Expansion(key) == "true" && index + 1 < keys.Count => keys[index + 1],
+            "ArrowLeft" when index >= 0 => ParentKey!(PageItems()[index]),
+            "Home" => keys.FirstOrDefault(),
+            "End" => keys.LastOrDefault(),
+            _ => null
+        };
+        if (target is not null && _rowButtons.TryGetValue(target, out var button)) await button.FocusAsync();
+    }
+
     private static int Compare(object? a, object? b) => a is null ? b is null ? 0 : -1 : b is null ? 1 : a.GetType() == b.GetType() && a is IComparable comparable ? comparable.CompareTo(b) : StringComparer.OrdinalIgnoreCase.Compare(a.ToString(), b.ToString());
     private IReadOnlyList<TItem> PageItems()
     {
