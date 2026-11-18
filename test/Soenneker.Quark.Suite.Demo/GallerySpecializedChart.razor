@@ -1,0 +1,56 @@
+@switch (Category)
+{
+    case "Scatter":
+        <H3>Calibration observations</H3>
+        <Chart Type="ChartType.Scatter" AriaLabel="Calibration observations" Series="@(new[] { ChartSeries.FromPoints("Sensor", [new(1, 8), new(2.5, 14), new(4, 11), new(6, 22)]) })" />
+        break;
+    case "Bubble":
+        <H3>Warehouse shipments by distance, time, and load</H3>
+        <Chart Type="ChartType.Bubble" AriaLabel="Warehouse shipments by distance, time, and load" Series="@(new[] { ChartSeries.FromPoints("Shipments", [new(12, 3, 8), new(27, 4, 25), new(35, 8, 14), new(48, 7, 42)]) })" />
+        break;
+    case "Heatmap":
+        <H3>Machine load by shift</H3>
+        <Chart Type="ChartType.Heatmap" AriaLabel="Machine load by shift" Labels="@(new[] { "Morning", "Afternoon", "Night" })" Series="@(new[] { new ChartSeries("Press", new double[] { 82, 65, 20 }), new ChartSeries("Lathe", new double[] { 45, 88, 62 }) })" />
+        break;
+    case "Treemap":
+        <H3>Storage usage by asset type</H3>
+        <Chart Type="ChartType.Treemap" AriaLabel="Storage usage by asset type" Labels="@(new[] { "Footage", "Audio", "Photos", "Documents" })" Series="@(new[] { new ChartSeries("GB", new double[] { 60, 22, 13, 5 }) })" />
+        break;
+    case "Sankey":
+        <H3>Power distribution by source and destination</H3>
+        <Chart Type="ChartType.Sankey" AriaLabel="Power distribution by source and destination" Flows="@(new ChartFlow[] { new("Solar", "Battery", 30), new("Solar", "Workshop", 20), new("Grid", "Battery", 15), new("Battery", "Workshop", 35), new("Battery", "Office", 10) })" />
+        break;
+    case "Funnel":
+        <H3>Workshop registration stages</H3>
+        <Chart Type="ChartType.Funnel" AriaLabel="Workshop registration stages" Labels="@(new[] { "Invited", "Registered", "Confirmed", "Attended" })" Series="@(new[] { new ChartSeries("People", new double[] { 250, 180, 144, 120 }) })" />
+        break;
+    case "Candlestick":
+        <H3>Daily opening, high, low, and closing prices</H3>
+        <Chart Type="ChartType.Candlestick" AriaLabel="Daily opening, high, low, and closing prices" Candles="@(new ChartCandle[] { new("Mon", 35, 42, 32, 40), new("Tue", 41, 44, 36, 38), new("Wed", 38, 46, 37, 45), new("Thu", 45, 47, 41, 45) })" />
+        break;
+    case "BoxPlot":
+        <H3>Distribution of turnaround times</H3>
+        <Chart Type="ChartType.BoxPlot" AriaLabel="Distribution of turnaround times" Boxes="@(new ChartBox[] { new("Intake", 1, 3, 5, 7, 12), new("Review", 4, 8, 12, 16, 22), new("Dispatch", 2, 4, 5, 8, 11) })" />
+        break;
+    case "Waterfall":
+        <H3>Monthly inventory movements</H3>
+        <Chart Type="ChartType.Waterfall" AriaLabel="Monthly inventory movements" Labels="@(new[] { "Opening", "Received", "Shipped", "Returns" })" Series="@(new[] { new ChartSeries("Units", new double[] { 120, 45, -80, 12 }) })" />
+        break;
+}
+
+@code {
+    [Parameter] public string Category { get; set; } = "";
+    public static string Example(string category) => category switch
+    {
+        "Scatter" => """<Chart Type="ChartType.Scatter" AriaLabel="Calibration observations" Series="@(new[] { ChartSeries.FromPoints("Sensor", [new(1, 8), new(2.5, 14), new(4, 11), new(6, 22)]) })" />""",
+        "Bubble" => """<Chart Type="ChartType.Bubble" AriaLabel="Warehouse shipments by distance, time, and load" Series="@(new[] { ChartSeries.FromPoints("Shipments", [new(12, 3, 8), new(27, 4, 25), new(35, 8, 14), new(48, 7, 42)]) })" />""",
+        "Heatmap" => """<Chart Type="ChartType.Heatmap" AriaLabel="Machine load by shift" Labels="@(new[] { "Morning", "Afternoon", "Night" })" Series="@(new[] { new ChartSeries("Press", new double[] { 82, 65, 20 }), new ChartSeries("Lathe", new double[] { 45, 88, 62 }) })" />""",
+        "Treemap" => """<Chart Type="ChartType.Treemap" AriaLabel="Storage usage by asset type" Labels="@(new[] { "Footage", "Audio", "Photos", "Documents" })" Series="@(new[] { new ChartSeries("GB", new double[] { 60, 22, 13, 5 }) })" />""",
+        "Sankey" => """<Chart Type="ChartType.Sankey" AriaLabel="Power distribution by source and destination" Flows="@(new ChartFlow[] { new("Solar", "Battery", 30), new("Solar", "Workshop", 20), new("Grid", "Battery", 15), new("Battery", "Workshop", 35), new("Battery", "Office", 10) })" />""",
+        "Funnel" => """<Chart Type="ChartType.Funnel" AriaLabel="Workshop registration stages" Labels="@(new[] { "Invited", "Registered", "Confirmed", "Attended" })" Series="@(new[] { new ChartSeries("People", new double[] { 250, 180, 144, 120 }) })" />""",
+        "Candlestick" => """<Chart Type="ChartType.Candlestick" AriaLabel="Daily opening, high, low, and closing prices" Candles="@(new ChartCandle[] { new("Mon", 35, 42, 32, 40), new("Tue", 41, 44, 36, 38), new("Wed", 38, 46, 37, 45), new("Thu", 45, 47, 41, 45) })" />""",
+        "BoxPlot" => """<Chart Type="ChartType.BoxPlot" AriaLabel="Distribution of turnaround times" Boxes="@(new ChartBox[] { new("Intake", 1, 3, 5, 7, 12), new("Review", 4, 8, 12, 16, 22), new("Dispatch", 2, 4, 5, 8, 11) })" />""",
+        "Waterfall" => """<Chart Type="ChartType.Waterfall" AriaLabel="Monthly inventory movements" Labels="@(new[] { "Opening", "Received", "Shipped", "Returns" })" Series="@(new[] { new ChartSeries("Units", new double[] { 120, 45, -80, 12 }) })" />""",
+        _ => ""
+    };
+}

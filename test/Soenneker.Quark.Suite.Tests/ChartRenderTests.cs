@@ -17,6 +17,42 @@ public sealed class ChartRenderTests : BunitContext
 {
     private static readonly string[] Labels = ["Jan", "Feb", "Mar"];
 
+    [Test]
+    public void Specialized_charts_render_their_data_geometry()
+    {
+        ChartSeries[] series = [new("A", new double[] { 2, 4, 6 }) { Points = [new(1, 2, 4), new(5, 7, 16)] }];
+        foreach (var (type, selector, count) in new[]
+        {
+            (ChartType.Scatter, "circle", 2), (ChartType.Bubble, "circle", 2),
+            (ChartType.Radar, "circle", 3), (ChartType.Heatmap, "rect", 3),
+            (ChartType.Treemap, "rect", 3), (ChartType.Funnel, "polygon", 3),
+            (ChartType.Sankey, "path", 2), (ChartType.Candlestick, "rect", 1),
+            (ChartType.BoxPlot, "rect", 1), (ChartType.Waterfall, "rect", 3)
+        })
+        {
+            var chart = Render<Chart>(p => p.Add(c => c.Type, type).Add(c => c.Series, series)
+                .Add(c => c.Labels, Labels).Add(c => c.Flows, new ChartFlow[] { new("A", "B", 4), new("B", "C", 4) })
+                .Add(c => c.Candles, new ChartCandle[] { new("Day", 4, 8, 2, 6) })
+                .Add(c => c.Boxes, new ChartBox[] { new("Group", 1, 2, 3, 4, 5) }));
+            chart.FindAll($"svg {selector}").Should().HaveCount(count);
+            chart.FindAll("svg [tabindex='0'][aria-label]").Should().NotBeEmpty();
+            if (type == ChartType.Bubble)
+                chart.FindAll("circle").Select(c => c.GetAttribute("r")).Should().Equal("10", "20");
+            if (type == ChartType.Waterfall)
+                chart.FindAll("svg title").Last().TextContent.Should().Contain("total 12");
+        }
+    }
+
+    [Test]
+    public void Sankey_rejects_cycles_and_recovers_when_links_change()
+    {
+        var chart = Render<Chart>(p => p.Add(c => c.Type, ChartType.Sankey)
+            .Add(c => c.Flows, new ChartFlow[] { new("A", "B", 2), new("B", "A", 2) }));
+        chart.Find("[role=status]").TextContent.Should().Contain("acyclic");
+        chart.Render(p => p.Add(c => c.Flows, new ChartFlow[] { new("A", "B", 2) }));
+        chart.Find("svg path").GetAttribute("aria-label").Should().Contain("A to B");
+    }
+
     public ChartRenderTests()
     {
         Services.AddBradixSuiteAsScoped();

@@ -1,4 +1,10 @@
 <Div Space="Space.Y.Is8" Width="Width.IsFull">
+    <Div Width="Width.IsFull">
+        <H2 TextAlign="TextAlign.Center">Backup size by workspace</H2>
+        <GroupedLogChart Caption="Illustrative backup sizes · logarithmic scale (GB)"
+                         Labels="BackupLabels" Descriptions="BackupDescriptions" Annotations="BackupAnnotations"
+                         Series="BackupSeries" Minimum="0.1" Maximum="1000" ValueFormatter="FormatGigabytes" />
+    </Div>
     <DemoSection PreviewBordered="false" PreviewChromeless="true" Code="@ExampleCode" CodeLanguage="razor">
         <Div Width="Width.IsFull" MinWidth="MinWidth.Is0" Padding="Padding.OnY.Is6">
             <H2 Style="border-bottom:0" TextAlign="TextAlign.Center" TextSize="TextSize.ThreeXl" FontWeight="FontWeight.Normal" Tracking="Tracking.Tight" Margin="Margin.FromBottom.Is8">Delivery performance, route by route</H2>
@@ -25,6 +31,16 @@
 </Div>
 
 @code {
+    private static readonly string[] BackupLabels = ["Design studio", "Field office", "Media archive"];
+    private static readonly string[] BackupDescriptions = ["Project files", "Survey records", "Video footage"];
+    private static readonly string[] BackupAnnotations = ["95% smaller", "99% smaller", "90% smaller"];
+    private static readonly ChartSeries[] BackupSeries =
+    [
+        new("Full backup", new double[] { 48, 32, 640 }) { Color = "currentColor" },
+        new("Incremental backup", new double[] { 2.4, 0.32, 64 }) { Color = "#3999bd" }
+    ];
+    private static string FormatGigabytes(double value) => $"{value:0.##} GB";
+
     private int _replay;
     private bool _logarithmic;
     private void Replay() => _replay++;

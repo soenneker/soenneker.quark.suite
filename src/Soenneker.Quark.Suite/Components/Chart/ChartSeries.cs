@@ -6,6 +6,11 @@ namespace Soenneker.Quark;
 /// <summary>A named set of values rendered by a <see cref="Chart"/>.</summary>
 public sealed class ChartSeries
 {
+    /// <summary>Creates a named scatter or bubble series with independent horizontal coordinates.</summary>
+    public static ChartSeries FromPoints(string name, IReadOnlyList<ChartPoint> points) => new(name, Array.Empty<double>()) { Points = points };
+
+    public IReadOnlyList<ChartPoint> Points { get; init; } = [];
+
     public ChartSeries(string name, IReadOnlyList<double?> values)
     {
         Name = name;

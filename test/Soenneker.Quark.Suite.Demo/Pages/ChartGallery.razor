@@ -6,6 +6,15 @@
 @page "/charts/radar"
 @page "/charts/radial"
 @page "/charts/comparison"
+@page "/charts/scatter"
+@page "/charts/bubble"
+@page "/charts/heatmap"
+@page "/charts/treemap"
+@page "/charts/sankey"
+@page "/charts/funnel"
+@page "/charts/candlestick"
+@page "/charts/boxplot"
+@page "/charts/waterfall"
 @inject NavigationManager Navigation
 @inject Soenneker.Blazor.Utils.Clipboard.Abstract.IClipboardUtil ClipboardUtil
 @implements IDisposable
@@ -58,6 +67,10 @@
                 {
                     <ComparisonChartExamples />
                 }
+                @if (GallerySpecializedChart.Example(Category).Length > 0)
+                {
+                    <GallerySpecializedChart Category="@Category" />
+                }
                 <Div Class="chart-gallery-grid" @key="Category">
                     @for (var index = 0; index < Variants.Length; index++)
                     {
@@ -65,7 +78,11 @@
                         <Card Class="chart-gallery-card">
                             <CardHeader><H3>@Category Chart - @Variants[variant]</H3><Paragraph>January â€“ June 2026</Paragraph></CardHeader>
                             <Div Class="chart-gallery-plot">
-                                @if (Category is "Radar" or "Radial")
+                                @if (Category == "Radar")
+                                {
+                                    <Chart Type="ChartType.Radar" Labels="Labels" Series="@GetSeries(variant == 1 ? 3 : 0)" Options="@GetOptions(variant)" />
+                                }
+                                else if (Category == "Radial")
                                 {
                                     <GalleryPolarChart Radial="@(Category == "Radial")" Variant="@variant" />
                                 }
@@ -103,7 +120,8 @@
             "Line" => "Create Blazor line charts with Quark. Compare linear and stepped lines, multiple series, point markers, legends, and interactive date-range examples.",
             "Pie" => "Compare Blazor pie and donut charts in Quark's gallery. Explore segment displays, donut center content, and a legend variant for dashboard data visualization.",
             "Radar" => "Explore Blazor radar charts in Quark's gallery. Compare a single series, multiple datasets, and point markers across axes in the rendered chart examples.",
-            _ => "Explore Blazor radial charts in Quark's gallery. Compare a single radial display, multiple values, and circular progress in the rendered dashboard examples."
+            "Radial" => "Explore Blazor radial charts in Quark's gallery. Compare a single radial display, multiple values, and circular progress in the rendered dashboard examples.",
+            _ => $"Explore a Blazor {Category} chart with sample data and copyable Razor code."
         };
 
     private void ChangeRange(string? value)
@@ -141,7 +159,7 @@
     private int rangeDays = 90;
     private bool showCode;
     private string RangeDescription => rangeDays == 90 ? "3 months" : $"{rangeDays} days";
-    private string ExampleCode => Category == "Comparison" ? ComparisonChartExamples.ExampleCode : $"<Chart Type=\"ChartType.{(Category is "Radar" or "Radial" ? "Line" : Category)}\" Labels=\"@labels\" Series=\"@series\" Options=\"@options\" />";
+    private string ExampleCode => GallerySpecializedChart.Example(Category) is { Length: > 0 } sample ? sample : Category == "Comparison" ? ComparisonChartExamples.ExampleCode : $"<Chart Type=\"ChartType.{(Category == "Radial" ? "Line" : Category)}\" Labels=\"@labels\" Series=\"@series\" Options=\"@options\" />";
     private string[] DailyLabels => Enumerable.Range(90 - rangeDays, rangeDays).Select(day => new DateTime(2026, 4, 1).AddDays(day).ToString("MMM d", System.Globalization.CultureInfo.InvariantCulture)).ToArray();
     private ChartSeries[] DailySeries => [
         new("Desktop", Enumerable.Range(90 - rangeDays, rangeDays).Select(day => (double)(70 + (day * 137 + day * day * 31) % 390)).ToArray())
@@ -150,7 +168,7 @@
         { Color = "#2563eb", StrokeWidth = 1, Gradient = new ChartGradient("#2563eb", "#2563eb") { StartOpacity = .35, EndOpacity = .04 } }
     ];
     private static readonly ChartOptions InteractiveOptions = new() { Width = 1500, Height = 300, PaddingTop = 32, PaddingLeft = 4, PaddingRight = 4, ShowYAxis = false, ShowPoints = false, ShowEndPoints = false, MaximumXAxisLabels = 12, Curve = ChartCurve.Monotone, Legend = ChartLegendPosition.None, Stacked = true };
-    private static readonly string[] Categories = ["Area", "Bar", "Line", "Pie", "Radar", "Radial", "Comparison"];
+    private static readonly string[] Categories = ["Area", "Bar", "Line", "Pie", "Radar", "Radial", "Comparison", "Scatter", "Bubble", "Heatmap", "Treemap", "Sankey", "Funnel", "Candlestick", "BoxPlot", "Waterfall"];
     private static readonly string[] Labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
     private static readonly string[] Palette = ["#60a5fa", "#2563eb", "#93c5fd", "#1d4ed8", "#bfdbfe", "#2563eb"];
     private string Category => Categories.FirstOrDefault(value => Navigation.ToBaseRelativePath(Navigation.Uri).Split('?', '#')[0].TrimEnd('/').EndsWith("/" + value.ToLowerInvariant(), StringComparison.Ordinal)) ?? "Area";
@@ -161,7 +179,8 @@
         "Line" => ["Default", "Linear", "Step", "Multiple", "Dots", "Legend"],
         "Pie" => ["Default", "Donut", "Donut with legend"],
         "Radar" => ["Default", "Multiple", "Dots"],
-        _ => ["Default", "Multiple", "Progress"] };
+        "Radial" => ["Default", "Multiple", "Progress"],
+        _ => [] };
     private ChartType GetChartType(int variant) => Category switch { "Area" => ChartType.Area, "Bar" => ChartType.Bar, "Pie" => variant == 0 ? ChartType.Pie : ChartType.Donut, _ => ChartType.Line };
     private ChartSeries[] GetSeries(int variant)
     {
@@ -169,5 +188,5 @@
         ChartSeries mobile = new("Mobile", new double[] { 80, 200, 120, 190, 130, 140 }) { Color = Palette[1] };
         return Category != "Pie" && (variant == 3 || variant == 5 || Category == "Bar" && variant > 0) ? [desktop, mobile] : [desktop];
     }
-    private ChartOptions GetOptions(int variant) => new() { Height = 260, Width = 480, ShowYAxis = false, PaddingLeft = 16, ShowPoints = Category == "Line" && variant == 4, ShowEndPoints = false, Curve = variant == 1 ? ChartCurve.Linear : variant == 2 ? ChartCurve.Step : ChartCurve.Monotone, Stacked = Category == "Area" && variant == 3 || Category == "Bar" && variant == 2, Legend = variant == 5 || Category == "Pie" && variant == 2 || Category == "Bar" && variant > 0 ? ChartLegendPosition.Bottom : ChartLegendPosition.None, Palette = Palette };
+    private ChartOptions GetOptions(int variant) => new() { Height = 260, Width = 480, ShowYAxis = false, PaddingLeft = 16, ShowPoints = Category == "Radar" ? variant == 2 : Category == "Line" && variant == 4, ShowEndPoints = false, Curve = variant == 1 ? ChartCurve.Linear : variant == 2 ? ChartCurve.Step : ChartCurve.Monotone, Stacked = Category == "Area" && variant == 3 || Category == "Bar" && variant == 2, Legend = variant == 5 || Category == "Pie" && variant == 2 || Category == "Bar" && variant > 0 ? ChartLegendPosition.Bottom : ChartLegendPosition.None, Palette = Palette };
 }

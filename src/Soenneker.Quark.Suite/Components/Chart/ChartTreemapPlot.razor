@@ -1,0 +1,61 @@
+@namespace Soenneker.Quark
+@using System
+@using System.Linq
+@using System.Collections.Generic
+
+@foreach (var (index,x,y,width,height) in Tiles())
+{
+    var description = $"{Names[index]}: {Options.FormatValue(Values[index])}";
+    var color = Options.Palette.Count == 0 ? "var(--series-1)" : Options.Palette[index % Options.Palette.Count];
+    <g tabindex="0" aria-label="@($"{GroupName}, {description}")">
+        <title>@description</title>
+        <rect x="@ChartNumberFormatting.Format(x)" y="@ChartNumberFormatting.Format(y)" width="@ChartNumberFormatting.Format(width)" height="@ChartNumberFormatting.Format(height)" fill="@color" fill-opacity=".6" stroke="var(--background)" stroke-width="2" />
+        @if (width > description.Length * 7 && height > 24)
+        {
+            <ChartSvgLabel X="@(x+width/2)" Y="@(y+height/2)" Text="@description" />
+        }
+    </g>
+}
+
+@code {
+    [Parameter] public double X { get; set; }
+    [Parameter] public double Y { get; set; }
+    [Parameter] public double Width { get; set; }
+    [Parameter] public double Height { get; set; }
+    [Parameter] public string GroupName { get; set; } = "";
+    [Parameter] public double[] Values { get; set; } = [];
+    [Parameter] public string[] Names { get; set; } = [];
+    [Parameter] public ChartOptions Options { get; set; } = ChartOptions.Default;
+
+    private IEnumerable<(int Index,double X,double Y,double Width,double Height)> Tiles()
+    {
+        if (Values.Length == 0) yield break;
+        var order = Enumerable.Range(0, Values.Length).OrderByDescending(i => Values[i]).ToArray();
+        var pending = new Stack<(int First,int End,double Weight,double X,double Y,double W,double H)>();
+        pending.Push((0,order.Length,Values.Sum(),X,Y,Width,Height));
+        while (pending.Count > 0)
+        {
+            var (first,end,weight,x,y,w,h) = pending.Pop();
+            if (end-first == 1)
+            {
+                yield return (order[first],x,y,w,h);
+                continue;
+            }
+            int split = first+1;
+            double left = Values[order[first]];
+            while (split < end-1 && left+Values[order[split]]/2 < weight/2)
+                left += Values[order[split++]];
+            double fraction = left/weight;
+            if (w >= h)
+            {
+                pending.Push((split,end,weight-left,x+w*fraction,y,w*(1-fraction),h));
+                pending.Push((first,split,left,x,y,w*fraction,h));
+            }
+            else
+            {
+                pending.Push((split,end,weight-left,x,y+h*fraction,w,h*(1-fraction)));
+                pending.Push((first,split,left,x,y,w,h*fraction));
+            }
+        }
+    }
+}

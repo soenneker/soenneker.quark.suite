@@ -1,0 +1,235 @@
+@namespace Soenneker.Quark
+@using System
+@using System.Linq
+@using System.Globalization
+@using System.Collections.Generic
+@{
+    var indices = Enumerable.Range(0, Series.Count).Where(i => !IsSeriesHidden(i)).ToArray();
+    var rows = indices.Select(i => Series[i]).ToArray();
+    var cells = rows.SelectMany((s, r) => s.Values.Select((v, c) => (Row: r, Col: c, Value: v.GetValueOrDefault(), Valid: v.HasValue && double.IsFinite(v.Value)))).Where(c => c.Valid).ToArray();
+    var columns = rows.Select(s => s.Values.Count).DefaultIfEmpty().Max();
+    var pointChart = Type == ChartType.Scatter || Type == ChartType.Bubble;
+    var points = !pointChart ? [] : rows.SelectMany((s, r) => Observations(s).Where(p => double.IsFinite(p.X) && double.IsFinite(p.Y) && (Type != ChartType.Bubble || double.IsFinite(p.Size) && p.Size > 0)).Select(p => (Row: r, Point: p))).ToArray();
+    var candles = Type != ChartType.Candlestick ? [] : Candles.Where(c => double.IsFinite(c.Low) && double.IsFinite(c.High) && c.Low <= Math.Min(c.Open, c.Close) && c.High >= Math.Max(c.Open, c.Close)).ToArray();
+    var boxes = Type != ChartType.BoxPlot ? [] : Boxes.Where(b => double.IsFinite(b.Minimum) && double.IsFinite(b.Maximum) && b.Minimum <= b.FirstQuartile && b.FirstQuartile <= b.Median && b.Median <= b.ThirdQuartile && b.ThirdQuartile <= b.Maximum).ToArray();
+    bool hasData = pointChart ? points.Length > 0 :
+        Type == ChartType.Candlestick ? candles.Length > 0 : Type == ChartType.BoxPlot ? boxes.Length > 0 :
+        Type == ChartType.Treemap ? cells.Any(c => c.Value > 0) : Type == ChartType.Funnel ? cells.Any(c => c.Row == 0 && c.Value > 0) :
+        Type == ChartType.Waterfall ? cells.Any(c => c.Row == 0) : Type == ChartType.Radar ? columns >= 3 && cells.Length > 0 : cells.Length > 0;
+}
+@if (Type == ChartType.Sankey)
+{
+    <ChartSankeyPlot Flows="Flows" Options="Options" AriaLabel="@AriaLabel" />
+}
+else if (!hasData)
+{
+    <div role="status">@Options.EmptyText</div>
+}
+else
+{
+    <svg viewBox="0 0 800 320" class="w-full" role="group" aria-label="@(AriaLabel ?? Type.ToString())">
+        @if (Type == ChartType.Scatter || Type == ChartType.Bubble)
+        {
+            var xmin = points.Min(p => p.Point.X);
+            var xmax = points.Max(p => p.Point.X);
+            var ymin = points.Min(p => p.Point.Y);
+            var ymax = points.Max(p => p.Point.Y);
+            var largest = Type == ChartType.Bubble ? points.Max(p => p.Point.Size) : 1;
+            <path d="M55 20V280H770" stroke="currentColor" fill="none" />
+            @foreach (var x in new[] { xmin, xmax }.Distinct())
+            {
+                <ChartSvgLabel X="@(76 + 670 * Fraction(x,xmin,xmax))" Y="300" Text="@Options.FormatValue(x)" />
+            }
+            @foreach (var y in new[] { ymin, ymax }.Distinct())
+            {
+                <ChartSvgLabel X="48" Y="@(256 - 214 * Fraction(y,ymin,ymax))" Anchor="end" Text="@Options.FormatValue(y)" />
+            }
+            @foreach (var (r,p) in points)
+            {
+                var description = $"{rows[r].Name}: ({Options.FormatValue(p.X)}, {Options.FormatValue(p.Y)})";
+                if (Type == ChartType.Bubble) description += $", size {Options.FormatValue(p.Size)}";
+                <circle cx="@ChartNumberFormatting.Format(76 + 670 * Fraction(p.X,xmin,xmax))" cy="@ChartNumberFormatting.Format(256 - 214 * Fraction(p.Y,ymin,ymax))" r="@ChartNumberFormatting.Format(Type == ChartType.Bubble ? 20 * Math.Sqrt(p.Size / largest) : 4)" fill="@Color(indices[r],rows[r])" fill-opacity=".75" tabindex="0" aria-label="@description"><title>@description</title></circle>
+            }
+        }
+        else if (Type == ChartType.Radar)
+        {
+            var lo = Math.Min(0,cells.Min(c => c.Value));
+            var hi = Math.Max(0,cells.Max(c => c.Value));
+            foreach (var ring in Enumerable.Range(1, 4))
+            {
+                <polygon points="@string.Join(" ", Enumerable.Range(0, columns).Select(i => Polar(i, columns, ring / 4d)))" fill="none" stroke="currentColor" opacity=".18" />
+            }
+            foreach (var i in Enumerable.Range(0, columns))
+            {
+                var angle = Angle(i,columns);
+                <line x1="400" y1="160" x2="@ChartNumberFormatting.Format(400+110*Math.Cos(angle))" y2="@ChartNumberFormatting.Format(160+110*Math.Sin(angle))" stroke="currentColor" opacity=".25"/>
+                <ChartSvgLabel X="@(400+145*Math.Cos(angle))" Y="@(160+134*Math.Sin(angle))" Text="@Label(i)" />
+            }
+            foreach (var r in Enumerable.Range(0, rows.Length))
+            {
+                var row = rows[r];
+                var complete = row.Values.Count == columns && row.Values.All(v => v.HasValue && double.IsFinite(v.Value));
+                if (complete)
+                {
+                    <polygon tabindex="0" aria-label="@($"{row.Name}: {string.Join(", ", row.Values.Select((v,i) => $"{Label(i)} {Options.FormatValue(v!.Value)}"))}")" points="@string.Join(" ", row.Values.Select((v,i) => Polar(i,columns,Fraction(v!.Value,lo,hi))))" fill="@Color(indices[r],row)" fill-opacity=".15" stroke="@Color(indices[r],row)" stroke-width="2" />
+                }
+                if (complete && !(row.ShowPoints ?? Options.ShowPoints)) continue;
+                foreach (var c in cells.Where(c => c.Row == r))
+                {
+                    var radius = 110 * Fraction(c.Value,lo,hi);
+                    var description = $"{row.Name}, {Label(c.Col)}: {Options.FormatValue(c.Value)}";
+                    <circle cx="@ChartNumberFormatting.Format(400+radius*Math.Cos(Angle(c.Col,columns)))" cy="@ChartNumberFormatting.Format(160+radius*Math.Sin(Angle(c.Col,columns)))" r="4" fill="@Color(indices[r],row)" tabindex="0" aria-label="@description"><title>@description</title></circle>
+                }
+            }
+        }
+        else if (Type == ChartType.Heatmap)
+        {
+            double w = 660d / columns, h = 245d / rows.Length;
+            var lo = cells.Min(c => c.Value);
+            var hi = cells.Max(c => c.Value);
+            foreach (var i in Enumerable.Range(0, columns))
+            {
+                <ChartSvgLabel X="@(120+(i+.5)*w)" Y="285" Text="@Label(i)" />
+            }
+            foreach (var r in Enumerable.Range(0, rows.Length))
+            {
+                <ChartSvgLabel X="110" Y="@(20+(r+.5)*h)" Anchor="end" Text="@rows[r].Name" />
+            }
+            <ChartSvgLabel X="450" Y="306" Text="@($"Light to dark: {Options.FormatValue(lo)} to {Options.FormatValue(hi)}")" />
+            foreach (var c in cells)
+            {
+                var description = $"{rows[c.Row].Name}, {Label(c.Col)}: {Options.FormatValue(c.Value)}";
+                <rect x="@ChartNumberFormatting.Format(120+c.Col*w)" y="@ChartNumberFormatting.Format(20+c.Row*h)" width="@ChartNumberFormatting.Format(w)" height="@ChartNumberFormatting.Format(h)" stroke="var(--background)" fill="@Color(0)" fill-opacity="@ChartNumberFormatting.Format(.12+.88*Fraction(c.Value,lo,hi))" tabindex="0" aria-label="@description"><title>@description</title></rect>
+            }
+        }
+        else if (Type == ChartType.Treemap || Type == ChartType.Funnel)
+        {
+            var stages = cells.Where(c => c.Row == 0 && c.Value > 0).ToArray();
+            if (Type == ChartType.Treemap)
+            {
+                var groups = cells.Where(c => c.Value > 0).GroupBy(c => c.Row).ToArray();
+                double total = groups.Sum(group => group.Sum(c => c.Value));
+                double left = 10;
+                foreach (var group in groups)
+                {
+                    double width = 780 * (group.Sum(c => c.Value) / total);
+                    var name = rows[group.Key].Name;
+                    bool showGroup = groups.Length > 1;
+                    if (showGroup && width >= name.Length * 7)
+                    {
+                        <ChartSvgLabel X="@(left + width / 2)" Y="14" Text="@name" />
+                    }
+                    <ChartTreemapPlot X="left" Y="@(showGroup ? 28 : 10)" Width="width" Height="@(showGroup ? 282 : 300)"
+                                      Values="@group.Select(c => c.Value).ToArray()" Names="@group.Select(c => Label(c.Col)).ToArray()"
+                                      GroupName="@name" Options="Options" />
+                    left += width;
+                }
+            }
+            else
+            {
+                var max = stages.Max(c => c.Value);
+                double h = 272d / stages.Length;
+                foreach (var i in Enumerable.Range(0, stages.Length))
+                {
+                    var stage = stages[i];
+                    var a = 280 * (stage.Value/max);
+                    var b = 280 * (stages[Math.Min(i+1,stages.Length-1)].Value/max);
+                    var top = 12 + i*h;
+                    var description = $"{Label(stage.Col)}: {Options.FormatValue(stage.Value)}";
+                    <polygon points="@Coords(485-a,top,485+a,top,485+b,top+h,485-b,top+h)" fill="@Color(i)" stroke="var(--background)" tabindex="0" aria-label="@description"><title>@description</title></polygon>
+                    <ChartSvgLabel X="8" Y="@(top+h/2)" Anchor="start" Text="@description" />
+                }
+            }
+        }
+        else
+        {
+            var steps = cells.Where(c => c.Row == 0).ToArray();
+            var totals = new double[steps.Length+1];
+            for (var i = 0; i < steps.Length; i++) totals[i+1] = totals[i]+steps[i].Value;
+            var candle = Type == ChartType.Candlestick;
+            var box = Type == ChartType.BoxPlot;
+            var lo = candle ? candles.Min(c => c.Low) : box ? boxes.Min(b => b.Minimum) : totals.Min();
+            var hi = candle ? candles.Max(c => c.High) : box ? boxes.Max(b => b.Maximum) : totals.Max();
+            double Y(double v) => 260-230*Fraction(v,lo,hi);
+            int count = candle ? candles.Length : box ? boxes.Length : steps.Length;
+            double slot = 700d/count, half = Math.Min(32,slot*.32);
+            foreach (var v in new[] {lo,hi}.Distinct())
+            {
+                <line x1="65" x2="765" y1="@ChartNumberFormatting.Format(Y(v))" y2="@ChartNumberFormatting.Format(Y(v))" stroke="currentColor" opacity=".2"/>
+                <ChartSvgLabel X="58" Y="@Y(v)" Anchor="end" Text="@Options.FormatValue(v)" />
+            }
+            foreach (var i in Enumerable.Range(0, count))
+            {
+                double start, end, low, high;
+                string name, description;
+                var x = 65+(i+.5)*slot;
+                if (candle)
+                {
+                    var c = candles[i];
+                    (name,start,end,low,high) = (c.Label,c.Open,c.Close,c.Low,c.High);
+                    description = $"{name}: open {Options.FormatValue(start)}, high {Options.FormatValue(high)}, low {Options.FormatValue(low)}, close {Options.FormatValue(end)}";
+                }
+                else if (box)
+                {
+                    var b = boxes[i];
+                    (name,start,end,low,high) = (b.Label,b.FirstQuartile,b.ThirdQuartile,b.Minimum,b.Maximum);
+                    description = $"{name}: min {Options.FormatValue(low)}, Q1 {Options.FormatValue(start)}, median {Options.FormatValue(b.Median)}, Q3 {Options.FormatValue(end)}, max {Options.FormatValue(high)}";
+                }
+                else
+                {
+                    name = Label(steps[i].Col);
+                    (start,end) = (totals[i],totals[i+1]);
+                    (low,high) = (start,end);
+                    description = $"{name}: change {Options.FormatValue(steps[i].Value)}, total {Options.FormatValue(end)}";
+                }
+                <g tabindex="0" aria-label="@description">
+                    <title>@description</title>
+                    @if (box || candle)
+                    {
+                        <line x1="@ChartNumberFormatting.Format(x)" x2="@ChartNumberFormatting.Format(x)" y1="@ChartNumberFormatting.Format(Y(low))" y2="@ChartNumberFormatting.Format(Y(high))" stroke="currentColor" />
+                    }
+                    <rect x="@ChartNumberFormatting.Format(x-half)" y="@ChartNumberFormatting.Format(Math.Min(Y(start),Y(end)))" width="@ChartNumberFormatting.Format(2*half)" height="@ChartNumberFormatting.Format(Math.Max(1,Math.Abs(Y(start)-Y(end))))" fill="@Color(end >= start ? 0 : 1)" />
+                    @if (box)
+                    {
+                        <path d="@FormattableString.Invariant($"M{x-half} {Y(boxes[i].Median)}h{2*half} M{x-half/2} {Y(low)}h{half} M{x-half/2} {Y(high)}h{half}")" stroke="currentColor" stroke-width="2" />
+                    }
+                    else if (!candle && i+1 < count)
+                    {
+                        <line x1="@ChartNumberFormatting.Format(x+half)" x2="@ChartNumberFormatting.Format(x+slot-half)" y1="@ChartNumberFormatting.Format(Y(end))" y2="@ChartNumberFormatting.Format(Y(end))" stroke="currentColor" stroke-dasharray="3 3" />
+                    }
+                </g>
+                <ChartSvgLabel X="@x" Y="285" Text="@name" />
+            }
+        }
+    </svg>
+}
+
+@code {
+    [Parameter, EditorRequired] public Func<int,bool> IsSeriesHidden { get; set; } = default!;
+    [Parameter] public ChartType Type { get; set; } = ChartType.Scatter;
+    [Parameter] public IReadOnlyList<double>? XValues { get; set; }
+    [Parameter] public IReadOnlyList<string> Labels { get; set; } = [];
+    [Parameter] public IReadOnlyList<ChartSeries> Series { get; set; } = [];
+    [Parameter] public IReadOnlyList<ChartCandle> Candles { get; set; } = [];
+    [Parameter] public IReadOnlyList<ChartBox> Boxes { get; set; } = [];
+    [Parameter] public IReadOnlyList<ChartFlow> Flows { get; set; } = [];
+    [Parameter] public ChartOptions Options { get; set; } = ChartOptions.Default;
+    [Parameter] public string? AriaLabel { get; set; }
+
+    private IEnumerable<ChartPoint> Observations(ChartSeries series)
+    {
+        if (series.Points.Count > 0)
+            return series.Points;
+
+        return series.Values.Select((value, index) => new ChartPoint(
+            XValues is null ? index : index < XValues.Count ? XValues[index] : double.NaN,
+            value ?? double.NaN));
+    }
+
+    private string Label(int i) => Options.FormatLabel(i < Labels.Count ? Labels[i] : (i+1).ToString());
+    private string Color(int i, ChartSeries? series = null) => series?.Color ?? (Options.Palette.Count == 0 ? "var(--series-1)" : Options.Palette[i % Options.Palette.Count]);
+    private static double Fraction(double value, double low, double high) => high == low ? .5 : (value-low)/(high-low);
+    private static double Angle(int i,int count) => 2*Math.PI*i/count - Math.PI/2;
+    private static string Polar(int i,int count,double fraction) => Coords(400+110*fraction*Math.Cos(Angle(i,count)),160+110*fraction*Math.Sin(Angle(i,count)));
+    private static string Coords(params double[] values) => string.Join(" ",values.Select(v => v.ToString("0.###",CultureInfo.InvariantCulture)));
+}

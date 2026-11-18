@@ -4,7 +4,7 @@ Renders responsive, accessible SVG charts from strongly typed series and options
 </summary>
 <remarks>
 <para>
-The component supports line, area, grouped or stacked bar, pie, donut, and mixed Cartesian charts without a JavaScript charting dependency.
+The component supports Cartesian, radial, statistical, financial, and flow charts without a JavaScript charting dependency.
 It includes keyboard-focusable data marks, an assistive-technology data table, shared hover tooltips, legend interaction, null-value gaps,
 negative Cartesian values, CSS colors, and SVG gradients.
 </para>
@@ -38,7 +38,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
         </div>
     }
 
-    @if (!IsLoading && Options.Legend == ChartLegendPosition.Top)
+    @if (!IsLoading && HasSeriesLegend && Options.Legend == ChartLegendPosition.Top)
     {
         <ChartRenderBoundary Version="_geometryVersion">@LegendContent</ChartRenderBoundary>
     }
@@ -48,6 +48,10 @@ data requires proportional horizontal spacing instead of categorical spacing.
         <div class="quark-chart-loading grid min-h-40 w-full place-items-center" style="@StageStyle" data-slot="chart-loading">
             <Spinner />
         </div>
+    }
+    else if (IsSpecialized)
+    {
+        <SpecializedChart XValues="XValues" IsSeriesHidden="IsSeriesHidden" Type="Type" Labels="Labels" Series="Series" Candles="Candles" Boxes="Boxes" Flows="Flows" Options="Options" AriaLabel="@AriaLabel" />
     }
     else if (!HasData)
     {
@@ -386,7 +390,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
         </ChartRenderBoundary>
     }
 
-    @if (!IsLoading && Options.Legend == ChartLegendPosition.Bottom)
+    @if (!IsLoading && HasSeriesLegend && Options.Legend == ChartLegendPosition.Bottom)
     {
         <ChartRenderBoundary Version="_geometryVersion">@LegendContent</ChartRenderBoundary>
     }
@@ -702,6 +706,15 @@ data requires proportional horizontal spacing instead of categorical spacing.
     [Parameter]
     public EventCallback<ChartRangeSelection> OnRangeSelect { get; set; }
 
+    /// <summary>Ordered OHLC observations for a candlestick chart.</summary>
+    [Parameter] public IReadOnlyList<ChartCandle> Candles { get; set; } = [];
+    /// <summary>Ordered five-number summaries for a box plot.</summary>
+    [Parameter] public IReadOnlyList<ChartBox> Boxes { get; set; } = [];
+    /// <summary>Weighted directed links for an acyclic Sankey diagram.</summary>
+    [Parameter] public IReadOnlyList<ChartFlow> Flows { get; set; } = [];
+
+    private bool HasSeriesLegend => !IsSpecialized || Type == ChartType.Bubble || Type == ChartType.Scatter || Type == ChartType.Radar;
+    private bool IsSpecialized => Type != ChartType.Line && Type != ChartType.Area && Type != ChartType.Bar && !IsRadial;
     private bool IsRadial => Type == ChartType.Pie || Type == ChartType.Donut;
     private bool HasData => _hasData;
     private int PointCount => _pointCount;

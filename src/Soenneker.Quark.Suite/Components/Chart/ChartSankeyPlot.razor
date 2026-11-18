@@ -1,0 +1,75 @@
+@namespace Soenneker.Quark
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@{
+    var links = Flows.Where(f => !string.IsNullOrWhiteSpace(f.Source) && !string.IsNullOrWhiteSpace(f.Target) && double.IsFinite(f.Value) && f.Value > 0).ToArray();
+    var nodes = links.SelectMany(f => new[] { f.Source, f.Target }).Distinct().ToArray();
+    var outgoing = links.ToLookup(f => f.Source);
+    var incoming = links.ToLookup(f => f.Target);
+    var remaining = nodes.ToDictionary(n => n,n => incoming[n].Count());
+    var depth = nodes.ToDictionary(n => n,n => 0);
+    var queue = new Queue<string>(nodes.Where(n => remaining[n] == 0));
+    int visited = 0;
+    while (queue.TryDequeue(out var node))
+    {
+        visited++;
+        foreach (var link in outgoing[node])
+        {
+            depth[link.Target] = Math.Max(depth[link.Target],depth[node]+1);
+            if (--remaining[link.Target] == 0) queue.Enqueue(link.Target);
+        }
+    }
+}
+@if (nodes.Length == 0 || visited != nodes.Length)
+{
+    <div role="status">@(nodes.Length == 0 ? Options.EmptyText : "Sankey flows must be acyclic.")</div>
+}
+else
+{
+    var levels = nodes.GroupBy(n => depth[n]).OrderBy(g => g.Key).ToArray();
+    var weights = nodes.ToDictionary(n => n,n => Math.Max(outgoing[n].Sum(f => f.Value),incoming[n].Sum(f => f.Value)));
+    double gap = Math.Min(16,120d/levels.Max(g => g.Count()));
+    double scale = levels.Min(g => (270-gap*(g.Count()-1))/g.Sum(n => weights[n]));
+    var positions = new Dictionary<string,(double X,double Y)>();
+    foreach (var level in levels)
+    {
+        double y = 25+(270-level.Sum(n => weights[n])*scale-gap*(level.Count()-1))/2;
+        foreach (var n in level)
+        {
+            positions[n] = (20+748d*level.Key/(levels.Length-1),y);
+            y += weights[n]*scale + gap;
+        }
+    }
+    var starts = nodes.ToDictionary(n => n,n => positions[n].Y);
+    var ends = new Dictionary<string,double>(starts);
+    <svg viewBox="0 0 800 320" class="w-full" role="group" aria-label="@(AriaLabel ?? "Sankey chart")">
+        @foreach (var link in links)
+        {
+            var width = link.Value*scale;
+            var x1 = positions[link.Source].X+12;
+            var x2 = positions[link.Target].X;
+            var mid = (x1+x2)/2;
+            var y1 = starts[link.Source]+width/2;
+            var y2 = ends[link.Target]+width/2;
+            starts[link.Source] += width;
+            ends[link.Target] += width;
+            var description = $"{link.Source} to {link.Target}: {Options.FormatValue(link.Value)}";
+            <path d="@FormattableString.Invariant($"M{x1} {y1} C{mid} {y1} {mid} {y2} {x2} {y2}")" stroke="@Color(depth[link.Source])" stroke-width="@ChartNumberFormatting.Format(width)" opacity=".35" fill="none" tabindex="0" aria-label="@description"><title>@description</title></path>
+        }
+        @foreach (var n in nodes)
+        {
+            var (x,y) = positions[n];
+            bool last = depth[n] == levels.Length-1;
+            <rect x="@ChartNumberFormatting.Format(x)" y="@ChartNumberFormatting.Format(y)" width="12" height="@ChartNumberFormatting.Format(weights[n]*scale)" fill="@Color(depth[n])" />
+            <ChartSvgLabel X="@(last ? x-5 : x+17)" Y="@(y+weights[n]*scale/2)" Anchor="@(last ? "end" : "start")" Text="@n" />
+        }
+    </svg>
+}
+
+@code {
+    [Parameter] public IReadOnlyList<ChartFlow> Flows { get; set; } = [];
+    [Parameter] public ChartOptions Options { get; set; } = ChartOptions.Default;
+    [Parameter] public string? AriaLabel { get; set; }
+    private string Color(int depth) => Options.Palette.Count == 0 ? "var(--series-1)" : Options.Palette[depth % Options.Palette.Count];
+}
