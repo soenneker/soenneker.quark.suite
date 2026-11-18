@@ -69,7 +69,14 @@
                 }
                 @if (GallerySpecializedChart.Example(Category).Length > 0)
                 {
-                    <GallerySpecializedChart Category="@Category" />
+                    <Div Class="chart-gallery-specialized">
+                        @foreach (var example in new[] { Category, Category + "Detail" })
+                        {
+                            <Card Class="chart-gallery-card" Padding="Padding.Is4">
+                                <GallerySpecializedChart Category="@example" />
+                            </Card>
+                        }
+                    </Div>
                 }
                 <Div Class="chart-gallery-grid" @key="Category">
                     @for (var index = 0; index < Variants.Length; index++)
@@ -159,7 +166,7 @@
     private int rangeDays = 90;
     private bool showCode;
     private string RangeDescription => rangeDays == 90 ? "3 months" : $"{rangeDays} days";
-    private string ExampleCode => GallerySpecializedChart.Example(Category) is { Length: > 0 } sample ? sample : Category == "Comparison" ? ComparisonChartExamples.ExampleCode : $"<Chart Type=\"ChartType.{(Category == "Radial" ? "Line" : Category)}\" Labels=\"@labels\" Series=\"@series\" Options=\"@options\" />";
+    private string ExampleCode => GallerySpecializedChart.Example(Category) is { Length: > 0 } sample ? sample + Environment.NewLine + Environment.NewLine + GallerySpecializedChart.Example(Category + "Detail") : Category == "Comparison" ? ComparisonChartExamples.ExampleCode : $"<Chart Type=\"ChartType.{(Category == "Radial" ? "Line" : Category)}\" Labels=\"@labels\" Series=\"@series\" Options=\"@options\" />";
     private string[] DailyLabels => Enumerable.Range(90 - rangeDays, rangeDays).Select(day => new DateTime(2026, 4, 1).AddDays(day).ToString("MMM d", System.Globalization.CultureInfo.InvariantCulture)).ToArray();
     private ChartSeries[] DailySeries => [
         new("Desktop", Enumerable.Range(90 - rangeDays, rangeDays).Select(day => (double)(70 + (day * 137 + day * day * 31) % 390)).ToArray())
