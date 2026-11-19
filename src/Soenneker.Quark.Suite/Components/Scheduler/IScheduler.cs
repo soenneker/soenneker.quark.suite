@@ -14,7 +14,7 @@ public interface IScheduler : IElement
     IReadOnlyList<SchedulerEvent> Events { get; set; }
     /// <summary>Receives a replacement list after a successful create, edit, move, resize or delete.</summary>
     EventCallback<IReadOnlyList<SchedulerEvent>> EventsChanged { get; set; }
-    /// <summary>Handles a new slot selection in place of the built-in editor. Available in read-only mode.</summary>
+    /// <summary>Runs when a time is picked. Booking mode supplies the start and exclusive end and awaits the handler before accepting another selection. In calendar management views this callback replaces the built-in editor. Available in read-only mode.</summary>
     EventCallback<SchedulerSlot> SlotSelected { get; set; }
     /// <summary>Handles an existing event selection in place of the built-in editor. Available in read-only mode.</summary>
     EventCallback<SchedulerEvent> EventSelected { get; set; }
@@ -44,6 +44,8 @@ public interface IScheduler : IElement
     bool CanEditTitle { get; set; }
     /// <summary>Optional meeting content displayed above the duration and time zone.</summary>
     RenderFragment? MeetingDetails { get; set; }
+    /// <summary>Optional fields displayed below the booking time zone. Bind their values to the calling component's booking model.</summary>
+    RenderFragment? BookingFields { get; set; }
     /// <summary>Appointment duration used for conflict checks in booking mode.</summary>
     TimeSpan BookingDuration { get; set; }
     /// <summary>Receives the duration selected on the booking page.</summary>

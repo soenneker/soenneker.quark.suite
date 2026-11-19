@@ -52,6 +52,10 @@
                     <svg aria-hidden="true" class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9" /><ellipse cx="12" cy="12" rx="4" ry="9" /><path d="M3 12h18" /></svg>
                     <span>Time zone: @TimeZone.Id</span>
                 </div>
+                @if (BookingFields is not null)
+                {
+                    <div class="mt-4 grid min-w-0 gap-3">@BookingFields</div>
+                }
             </section>
         }
         <aside class="min-w-0 space-y-3 border-b p-4 sm:border-b-0 sm:border-e lg:p-5">
@@ -93,8 +97,9 @@
                 <div @key="(Date, BookingDuration)" class="grid gap-2 overflow-y-auto" style="max-height:14.5rem;scrollbar-width:none" tabindex="0" role="group" aria-label="Available start times">
                     @foreach (var instant in available)
                     {
-                        <button type="button" class="flex h-10 items-center justify-center gap-2 rounded-lg border text-sm font-semibold transition-colors hover:bg-muted aria-pressed:bg-primary aria-pressed:text-primary-foreground" aria-pressed="@(instant == SelectedStart ? "true" : "false")" @onclick="() => SlotSelected.InvokeAsync(new SchedulerSlot(instant, null))"><span aria-hidden="true" class="size-1.5 rounded-full bg-emerald-500"></span>@TimeZoneInfo.ConvertTime(instant, TimeZone).ToString("t", Text.Culture)</button>
+                        <button type="button" class="flex h-10 items-center justify-center gap-2 rounded-lg border text-sm font-semibold transition-colors hover:bg-muted aria-pressed:bg-primary aria-pressed:text-primary-foreground" aria-pressed="@(instant == SelectedStart ? "true" : "false")" disabled="@_busy" @onclick="() => SelectBookingSlot(instant)"><span aria-hidden="true" class="size-1.5 rounded-full bg-emerald-500"></span>@TimeZoneInfo.ConvertTime(instant, TimeZone).ToString("t", Text.Culture)</button>
                     }
+                    @if (_error is not null) { <span role="alert" class="text-destructive">@Text[_error]</span> }
                     @if (available.Count == 0) { <span class="text-sm text-muted-foreground">No available times.</span> }
                 </div>
             </section>
@@ -323,6 +328,7 @@
         await BookingTitleChanged.InvokeAsync(title);
     }
 
+    [Parameter] public RenderFragment? BookingFields { get; set; }
     [Parameter] public RenderFragment? MeetingDetails { get; set; }
     [Parameter] public TimeSpan BookingDuration { get; set; } = TimeSpan.FromMinutes(15);
     [Parameter] public EventCallback<TimeSpan> BookingDurationChanged { get; set; }
@@ -336,6 +342,26 @@
     }
 
     [Parameter] public DateTimeOffset? SelectedStart { get; set; }
+    private async Task SelectBookingSlot(DateTimeOffset start)
+    {
+        if (_busy || !SlotSelected.HasDelegate || !AvailableStarts(Date).Contains(start)) return;
+        _busy = true;
+        _error = null;
+        try
+        {
+            await SlotSelected.InvokeAsync(new SchedulerSlot(start, null) { End = start.Add(BookingDuration) });
+        }
+        catch (Exception exception)
+        {
+            ReportError(exception, "handle booking slot selection");
+            _error = "SaveError";
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
     private IEnumerable<DateTimeOffset> AvailableStarts(DateOnly day)
     {
         var now = DateTimeOffset.UtcNow;

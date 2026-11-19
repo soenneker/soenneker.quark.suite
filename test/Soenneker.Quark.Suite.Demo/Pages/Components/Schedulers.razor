@@ -5,14 +5,28 @@
 <DemoSection Title="Book a discovery call" Description="Choose a duration and a day to see available times in Chicago."
              Code="@Example" CodeLanguage="razor"
              PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 gap-4">
-    <Scheduler TimeZone="DemoZone" Events="_appointments" @bind-Date="_date" @bind-BookingDuration="_duration" CanEditTitle="true" @bind-BookingTitle="_bookingTitle" SelectedStart="_start" SlotSelected="SelectSlot">
+    <Scheduler TimeZone="DemoZone" Events="_appointments" @bind-Date="_date" @bind-BookingDuration="_duration" CanEditTitle="true" @bind-BookingTitle="_bookingTitle" SlotSelected="BookAppointment">
         <MeetingDetails>@AvailabilityNote</MeetingDetails>
+        <BookingFields>
+            <Field>
+                <FieldLabel For="booking-assignee">Assigned to (optional)</FieldLabel>
+                <NativeSelect Id="booking-assignee" @bind-Value="_assignee">
+                    <NativeSelectOption Value="">Unassigned</NativeSelectOption>
+                    <NativeSelectOption Value="Alex">Alex</NativeSelectOption>
+                    <NativeSelectOption Value="Sam">Sam</NativeSelectOption>
+                </NativeSelect>
+            </Field>
+            <Field>
+                <FieldLabel For="booking-notes">Notes (optional)</FieldLabel>
+                <TextArea Id="booking-notes" @bind-Value="_notes" />
+            </Field>
+        </BookingFields>
     </Scheduler>
-    @if (_start is { } start)
+    @if (_lastBooking is { } booking)
     {
         <Div role="status" Class="flex items-center gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
             <Icon Name="LucideIcon.CalendarCheck" />
-            @TimeZoneInfo.ConvertTime(start, DemoZone).ToString("ddd, MMM d · h:mm tt") · @_duration.TotalMinutes min
+            Booked @TimeZoneInfo.ConvertTime(booking.Start, DemoZone).ToString("ddd, MMM d · h:mm tt") · @((booking.End - booking.Start)?.TotalMinutes) min
         </Div>
     }
 </DemoSection>
@@ -38,18 +52,39 @@
 
     private TimeSpan _duration = TimeSpan.FromMinutes(15);
     private string? _bookingTitle = "Discovery call";
-    private DateTimeOffset? _start;
-    private void SelectSlot(SchedulerSlot slot) => _start = slot.Start;
+    private string? _assignee;
+    private string? _notes;
+    private SchedulerEvent? _lastBooking;
+    private void BookAppointment(SchedulerSlot slot)
+    {
+        var appointment = new SchedulerEvent(Guid.NewGuid().ToString(), _bookingTitle ?? "Appointment", slot.Start, slot.End, _assignee);
+        _appointments = [.. _appointments, appointment];
+        _lastBooking = appointment;
+    }
 
     private const string Example = """
-<Scheduler TimeZone="DemoZone" Events="_appointments" @bind-Date="_date" @bind-BookingDuration="_duration" CanEditTitle="true" @bind-BookingTitle="_bookingTitle" SelectedStart="_start" SlotSelected="SelectSlot">
+<Scheduler TimeZone="DemoZone" Events="_appointments" @bind-Date="_date" @bind-BookingDuration="_duration" CanEditTitle="true" @bind-BookingTitle="_bookingTitle" SlotSelected="BookAppointment">
     <MeetingDetails>@AvailabilityNote</MeetingDetails>
+    <BookingFields>
+        <Field>
+            <FieldLabel For="booking-assignee">Assigned to (optional)</FieldLabel>
+            <NativeSelect Id="booking-assignee" @bind-Value="_assignee">
+                <NativeSelectOption Value="">Unassigned</NativeSelectOption>
+                <NativeSelectOption Value="Alex">Alex</NativeSelectOption>
+                <NativeSelectOption Value="Sam">Sam</NativeSelectOption>
+            </NativeSelect>
+        </Field>
+        <Field>
+            <FieldLabel For="booking-notes">Notes (optional)</FieldLabel>
+            <TextArea Id="booking-notes" @bind-Value="_notes" />
+        </Field>
+    </BookingFields>
 </Scheduler>
-@if (_start is { } start)
+@if (_lastBooking is { } booking)
 {
     <Div role="status" Class="flex items-center gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
         <Icon Name="LucideIcon.CalendarCheck" />
-        @TimeZoneInfo.ConvertTime(start, DemoZone).ToString("ddd, MMM d · h:mm tt") · @_duration.TotalMinutes min
+        Booked @TimeZoneInfo.ConvertTime(booking.Start, DemoZone).ToString("ddd, MMM d · h:mm tt") · @((booking.End - booking.Start)?.TotalMinutes) min
     </Div>
 }
 
@@ -73,8 +108,15 @@
 
     private TimeSpan _duration = TimeSpan.FromMinutes(15);
     private string? _bookingTitle = "Discovery call";
-    private DateTimeOffset? _start;
-    private void SelectSlot(SchedulerSlot slot) => _start = slot.Start;
+    private string? _assignee;
+    private string? _notes;
+    private SchedulerEvent? _lastBooking;
+    private void BookAppointment(SchedulerSlot slot)
+    {
+        var appointment = new SchedulerEvent(Guid.NewGuid().ToString(), _bookingTitle ?? "Appointment", slot.Start, slot.End, _assignee);
+        _appointments = [.. _appointments, appointment];
+        _lastBooking = appointment;
+    }
 }
 """;
 }
