@@ -267,6 +267,7 @@ internal static class EventTimelinePresets
         context.Display = _css7;
         context.MinWidth = _css1;
         context.FlexDirection = _css56;
+        context.Padding = Padding.OnX.Is1;
         context.ItemsAlign = _css8;
         context.Justify = Justify.Start.OnMd.Center;
         context.Gap = _css57;
