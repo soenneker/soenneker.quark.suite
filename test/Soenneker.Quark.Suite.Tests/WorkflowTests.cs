@@ -105,6 +105,44 @@ public sealed class WorkflowTests : BunitContext
     }
 
     [Test]
+    public async Task Scheduler_selects_slots_and_start_only_events_in_read_only_mode()
+    {
+        var day = new DateOnly(2026, 10, 18);
+        var zone = TimeZoneInfo.FindSystemTimeZoneById("America/Chicago");
+        var start = new DateTimeOffset(2026, 10, 18, 0, 0, 0, TimeSpan.FromHours(-5));
+        var appointment = new SchedulerEvent("a", "Callback", start, ResourceId: "owner");
+        SchedulerSlot? slot = null;
+        SchedulerEvent? selected = null;
+        var cut = Render<Scheduler>(p => p.Add(c => c.Date, day).Add(c => c.TimeZone, zone)
+            .Add(c => c.View, SchedulerView.Day).Add(c => c.ReadOnly, true)
+            .Add(c => c.Resources, new[] { new SchedulerResource("owner", "Owner") })
+            .Add(c => c.Events, new[] { appointment })
+            .Add(c => c.SlotSelected, (SchedulerSlot value) => { slot = value; })
+            .Add(c => c.EventSelected, (SchedulerEvent value) => { selected = value; }));
+
+        await cut.Find("[data-resource='owner'] button").ClickAsync();
+        slot.Should().Be(new SchedulerSlot(start, "owner"));
+        await cut.FindAll("button").Single(x => x.TextContent.Contains("Callback")).ClickAsync();
+        selected.Should().Be(appointment);
+        cut.FindAll("fieldset").Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task Scheduler_agenda_edits_midnight_event_without_adding_an_end()
+    {
+        var start = new DateTimeOffset(2026, 10, 18, 0, 0, 0, TimeSpan.Zero);
+        var cut = Render<Scheduler>(p => p.Add(c => c.Date, new DateOnly(2026, 10, 18))
+            .Add(c => c.View, SchedulerView.Agenda)
+            .Add(c => c.Events, new[] { new SchedulerEvent("a", "Callback", start) }));
+        var button = cut.FindAll("button").Single(x => x.TextContent.Contains("Callback"));
+        button.TextContent.Should().NotContain("\u2013");
+        await button.ClickAsync();
+        await cut.FindAll("button").Single(x => x.TextContent == "Save").ClickAsync();
+        cut.FindAll("fieldset").Should().BeEmpty();
+        cut.Instance.Events.Single().End.Should().BeNull();
+    }
+
+    [Test]
     public async Task Scheduler_failed_save_retains_existing_event()
     {
         var appointment = new SchedulerEvent("a", "Original", new(2026, 10, 18, 9, 0, 0, TimeSpan.Zero), new(2026, 10, 18, 10, 0, 0, TimeSpan.Zero));

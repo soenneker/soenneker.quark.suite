@@ -44,7 +44,7 @@
                     <select class="@ControlClass" aria-label="@Text["Select"]" value="@View" @onchange="ChangeView">
                         @foreach (var view in Views) { <option value="@view">@Text[view.ToString()]</option> }
                     </select>
-                    @if (!ReadOnly) { <button type="button" class="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50" disabled="@_busy" @onclick="() => New(Date, 9 * 60, null)"><span aria-hidden="true">+</span>@Text["NewEvent"]</button> }
+                    @if (!ReadOnly || SlotSelected.HasDelegate) { <button type="button" class="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50" disabled="@_busy" @onclick="() => New(Date, 9 * 60, null)"><span aria-hidden="true">+</span>@Text["NewEvent"]</button> }
                 </div>
             </div>
             @if (_error is not null) { <div role="alert" class="text-destructive">@Text[_error]</div> }
@@ -67,7 +67,7 @@
                     @foreach (var day in MonthDays())
                     {
                         <div class="min-h-28 min-w-24 border-b border-e p-2" @ondragover:preventDefault @ondrop="() => Drop(day, null, null)">
-                            <button type="button" class="font-medium" disabled="@ReadOnly" aria-label="@(Text["NewEvent"] + " " + day.ToString("D", Text.Culture))" @onclick="() => New(day, 9 * 60, null)">@day.ToString("ddd d", Text.Culture)</button>
+                            <button type="button" class="font-medium" disabled="@(ReadOnly && !SlotSelected.HasDelegate)" aria-label="@(Text["NewEvent"] + " " + day.ToString("D", Text.Culture))" @onclick="() => New(day, 9 * 60, null)">@day.ToString("ddd d", Text.Culture)</button>
                             @foreach (var appointment in DayEvents(day))
                             { <button @key="appointment.Id" type="button" class="mt-1 block w-full truncate rounded border-s-2 border-primary bg-primary/10 px-2 py-1.5 text-start text-xs font-medium hover:bg-primary/20" draggable="@(!ReadOnly)" @ondragstart="() => Drag(appointment, false)" @ondragend="ClearDrag" @onclick="() => Edit(appointment)">@TimeLabel(appointment) @appointment.Title</button> }
                         </div>
@@ -78,7 +78,7 @@
             {
                 <div class="max-h-[36rem] space-y-5 overflow-auto">
                     @{ var agendaStart = StartInstant(Date); var agendaEnd = StartInstant(Date.AddDays(31));
-                       var agenda = Events.Where(e => e.End > agendaStart && e.Start < agendaEnd).OrderBy(e => e.Start).ToArray(); }
+                       var agenda = Events.Where(e => e.Intersects(agendaStart, agendaEnd)).OrderBy(e => e.Start).ToArray(); }
                     @if (agenda.Length == 0)
                     {
                         <div class="rounded-lg border border-dashed px-6 py-16 text-center text-sm text-muted-foreground">@Text["NoResults"]</div>
@@ -94,7 +94,7 @@
                                     <span class="min-w-0 flex-1 space-y-1.5">
                                         <strong class="block truncate text-sm font-semibold">@appointment.Title</strong>
                                         <span class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                                            <span>@TimeLabel(appointment) â€“ @TimeZoneInfo.ConvertTime(appointment.End, TimeZone).ToString("t", Text.Culture)</span>
+                                            <span>@TimeLabel(appointment)@if (appointment.End is { } end) {<text> – @TimeZoneInfo.ConvertTime(end, TimeZone).ToString("t", Text.Culture)</text>}</span>
                                             @if (Resources.Count > 0) { <span class="rounded-md bg-muted px-2 py-0.5">@ResourceLabel(appointment.ResourceId)</span> }
                                         </span>
                                     </span>
@@ -141,7 +141,7 @@
                                             var appointment = placement.Event;
                                             <div @key="appointment.Id" class="absolute overflow-hidden rounded-md border border-primary/20 border-s-2 border-s-primary bg-accent p-1.5 text-xs shadow-sm" style="@EventStyle(placement)">
                                                 <button type="button" data-touch-event="@(ReadOnly ? null : appointment.Id)" style="touch-action:none" class="w-full text-start" draggable="@(!ReadOnly)" @ondragstart="() => Drag(appointment, false)" @ondragend="ClearDrag" @onclick="() => Edit(appointment)">@TimeLabel(appointment) @appointment.Title</button>
-                                                @if (!ReadOnly) { <button type="button" data-touch-event="@appointment.Id" data-touch-resize="true" style="touch-action:none" class="absolute bottom-0 start-0 h-2 w-full cursor-ns-resize border-t" aria-label="@(Text["End"] + " " + appointment.Title)" draggable="true" @ondragstart="() => Drag(appointment, true)" @ondragend="ClearDrag" @onclick="() => Edit(appointment)"></button> }
+                                                @if (!ReadOnly && appointment.End.HasValue) { <button type="button" data-touch-event="@appointment.Id" data-touch-resize="true" style="touch-action:none" class="absolute bottom-0 start-0 h-2 w-full cursor-ns-resize border-t" aria-label="@(Text["End"] + " " + appointment.Title)" draggable="true" @ondragstart="() => Drag(appointment, true)" @ondragend="ClearDrag" @onclick="() => Edit(appointment)"></button> }
                                             </div>
                                         }
                                     </div>
@@ -203,12 +203,15 @@
     [Parameter] public EventCallback<SchedulerView> ViewChanged { get; set; }
     [Parameter] public Func<SchedulerEvent, CancellationToken, ValueTask>? Save { get; set; }
     [Parameter] public Func<SchedulerEvent, CancellationToken, ValueTask>? Delete { get; set; }
+    [Parameter] public EventCallback<SchedulerSlot> SlotSelected { get; set; }
+    [Parameter] public EventCallback<SchedulerEvent> EventSelected { get; set; }
     [Parameter] public bool ReadOnly { get; set; }
     private readonly CancellationTokenSource _lifetime = new();
     private bool _editing, _busy, _resize;
     private string? _editId, _resource, _error;
     private string _title = "";
-    private DateTime _start, _end;
+    private DateTime _start;
+    private DateTime? _end;
     private SchedulerEvent? _drag, _originalEvent;
     private DateOnly WeekStart => SchedulerDates.WeekStart(Date, Text.Culture.DateTimeFormat.FirstDayOfWeek);
     private IEnumerable<DateOnly> VisibleDays() => View == SchedulerView.Day ? [Date] : Enumerable.Range(0, 7).Select(WeekStart.AddDays);
@@ -252,7 +255,7 @@
         EnsureEventCache();
         if (_dayEvents.TryGetValue(day, out var cached)) return cached;
         var start = StartInstant(day); var end = StartInstant(day.AddDays(1));
-        return _dayEvents[day] = Events.Where(e => e.End > start && e.Start < end).OrderBy(e => e.Start).ToArray();
+        return _dayEvents[day] = Events.Where(e => e.Intersects(start, end)).OrderBy(e => e.Start).ToArray();
     }
     private string ResourceLabel(string? id) => Resources.FirstOrDefault(r => r.Id == id)?.Label ?? Text["NoResource"];
     private string TimeLabel(SchedulerEvent e) => TimeZoneInfo.ConvertTime(e.Start, TimeZone).ToString("t", Text.Culture);
@@ -261,15 +264,53 @@
     private async Task Navigate(int direction) { _calendarMonth = null; Date = View is SchedulerView.Month or SchedulerView.Agenda ? Date.AddMonths(direction) : Date.AddDays(direction * (View == SchedulerView.Week ? 7 : 1)); await DateChanged.InvokeAsync(Date); }
     private async Task Today() { _calendarMonth = null; Date = SchedulerDates.LocalDate(DateTimeOffset.UtcNow, TimeZone); await DateChanged.InvokeAsync(Date); }
     private async Task ChangeView(ChangeEventArgs e) { if (Enum.TryParse<SchedulerView>(e.Value?.ToString(), out var view)) { View = view; await ViewChanged.InvokeAsync(view); } }
-    private void New(DateOnly day, int minute, string? resource) { if (ReadOnly || _busy) return; _originalEvent = null; _editId = null; _title = ""; _resource = resource; _start = day.ToDateTime(TimeOnly.MinValue).AddMinutes(minute); _end = _start.AddHours(1); _editing = true; _error = null; }
-    private void Edit(SchedulerEvent e) { if (ReadOnly || _busy) return; _originalEvent = e; _editId = e.Id; _title = e.Title; _resource = e.ResourceId; _start = TimeZoneInfo.ConvertTime(e.Start, TimeZone).DateTime; _end = TimeZoneInfo.ConvertTime(e.End, TimeZone).DateTime; _editing = true; _error = null; }
+    private async Task New(DateOnly day, int minute, string? resource)
+    {
+        if (_busy) return;
+        var localStart = day.ToDateTime(TimeOnly.MinValue).AddMinutes(minute);
+        if (SlotSelected.HasDelegate)
+        {
+            if (SchedulerDates.ToInstant(localStart, TimeZone) is not { } instant) { _error = "InvalidDate"; return; }
+            _error = null;
+            await SlotSelected.InvokeAsync(new SchedulerSlot(instant, string.IsNullOrEmpty(resource) ? null : resource));
+            return;
+        }
+        if (ReadOnly) return;
+        _originalEvent = null;
+        _editId = null;
+        _title = "";
+        _resource = resource;
+        _start = localStart;
+        _end = _start.AddHours(1);
+        _editing = true;
+        _error = null;
+    }
+
+    private async Task Edit(SchedulerEvent e)
+    {
+        if (_busy) return;
+        if (EventSelected.HasDelegate)
+        {
+            await EventSelected.InvokeAsync(e);
+            return;
+        }
+        if (ReadOnly) return;
+        _originalEvent = e;
+        _editId = e.Id;
+        _title = e.Title;
+        _resource = e.ResourceId;
+        _start = TimeZoneInfo.ConvertTime(e.Start, TimeZone).DateTime;
+        _end = e.End is { } end ? TimeZoneInfo.ConvertTime(end, TimeZone).DateTime : null;
+        _editing = true;
+        _error = null;
+    }
     private async Task SaveDraft()
     {
         if (ReadOnly || _busy) return;
-        var start = SchedulerDates.ResolveEdit(_start, TimeZone, _originalEvent?.Start); var end = SchedulerDates.ResolveEdit(_end, TimeZone, _originalEvent?.End);
+        var start = SchedulerDates.ResolveEdit(_start, TimeZone, _originalEvent?.Start); var end = _end is { } localEnd ? SchedulerDates.ResolveEdit(localEnd, TimeZone, _originalEvent?.End) : null;
         if (string.IsNullOrWhiteSpace(_title)) { _error = "Required"; return; }
-        if (start is null || end is null || end <= start) { _error = "InvalidDate"; return; }
-        if (await Persist(new(_editId ?? Guid.NewGuid().ToString("N"), _title.Trim(), start.Value, end.Value, string.IsNullOrEmpty(_resource) ? null : _resource))) _editing = false;
+        if (start is null || (_end.HasValue && end is null) || end <= start) { _error = "InvalidDate"; return; }
+        if (await Persist(new(_editId ?? Guid.NewGuid().ToString("N"), _title.Trim(), start.Value, end, string.IsNullOrEmpty(_resource) ? null : _resource))) _editing = false;
     }
     private async Task<bool> Persist(SchedulerEvent value)
     {
@@ -303,6 +344,7 @@
         var value = _drag; _drag = null; if (value is null || ReadOnly || _busy) return;
         var local = TimeZoneInfo.ConvertTime(value.Start, TimeZone);
         var instant = SchedulerDates.ToInstant(day.ToDateTime(TimeOnly.MinValue).AddMinutes(minute ?? local.Hour * 60 + local.Minute), TimeZone);
+        if (_resize && value.End is null) return;
         if (instant is null || (_resize && instant <= value.Start)) { _error = "InvalidDate"; return; }
         await Persist(_resize ? value with { End = instant.Value } : value with { Start = instant.Value, End = instant.Value + (value.End - value.Start), ResourceId = minute is null ? value.ResourceId : string.IsNullOrEmpty(resource) ? null : resource });
     }

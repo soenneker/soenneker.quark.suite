@@ -14,6 +14,10 @@ public interface IScheduler : IElement
     IReadOnlyList<SchedulerEvent> Events { get; set; }
     /// <summary>Receives a replacement list after a successful create, edit, move, resize or delete.</summary>
     EventCallback<IReadOnlyList<SchedulerEvent>> EventsChanged { get; set; }
+    /// <summary>Handles a new slot selection in place of the built-in editor. Available in read-only mode.</summary>
+    EventCallback<SchedulerSlot> SlotSelected { get; set; }
+    /// <summary>Handles an existing event selection in place of the built-in editor. Available in read-only mode.</summary>
+    EventCallback<SchedulerEvent> EventSelected { get; set; }
     /// <summary>Display timezone. Defaults to UTC.</summary>
     TimeZoneInfo TimeZone { get; set; }
     /// <summary>Focused calendar date.</summary>

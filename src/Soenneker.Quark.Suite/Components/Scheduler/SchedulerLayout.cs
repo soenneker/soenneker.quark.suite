@@ -10,8 +10,8 @@ public static class SchedulerLayout
         var midnight = day.ToDateTime(TimeOnly.MinValue);
         var placements = events.Select(e => new SchedulerEventPlacement(e,
             Math.Clamp((TimeZoneInfo.ConvertTime(e.Start, zone).DateTime - midnight).TotalMinutes, 0, 1440),
-            Math.Clamp((TimeZoneInfo.ConvertTime(e.End, zone).DateTime - midnight).TotalMinutes, 0, 1440), 0, 1))
-            .Where(p => p.Event.End > p.Event.Start).OrderBy(p => p.StartMinute).ThenByDescending(p => p.EndMinute).ToArray();
+            Math.Clamp((TimeZoneInfo.ConvertTime(e.End ?? e.Start, zone).DateTime - midnight).TotalMinutes, 0, 1440), 0, 1))
+            .Where(p => p.Event.End is null ? SchedulerDates.LocalDate(p.Event.Start, zone) == day : p.Event.End > p.Event.Start).OrderBy(p => p.StartMinute).ThenByDescending(p => p.EndMinute).ToArray();
         var result = new List<SchedulerEventPlacement>();
         var group = new List<SchedulerEventPlacement>();
         var active = new PriorityQueue<int, double>();
