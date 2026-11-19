@@ -3,16 +3,24 @@
 @using System.Globalization
 @inject QuarkLocalizer Localizer
 <QuarkSeoHead Title="Blazor Component Localization | Quark Suite" Description="Configure shared UI translations with culture fallback and live updates." />
-<Div Class="space-y-6">
-    <H1>Localization</H1>
-    <Paragraph>Shared text supports regional-to-parent fallback and English defaults. Switch culture to update the filter controls without recreating them. Register IQuarkLocalizer to use your application's resource system.</Paragraph>
-    <Div Class="flex gap-2"><Button OnClick="English">English</Button><Button OnClick="Spanish">Español</Button></Div>
+
+<Div Space="Space.Y.Is8">
+<DemoSection Title="Regional fallback" Description="Switch between English and Mexican Spanish. The filter builder uses the shared Spanish translations for es-MX."
+             Code="@Example" CodeLanguage="csharp"
+             PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 gap-4">
+    <Div Class="flex flex-wrap items-center gap-2">
+        <Icon Name="LucideIcon.Languages" />
+        <Button OnClick="English">English</Button>
+        <Button OnClick="Spanish">Español</Button>
+        <Badge>@Localizer.Culture.DisplayName</Badge>
+    </Div>
     <QueryBuilder Fields="_fields" @bind-Value="_filters" />
-    <PreCode Language="csharp">@Example</PreCode>
+</DemoSection>
 </Div>
+
 @code {
     private CultureInfo _original = CultureInfo.InvariantCulture;
-    private FilterGroup _filters = new();
+    private FilterGroup _filters = new() { Rules = [new() { Field = "name", Operator = FilterOperator.Contains, Value = "Atlas" }] };
     private readonly IReadOnlyList<FilterField> _fields = [new("name", "Name")];
     protected override void OnInitialized()
     {

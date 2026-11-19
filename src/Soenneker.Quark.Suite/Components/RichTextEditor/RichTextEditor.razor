@@ -7,38 +7,56 @@
 @using Microsoft.JSInterop
 @using System.Threading
 @inject IRichTextEditorInterop EditorInterop
-<div @attributes="@(WorkflowAttributes("rich-text-editor", "rounded-md border"))">
+<div @attributes="@(WorkflowAttributes("rich-text-editor", "overflow-hidden rounded-xl border border-border bg-background text-foreground shadow-sm focus-within:border-ring"))">
     @if (!ReadOnly)
     {
-        <div role="toolbar" aria-label="@Text["Editor"]" class="flex flex-wrap items-center gap-2 border-b p-2">
+        <div role="toolbar" aria-label="@Text["Editor"]" class="flex flex-wrap items-center gap-1 border-b bg-muted/30 p-1.5">
             @foreach (var command in Commands)
             {
-                <button type="button" class="rounded border px-2 py-1" aria-label="@Text[command.Label]" aria-pressed="@(command.Command is "undo" or "redo" ? null : IsActive(command.Command) ? "true" : "false")" @onmousedown:preventDefault @onclick="() => Command(command.Command)">@Text[command.Label]</button>
+                @if (command.Command is "bold" or "insertUnorderedList")
+                {
+                    <span aria-hidden="true" class="mx-1 h-4 w-px bg-border"></span>
+                }
+                <button type="button" class="@ToolClass" title="@Text[command.Label]" aria-label="@Text[command.Label]" aria-pressed="@(command.Command is "undo" or "redo" ? null : IsActive(command.Command) ? "true" : "false")" @onmousedown:preventDefault @onclick="() => Command(command.Command)">
+                    @if (command.Icon is { } icon)
+                    {
+                        <Icon Name="@icon" aria-hidden="true" />
+                    }
+                    else
+                    {
+                        <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M6 12h8a4 4 0 0 1 0 8H6z M6 4h7a4 4 0 0 1 0 8H6z" />
+                        </svg>
+                    }
+                </button>
             }
-            <button type="button" class="rounded border px-2 py-1" @onmousedown:preventDefault @onclick="ShowLink">@Text["Link"]</button>
-            <button type="button" disabled="@(_format.LinkUrl is null)" @onmousedown:preventDefault @onclick="@(async () => await Command("unlink"))">@Text["RemoveLink"]</button>
+            <button type="button" class="@ToolClass" aria-label="@Text["Link"]" title="@Text["Link"]" @onmousedown:preventDefault @onclick="ShowLink"><Icon Name="LucideIcon.Link" aria-hidden="true" /></button>
+            <button type="button" class="@ToolClass" aria-label="@Text["RemoveLink"]" title="@Text["RemoveLink"]" disabled="@(_format.LinkUrl is null)" @onmousedown:preventDefault @onclick="@(async () => await Command("unlink"))"><Icon Name="LucideIcon.Unlink" aria-hidden="true" /></button>
             @if (Mentions.Count > 0)
             {
-                <select aria-label="@Text["Mention"]" value="" @onchange="InsertMention"><option value="">@Text["Mention"]</option>
+                <label class="relative inline-flex rounded-md focus-within:ring-2 focus-within:ring-ring hover:bg-accent" title="@Text["Mention"]">
+                    <span class="@ToolClass"><Icon Name="LucideIcon.AtSign" aria-hidden="true" /></span>
+                    <select class="absolute inset-0 w-full cursor-pointer opacity-0" aria-label="@Text["Mention"]" value="" @onchange="InsertMention"><option value="">@Text["Mention"]</option>
                     @foreach (var mention in Mentions) { <option value="@mention.Value" disabled="@mention.Disabled">@mention.Label</option> }
                 </select>
+                </label>
             }
             @if (UploadAttachment is not null)
             {
-                <label class="rounded border px-2 py-1">@Text["Attachment"]<InputFile OnChange="Upload" disabled="@_uploading" /></label>
+                <label class="@ToolClass" title="@Text["Attachment"]"><Icon Name="LucideIcon.Paperclip" aria-hidden="true" /><InputFile class="sr-only" aria-label="@Text["Attachment"]" OnChange="Upload" disabled="@_uploading" /></label>
             }
             @ToolbarContent
         </div>
         @if (_showLink)
         {
-            <div class="flex flex-wrap gap-2 p-2">
-                <input aria-label="@Text["Link"]" class="rounded border bg-background p-2" @bind="_url" placeholder="https://" />
-                <input aria-label="@Text["Name"]" class="rounded border bg-background p-2" @bind="_linkLabel" />
-                <button type="button" @onclick="InsertLink">@Text["Insert"]</button>
+            <div class="flex flex-wrap items-center gap-2 border-b bg-muted/30 p-2 text-sm">
+                <input aria-label="@Text["Link"]" class="min-w-0 flex-1 rounded-md border bg-background px-3 py-1.5" @bind="_url" placeholder="https://" />
+                <input aria-label="@Text["Name"]" class="min-w-0 flex-1 rounded-md border bg-background px-3 py-1.5" placeholder="@Text["Name"]" @bind="_linkLabel" />
+                <button type="button" class="rounded-md bg-primary px-3 py-1.5 font-medium text-primary-foreground" @onclick="InsertLink">@Text["Insert"]</button>
             </div>
         }
     }
-    <div @ref="_editor" role="@(ReadOnly ? "document" : "textbox")" aria-multiline="@(!ReadOnly ? "true" : null)" aria-readonly="@(ReadOnly ? "true" : "false")" aria-label="@(Label ?? Text["Editor"])" tabindex="0" class="min-h-32 p-3 outline-none [&_a]:underline [&_ul]:list-disc [&_ul]:ps-6 [&_ol]:list-decimal [&_ol]:ps-6"></div>
+    <div @ref="_editor" role="@(ReadOnly ? "document" : "textbox")" aria-multiline="@(!ReadOnly ? "true" : null)" aria-readonly="@(ReadOnly ? "true" : "false")" aria-label="@(Label ?? Text["Editor"])" tabindex="0" class="min-h-36 px-5 py-4 text-sm leading-7 outline-none [&_p+p]:mt-3 [&_a]:underline [&_ul]:list-disc [&_ul]:ps-6 [&_ol]:list-decimal [&_ol]:ps-6"></div>
     @if (_uploading) { <div role="status">@Text["Loading"]</div> }
     @if (_error is not null) { <div role="alert" class="p-2 text-destructive">@Text[_error]</div> }
     @if (AutoSave && ShowAutoSaveStatus && OnAutoSave is not null)
@@ -78,7 +96,17 @@
     [Parameter] public Func<IBrowserFile, CancellationToken, ValueTask<RichTextAttachment>>? UploadAttachment { get; set; }
     [Parameter] public RenderFragment? ToolbarContent { get; set; }
     [Parameter] public string? Label { get; set; }
-    private static readonly (string Command, string Label)[] Commands = [("undo", "Undo"), ("redo", "Redo"), ("bold", "Bold"), ("italic", "Italic"), ("underline", "Underline"), ("insertUnorderedList", "BulletList"), ("insertOrderedList", "NumberedList")];
+    private const string ToolClass = "inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-within:ring-2 disabled:pointer-events-none disabled:opacity-40 aria-pressed:bg-accent aria-pressed:text-accent-foreground";
+    private static readonly (string Command, string Label, LucideIcon? Icon)[] Commands =
+    [
+        ("undo", "Undo", LucideIcon.Undo2),
+        ("redo", "Redo", LucideIcon.Redo2),
+        ("bold", "Bold", null),
+        ("italic", "Italic", LucideIcon.Italic),
+        ("underline", "Underline", LucideIcon.Underline),
+        ("insertUnorderedList", "BulletList", LucideIcon.List),
+        ("insertOrderedList", "NumberedList", LucideIcon.ListOrdered)
+    ];
     private RichTextFormatState _format = new();
     private bool IsActive(string command) => command switch { "bold" => _format.Bold, "italic" => _format.Italic, "underline" => _format.Underline, "insertUnorderedList" => _format.Bullets, "insertOrderedList" => _format.Numbered, _ => false };
     private void ShowLink() { _url = _format.LinkUrl ?? ""; _linkLabel = _format.LinkText ?? ""; _showLink = !_showLink; }

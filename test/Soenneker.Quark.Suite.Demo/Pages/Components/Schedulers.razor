@@ -1,23 +1,76 @@
 @page "/components/scheduler"
 <QuarkSeoHead Title="Blazor Appointment Scheduler | Quark Suite" Description="Choose a date and an available appointment time." />
-<Div Class="space-y-6">
-    <Scheduler @bind-BookingDuration="_duration" CanEditTitle="true" @bind-BookingTitle="_bookingTitle" SelectedStart="_start" SlotSelected="SelectSlot">
-        <MeetingDetails>Choose a time to meet with our team.</MeetingDetails>
+
+<Div Space="Space.Y.Is8">
+<DemoSection Title="Book a discovery call" Description="Choose a duration and a day to see available times in Chicago."
+             Code="@Example" CodeLanguage="razor"
+             PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 gap-4">
+    <Scheduler TimeZone="DemoZone" Events="_appointments" @bind-Date="_date" @bind-BookingDuration="_duration" CanEditTitle="true" @bind-BookingTitle="_bookingTitle" SelectedStart="_start" SlotSelected="SelectSlot">
+        <MeetingDetails>@AvailabilityNote</MeetingDetails>
     </Scheduler>
-    <PreCode Language="razor">@Example</PreCode>
+    @if (_start is { } start)
+    {
+        <Div role="status" Class="flex items-center gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
+            <Icon Name="LucideIcon.CalendarCheck" />
+            @TimeZoneInfo.ConvertTime(start, DemoZone).ToString("ddd, MMM d · h:mm tt") · @_duration.TotalMinutes min
+        </Div>
+    }
+</DemoSection>
 </Div>
+
 @code {
+    private static readonly TimeZoneInfo DemoZone = TimeZoneInfo.FindSystemTimeZoneById("America/Chicago");
+    private readonly DateTime _firstDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, DemoZone).Date.AddDays(1);
+    private static DateTimeOffset Instant(DateTime local) => TimeZoneInfo.ConvertTimeToUtc(local, DemoZone);
+    private DateOnly _date;
+    private SchedulerEvent[] _appointments = [];
+    private string AvailabilityNote => $"{_firstDay:MMM d} is booked from 9:30 to 10:30 AM local time. {_firstDay.AddDays(1):MMM d} is fully booked.";
+
+    protected override void OnInitialized()
+    {
+        _date = DateOnly.FromDateTime(_firstDay);
+        _appointments =
+        [
+            new("call", "Client call", Instant(_firstDay.AddHours(9.5)), Instant(_firstDay.AddHours(10.5))),
+            new("away", "Out of office", Instant(_firstDay.AddDays(1)), Instant(_firstDay.AddDays(2)))
+        ];
+    }
+
     private TimeSpan _duration = TimeSpan.FromMinutes(15);
     private string? _bookingTitle = "Discovery call";
     private DateTimeOffset? _start;
     private void SelectSlot(SchedulerSlot slot) => _start = slot.Start;
 
     private const string Example = """
-<Scheduler @bind-BookingDuration="_duration" CanEditTitle="true" @bind-BookingTitle="_bookingTitle" SelectedStart="_start" SlotSelected="SelectSlot">
-    <MeetingDetails>Choose a time to meet with our team.</MeetingDetails>
+<Scheduler TimeZone="DemoZone" Events="_appointments" @bind-Date="_date" @bind-BookingDuration="_duration" CanEditTitle="true" @bind-BookingTitle="_bookingTitle" SelectedStart="_start" SlotSelected="SelectSlot">
+    <MeetingDetails>@AvailabilityNote</MeetingDetails>
 </Scheduler>
+@if (_start is { } start)
+{
+    <Div role="status" Class="flex items-center gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
+        <Icon Name="LucideIcon.CalendarCheck" />
+        @TimeZoneInfo.ConvertTime(start, DemoZone).ToString("ddd, MMM d · h:mm tt") · @_duration.TotalMinutes min
+    </Div>
+}
 
 @code {
+    private static readonly TimeZoneInfo DemoZone = TimeZoneInfo.FindSystemTimeZoneById("America/Chicago");
+    private readonly DateTime _firstDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, DemoZone).Date.AddDays(1);
+    private static DateTimeOffset Instant(DateTime local) => TimeZoneInfo.ConvertTimeToUtc(local, DemoZone);
+    private DateOnly _date;
+    private SchedulerEvent[] _appointments = [];
+    private string AvailabilityNote => $"{_firstDay:MMM d} is booked from 9:30 to 10:30 AM local time. {_firstDay.AddDays(1):MMM d} is fully booked.";
+
+    protected override void OnInitialized()
+    {
+        _date = DateOnly.FromDateTime(_firstDay);
+        _appointments =
+        [
+            new("call", "Client call", Instant(_firstDay.AddHours(9.5)), Instant(_firstDay.AddHours(10.5))),
+            new("away", "Out of office", Instant(_firstDay.AddDays(1)), Instant(_firstDay.AddDays(2)))
+        ];
+    }
+
     private TimeSpan _duration = TimeSpan.FromMinutes(15);
     private string? _bookingTitle = "Discovery call";
     private DateTimeOffset? _start;

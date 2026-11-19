@@ -1,28 +1,32 @@
 @page "/components/query-input"
 
 <QuarkSeoHead Title="Blazor Query Input | Quark Suite" Description="Build search queries with field and value suggestions, quoted values, and exclusions." />
-<Grid Columns="GridCols.Is1" Gap="Gap.Is6" MinWidth="MinWidth.Is0" Width="Width.IsFull">
-    <DemoSection Title="Query building"
-                 Description="Mix search text with filters. Use arrow keys and Enter to select suggestions, and Escape to dismiss them. Use AND/OR to combine operands (AND takes precedence). Adjacent operands use AND. Quoted values and exclusions are supported."
-                 Code="@Example" CodeLanguage="razor"
-                 PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 grid-cols-1">
-        <Grid Columns="GridCols.Is1" Gap="Gap.Is3" Width="Width.IsFull">
-            <QueryInput Fields="_fields" @bind-Value="_query" ParsedChanged="OnParsed" />
-            <H2>Parsed query</H2>
-            <Paragraph>Text: @_parsed.Text</Paragraph>
-            <Paragraph>Expression: @_parsed.Expression</Paragraph>
+
+<Div Space="Space.Y.Is8">
+<DemoSection Title="Search issues" Description="Type a field name to see suggestions. Use Enter to select, quotes for multi-word values, and a minus sign to exclude a match."
+             Code="@Example" CodeLanguage="razor"
+             PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 gap-4">
+    <QueryInput Fields="_fields" @bind-Value="_query" ParsedChanged="OnParsed" />
+    <Div Class="rounded-lg border bg-muted/20 p-4" aria-live="polite">
+        <Div Class="mb-2 text-sm font-medium">Search criteria</Div>
+        <Div Class="flex flex-wrap gap-2">
+            @if (!string.IsNullOrWhiteSpace(_parsed.Text)) { <Badge>@_parsed.Text</Badge> }
             @foreach (var filter in _parsed.Filters)
             {
-                <Paragraph>@(filter.Excluded ? "Exclude" : "Include") @filter.Field: @filter.Value</Paragraph>
+                <Badge>@(filter.Excluded ? "Exclude" : "Include") @filter.Field · @filter.Value</Badge>
             }
-            @foreach (var error in _parsed.Errors)
+            @if (_parsed.Filters.Count == 0 && string.IsNullOrWhiteSpace(_parsed.Text))
             {
-                <Paragraph role="status">@error</Paragraph>
+                <Paragraph Class="text-sm text-muted-foreground">Enter text or choose a field to narrow the search.</Paragraph>
             }
-        </Grid>
-    </DemoSection>
-</Grid>
-<Paragraph>For server-backed suggestions, assign SuggestValues on QueryInput or an individual QueryInputField. The async callback receives Field, Search, Query, Parsed, MaxSuggestions, and a cancellation token. Return SelectOption values from your API or database lookup. Translate Parsed.Expression to preserve AND/OR when executing searches, and check Errors before execution.</Paragraph>
+        </Div>
+        @foreach (var error in _parsed.Errors)
+        {
+            <Paragraph Class="text-sm text-destructive">@error</Paragraph>
+        }
+    </Div>
+</DemoSection>
+</Div>
 
 @code {
     private string _query = "state:open OR state:closed AND -assignee:me";
@@ -36,20 +40,25 @@
     ];
     private void OnParsed(QueryInputResult value) => _parsed = value;
     private const string Example = """
-<Grid Columns="GridCols.Is1" Gap="Gap.Is3" Width="Width.IsFull">
-    <QueryInput Fields="_fields" @bind-Value="_query" ParsedChanged="OnParsed" />
-    <H2>Parsed query</H2>
-    <Paragraph>Text: @_parsed.Text</Paragraph>
-    <Paragraph>Expression: @_parsed.Expression</Paragraph>
-    @foreach (var filter in _parsed.Filters)
-    {
-        <Paragraph>@(filter.Excluded ? "Exclude" : "Include") @filter.Field: @filter.Value</Paragraph>
-    }
+<QueryInput Fields="_fields" @bind-Value="_query" ParsedChanged="OnParsed" />
+<Div Class="rounded-lg border bg-muted/20 p-4" aria-live="polite">
+    <Div Class="mb-2 text-sm font-medium">Search criteria</Div>
+    <Div Class="flex flex-wrap gap-2">
+        @if (!string.IsNullOrWhiteSpace(_parsed.Text)) { <Badge>@_parsed.Text</Badge> }
+        @foreach (var filter in _parsed.Filters)
+        {
+            <Badge>@(filter.Excluded ? "Exclude" : "Include") @filter.Field · @filter.Value</Badge>
+        }
+        @if (_parsed.Filters.Count == 0 && string.IsNullOrWhiteSpace(_parsed.Text))
+        {
+            <Paragraph Class="text-sm text-muted-foreground">Enter text or choose a field to narrow the search.</Paragraph>
+        }
+    </Div>
     @foreach (var error in _parsed.Errors)
     {
-        <Paragraph role="status">@error</Paragraph>
+        <Paragraph Class="text-sm text-destructive">@error</Paragraph>
     }
-</Grid>
+</Div>
 
 @code {
     private string _query = "state:open OR state:closed AND -assignee:me";

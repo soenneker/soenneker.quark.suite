@@ -1,25 +1,62 @@
 @page "/components/notification-center"
 @using System.Threading
 <QuarkSeoHead Title="Blazor Notification Center | Quark Suite" Description="Display a persistent notification inbox with grouping, unread state, actions and paged loading." />
-<Div Class="space-y-6">
-    <H1>Notification center</H1>
-    <Paragraph>Read state and actions are application-owned. Supply Load and MarkRead callbacks to connect the inbox to persistent account storage. Mark all read affects loaded notifications.</Paragraph>
+
+<Div Space="Space.Y.Is8">
+<DemoSection Title="Team inbox" Description="Review recent workspace activity, mark updates as read, or load earlier notifications."
+             Code="@Example" CodeLanguage="razor"
+             PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 gap-4">
     <NotificationCenter @bind-Items="_items" Load="Load" Action="Open" />
-    @if (_opened is not null) { <Alert>@_opened</Alert> }
-    <PreCode Language="razor">@Example</PreCode>
+    @if (_opened is not null)
+    {
+        <Alert role="status">@_opened</Alert>
+    }
+</DemoSection>
 </Div>
+
 @code {
     private IReadOnlyList<QuarkNotification> _items = [];
+    private readonly QuarkNotification[] _feed =
+    [
+        new("review", "Review requested", "Alex shared the onboarding draft for review.", DateTimeOffset.UtcNow.AddMinutes(-12), Group: "Assignments", ActionLabel: "Review draft"),
+        new("handoff", "Design handoff", "Sam assigned you the release checklist.", DateTimeOffset.UtcNow.AddHours(-1), Group: "Assignments", ActionLabel: "View checklist"),
+        new("release", "Release published", "Version 2.4 is available to the team.", DateTimeOffset.UtcNow.AddHours(-3), Group: "Activity"),
+        new("invite", "Invitation accepted", "Morgan joined the design workspace.", DateTimeOffset.UtcNow.AddDays(-1), true, "Activity"),
+        new("sync", "Import complete", "The account directory is up to date.", DateTimeOffset.UtcNow.AddDays(-2), true, "Activity")
+    ];
     private string? _opened;
     private ValueTask<NotificationPage> Load(string? token, CancellationToken cancellationToken)
     {
         var start = token is null ? 0 : int.Parse(token);
-        var items = Enumerable.Range(start, 5).Select(i => new QuarkNotification(i.ToString(), $"Update {i + 1}", "An account update is ready to review.", DateTimeOffset.UtcNow.AddHours(-i), Group: i % 2 == 0 ? "Assignments" : "Activity", ActionLabel: "Review")).ToArray();
-        return ValueTask.FromResult(new NotificationPage(items, start < 10 ? (start + 5).ToString() : null));
+        var items = _feed.Skip(start).Take(3).ToArray();
+        return ValueTask.FromResult(new NotificationPage(items, start + items.Length < _feed.Length ? (start + items.Length).ToString() : null));
     }
     private void Open(QuarkNotification notification) => _opened = $"Opened {notification.Title}";
     private const string Example = """
-<NotificationCenter @bind-Items="notifications" Load="LoadNotifications"
-                    MarkRead="PersistReadState" Action="OpenNotification" />
+<NotificationCenter @bind-Items="_items" Load="Load" Action="Open" />
+@if (_opened is not null)
+{
+    <Alert role="status">@_opened</Alert>
+}
+
+@code {
+    private IReadOnlyList<QuarkNotification> _items = [];
+    private readonly QuarkNotification[] _feed =
+    [
+        new("review", "Review requested", "Alex shared the onboarding draft for review.", DateTimeOffset.UtcNow.AddMinutes(-12), Group: "Assignments", ActionLabel: "Review draft"),
+        new("handoff", "Design handoff", "Sam assigned you the release checklist.", DateTimeOffset.UtcNow.AddHours(-1), Group: "Assignments", ActionLabel: "View checklist"),
+        new("release", "Release published", "Version 2.4 is available to the team.", DateTimeOffset.UtcNow.AddHours(-3), Group: "Activity"),
+        new("invite", "Invitation accepted", "Morgan joined the design workspace.", DateTimeOffset.UtcNow.AddDays(-1), true, "Activity"),
+        new("sync", "Import complete", "The account directory is up to date.", DateTimeOffset.UtcNow.AddDays(-2), true, "Activity")
+    ];
+    private string? _opened;
+    private ValueTask<NotificationPage> Load(string? token, CancellationToken cancellationToken)
+    {
+        var start = token is null ? 0 : int.Parse(token);
+        var items = _feed.Skip(start).Take(3).ToArray();
+        return ValueTask.FromResult(new NotificationPage(items, start + items.Length < _feed.Length ? (start + items.Length).ToString() : null));
+    }
+    private void Open(QuarkNotification notification) => _opened = $"Opened {notification.Title}";
+}
 """;
 }

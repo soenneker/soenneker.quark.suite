@@ -1,17 +1,61 @@
 @page "/components/filter-builder"
 <QuarkSeoHead Title="Blazor Filter Builder | Quark Suite" Description="Build reusable nested typed predicates with AND and OR groups." />
-<Div Class="space-y-6">
-    <H1>Filter builder</H1>
-    <Paragraph>Combine typed conditions with All (AND) or Any (OR). The same filter tree can be evaluated locally or translated into a backend query.</Paragraph>
+
+<Div Space="Space.Y.Is8">
+<DemoSection Title="Audience filters" Description="Change the minimum score or add a name condition to see which accounts qualify."
+             Code="@Example" CodeLanguage="razor"
+             PreviewInnerClass="demo-section-preview-inner grid w-full min-w-0 gap-4">
     <QueryBuilder Fields="_fields" @bind-Value="_filters" />
-    <PreCode Language="json">@Json</PreCode>
-    <PreCode Language="razor">@Example</PreCode>
+    <Div Class="rounded-lg border bg-muted/20 p-4">
+        <Div Class="mb-2 text-sm font-medium">Matching accounts</Div>
+        @if (Matches.Any())
+        {
+            <Div Class="flex flex-wrap gap-2">
+                @foreach (var account in Matches)
+                {
+                    <Badge>@account.Name · @account.Score</Badge>
+                }
+            </Div>
+        }
+        else
+        {
+            <Paragraph Class="text-sm text-muted-foreground">No accounts match these filters.</Paragraph>
+        }
+    </Div>
+</DemoSection>
 </Div>
+
 @code {
-    private FilterGroup _filters = new();
-    private readonly IReadOnlyList<FilterField> _fields = [new("name", "Name"), new("score", "Score", FilterFieldType.Number), new("created", "Created", FilterFieldType.Date), new("active", "Active", FilterFieldType.Boolean), new("status", "Status", FilterFieldType.Choice, [new("new", "New"), new("qualified", "Qualified")])];
-    private string Json => System.Text.Json.JsonSerializer.Serialize(new QuarkViewState { Filters = _filters }, QuarkViewJsonContext.Default.QuarkViewState);
+    private FilterGroup _filters = new() { Rules = [new() { Field = "score", Operator = FilterOperator.GreaterThan, Value = "70" }] };
+    private readonly IReadOnlyList<FilterField> _fields = [new("name", "Account"), new("score", "Score", FilterFieldType.Number)];
+    private readonly (string Name, int Score)[] _accounts = [("Northstar", 92), ("Atlas", 84), ("Meridian", 68)];
+    private IEnumerable<(string Name, int Score)> Matches => _accounts.Where(account =>
+        FilterEvaluator.Matches(_filters, _fields, key => key == "score" ? (object)account.Score : account.Name));
     private const string Example = """
-<QueryBuilder Fields="fields" @bind-Value="filters" />
+<QueryBuilder Fields="_fields" @bind-Value="_filters" />
+<Div Class="rounded-lg border bg-muted/20 p-4">
+    <Div Class="mb-2 text-sm font-medium">Matching accounts</Div>
+    @if (Matches.Any())
+    {
+        <Div Class="flex flex-wrap gap-2">
+            @foreach (var account in Matches)
+            {
+                <Badge>@account.Name · @account.Score</Badge>
+            }
+        </Div>
+    }
+    else
+    {
+        <Paragraph Class="text-sm text-muted-foreground">No accounts match these filters.</Paragraph>
+    }
+</Div>
+
+@code {
+    private FilterGroup _filters = new() { Rules = [new() { Field = "score", Operator = FilterOperator.GreaterThan, Value = "70" }] };
+    private readonly IReadOnlyList<FilterField> _fields = [new("name", "Account"), new("score", "Score", FilterFieldType.Number)];
+    private readonly (string Name, int Score)[] _accounts = [("Northstar", 92), ("Atlas", 84), ("Meridian", 68)];
+    private IEnumerable<(string Name, int Score)> Matches => _accounts.Where(account =>
+        FilterEvaluator.Matches(_filters, _fields, key => key == "score" ? (object)account.Score : account.Name));
+}
 """;
 }
