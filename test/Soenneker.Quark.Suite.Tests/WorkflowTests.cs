@@ -113,7 +113,7 @@ public sealed class WorkflowTests : BunitContext
         var appointment = new SchedulerEvent("a", "Callback", start, ResourceId: "owner");
         SchedulerSlot? slot = null;
         SchedulerEvent? selected = null;
-        var cut = Render<Scheduler>(p => p.Add(c => c.Date, day).Add(c => c.TimeZone, zone)
+        var cut = Render<Scheduler>(p => p.Add(c => c.BookingMode, false).Add(c => c.Date, day).Add(c => c.TimeZone, zone)
             .Add(c => c.View, SchedulerView.Day).Add(c => c.ReadOnly, true)
             .Add(c => c.Resources, new[] { new SchedulerResource("owner", "Owner") })
             .Add(c => c.Events, new[] { appointment })
@@ -131,7 +131,7 @@ public sealed class WorkflowTests : BunitContext
     public async Task Scheduler_agenda_edits_midnight_event_without_adding_an_end()
     {
         var start = new DateTimeOffset(2026, 10, 18, 0, 0, 0, TimeSpan.Zero);
-        var cut = Render<Scheduler>(p => p.Add(c => c.Date, new DateOnly(2026, 10, 18))
+        var cut = Render<Scheduler>(p => p.Add(c => c.BookingMode, false).Add(c => c.Date, new DateOnly(2026, 10, 18))
             .Add(c => c.View, SchedulerView.Agenda)
             .Add(c => c.Events, new[] { new SchedulerEvent("a", "Callback", start) }));
         var button = cut.FindAll("button").Single(x => x.TextContent.Contains("Callback"));
@@ -146,7 +146,7 @@ public sealed class WorkflowTests : BunitContext
     public async Task Scheduler_failed_save_retains_existing_event()
     {
         var appointment = new SchedulerEvent("a", "Original", new(2026, 10, 18, 9, 0, 0, TimeSpan.Zero), new(2026, 10, 18, 10, 0, 0, TimeSpan.Zero));
-        var cut = Render<Scheduler>(p => p.Add(c => c.Date, new DateOnly(2026, 10, 18)).Add(c => c.View, SchedulerView.Agenda)
+        var cut = Render<Scheduler>(p => p.Add(c => c.BookingMode, false).Add(c => c.Date, new DateOnly(2026, 10, 18)).Add(c => c.View, SchedulerView.Agenda)
             .Add(c => c.Events, new[] { appointment }).Add(c => c.Save, (_, _) => throw new InvalidOperationException("offline")));
         await cut.FindAll("button").First(x => x.TextContent.Contains("Original")).ClickAsync();
         await cut.Find("input:not([type])").ChangeAsync(new ChangeEventArgs { Value = "Changed" });
@@ -292,7 +292,7 @@ public sealed class WorkflowTests : BunitContext
     public async Task Scheduler_touch_move_preserves_duration_and_changes_resource()
     {
         var start = new DateTimeOffset(2026, 10, 18, 9, 0, 0, TimeSpan.Zero);
-        var cut = Render<Scheduler>(p => p.Add(c => c.Events, new[] { new SchedulerEvent("a", "Meeting", start, start.AddHours(1)) }));
+        var cut = Render<Scheduler>(p => p.Add(c => c.BookingMode, false).Add(c => c.Events, new[] { new SchedulerEvent("a", "Meeting", start, start.AddHours(1)) }));
         await cut.InvokeAsync(() => cut.Instance.OnTouchDrop("a", false, "2026-10-19", 600, "team"));
         var moved = cut.Instance.Events.Single();
         moved.Start.Should().Be(start.AddDays(1).AddHours(1)); moved.End.Should().Be(moved.Start.AddHours(1)); moved.ResourceId.Should().Be("team");

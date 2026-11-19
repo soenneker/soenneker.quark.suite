@@ -3,6 +3,15 @@ export function saveViews(key, value) { localStorage.setItem("quark.views." + ke
 
 const interactions = new WeakMap();
 export function updateInteractions(element) {
+    const editor = element.querySelector("input[data-booking-title-editor]");
+    if (editor && !editor.dataset.initialized) {
+        editor.dataset.initialized = "true";
+        editor.addEventListener("keydown", event => {
+            if (event.key === "Enter") event.preventDefault();
+        });
+        editor.focus();
+        editor.select();
+    }
     for (const input of element.querySelectorAll("input[data-mixed]")) input.indeterminate = input.dataset.mixed === "true";
 }
 export function mountInteractions(element, callback) {
