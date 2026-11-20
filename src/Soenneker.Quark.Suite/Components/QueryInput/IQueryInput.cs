@@ -19,6 +19,8 @@ public interface IQueryInput : IElement
     IReadOnlyList<QueryInputField> Fields { get; set; }
     /// <summary>Optional server-backed value provider for fields without their own provider. Receives decoded search text, parsed query context, and a result limit. Superseded requests are cancelled and their results ignored.</summary>
     Func<QueryInputRequest, CancellationToken, ValueTask<IReadOnlyList<SelectOption>>>? SuggestValues { get; set; }
+    /// <summary>Wraps long queries in a text area that grows with its contents.</summary>
+    bool Multiline { get; set; }
     /// <summary>Placeholder displayed when empty.</summary>
     string? Placeholder { get; set; }
     /// <summary>Accessible name of the input.</summary>

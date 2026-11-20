@@ -18,6 +18,7 @@ public partial class QueryInput
     [Parameter] public Func<QueryInputRequest, CancellationToken, ValueTask<IReadOnlyList<SelectOption>>>? SuggestValues { get; set; }
     [Parameter] public string? Placeholder { get; set; } = "Search or add a filter...";
     [Parameter] public string Label { get; set; } = "Search query";
+    [Parameter] public bool Multiline { get; set; }
     [Parameter] public bool Disabled { get; set; }
     [Parameter] public bool UseSuggestionLabels { get; set; }
     [Parameter] public bool AllowOr { get; set; }
@@ -28,7 +29,8 @@ public partial class QueryInput
     private IReadOnlyList<SelectOption> _options = [];
     private CancellationTokenSource? _request;
     private long _revision;
-    private bool _focused, _open, _registered;
+    private bool _focused, _open;
+    private ElementReference? _registeredInput;
     private int _active = -1, _start, _end;
     private string? _field;
     private bool _excluded;
@@ -50,10 +52,11 @@ public partial class QueryInput
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-        if (!_registered)
+        if (!_input.Equals(_registeredInput))
         {
+            if (_registeredInput is { } previousInput) await InputInterop.UnregisterComboboxKeys(previousInput);
             await InputInterop.RegisterComboboxKeys(_input);
-            _registered = true;
+            _registeredInput = _input;
         }
         if (_restoreCaret is { } caret)
         {
@@ -278,7 +281,7 @@ public partial class QueryInput
     public override async ValueTask DisposeAsync()
     {
         Close();
-        if (_registered) await InputInterop.UnregisterComboboxKeys(_input);
+        if (_registeredInput is { } input) await InputInterop.UnregisterComboboxKeys(input);
         await base.DisposeAsync();
     }
 }

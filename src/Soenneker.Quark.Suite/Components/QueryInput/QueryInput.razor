@@ -3,13 +3,26 @@
 @implements IQueryInput
 
 <div @attributes="@(WorkflowAttributes("query-input", "relative w-full"))">
-    <input @ref="_input" class="h-10 w-full rounded-md border border-input bg-background px-3 pr-10 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
-           value="@Value" placeholder="@Placeholder" disabled="@Disabled" aria-label="@Label"
-           aria-busy="@(_request is not null ? "true" : "false")"
-           role="combobox" aria-autocomplete="list" aria-expanded="@(_open ? "true" : "false")"
-           aria-controls="@_listId" aria-activedescendant="@(_open && _active >= 0 ? OptionId(_active) : null)"
-           autocomplete="off" @oninput="HandleInput" @onfocus="HandleFocus" @onblur="HandleBlur"
-           @onclick="RefreshSuggestions" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" />
+    @if (Multiline)
+    {
+        <textarea rows="1" @ref="_input" class="block field-sizing-content min-h-8 max-h-32 resize-none w-full rounded-md border border-input bg-background px-3 py-1.5 pr-10 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+               value="@Value" placeholder="@Placeholder" disabled="@Disabled" aria-label="@Label"
+               aria-busy="@(_request is not null ? "true" : "false")"
+               role="combobox" aria-autocomplete="list" aria-expanded="@(_open ? "true" : "false")"
+               aria-controls="@_listId" aria-activedescendant="@(_open && _active >= 0 ? OptionId(_active) : null)"
+               autocomplete="off" @oninput="HandleInput" @onfocus="HandleFocus" @onblur="HandleBlur"
+               @onclick="RefreshSuggestions" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp"></textarea>
+    }
+    else
+    {
+        <input @ref="_input" class="h-10 w-full rounded-md border border-input bg-background px-3 pr-10 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+               value="@Value" placeholder="@Placeholder" disabled="@Disabled" aria-label="@Label"
+               aria-busy="@(_request is not null ? "true" : "false")"
+               role="combobox" aria-autocomplete="list" aria-expanded="@(_open ? "true" : "false")"
+               aria-controls="@_listId" aria-activedescendant="@(_open && _active >= 0 ? OptionId(_active) : null)"
+               autocomplete="off" @oninput="HandleInput" @onfocus="HandleFocus" @onblur="HandleBlur"
+               @onclick="RefreshSuggestions" @onkeydown="HandleKeyDown" @onkeyup="HandleKeyUp" />
+    }
     @if (_request is not null)
     {
         <span class="pointer-events-none absolute right-3 top-3 flex items-center" data-slot="query-input-loading">
