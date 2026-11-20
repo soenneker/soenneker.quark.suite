@@ -28,6 +28,8 @@ public interface IQueryInput : IElement
     /// <summary>Inserts suggestion labels into Value while ParsedChanged and suggestion context retain the selected underlying values.
     /// Editing a selected token or replacing Value externally discards its selection identity; typed text is parsed literally.</summary>
     bool UseSuggestionLabels { get; set; }
+    /// <summary>Allow and suggest OR between alternatives. Enable when the consumer evaluates the parsed expression tree.</summary>
+    bool AllowOr { get; set; }
     /// <summary>Maximum visible suggestions; must be positive.</summary>
     int MaxSuggestions { get; set; }
 }

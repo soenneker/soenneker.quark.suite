@@ -140,6 +140,25 @@ public sealed class QueryInputTests : BunitContext
         cut.FindAll("[role=listbox]").Should().BeEmpty();
     }
     [Test]
+    public async Task Or_completion_starts_a_new_group_and_restores_used_fields()
+    {
+        var cut = Render<QueryInput>(p => p.Add(x => x.AllowOr, true).Add(x => x.Value, "tag:bug state:open ")
+            .Add(x => x.Fields, [new("state", "State"), new("tag", "Tag") { Repeatable = true }]));
+        await cut.Find("input").FocusAsync(new());
+        cut.FindAll("[role=option]").Count.Should().Be(2);
+        await cut.FindAll("[role=option]")[1].ClickAsync(new());
+        cut.Instance.Value.Should().Be("tag:bug state:open OR ");
+        cut.WaitForAssertion(() => cut.FindAll("[role=option]")[0].TextContent.Trim().Should().Be("State:"));
+    }
+
+    [Test]
+    public void Disabled_or_reports_operator_but_accepts_literal_values()
+    {
+        QueryInputParser.Parse("state:a OR state:b", null, false).Errors.Should().ContainSingle();
+        QueryInputParser.Parse("state:OR", null, false).Errors.Should().BeEmpty();
+    }
+
+    [Test]
     public void Logical_operators_preserve_precedence_and_quoted_literals()
     {
         QueryInputResult result = QueryInputParser.Parse("state:open or state:closed AND -assignee:me urgent");
@@ -168,7 +187,7 @@ public sealed class QueryInputTests : BunitContext
     public async Task Field_server_provider_receives_logical_context_and_limit()
     {
         QueryInputRequest? requested = null;
-        var cut = Render<QueryInput>(p => p.Add(x => x.Value, "state:open OR assignee:ja")
+        var cut = Render<QueryInput>(p => p.Add(x => x.AllowOr, true).Add(x => x.Value, "state:open OR assignee:ja")
             .Add(x => x.MaxSuggestions, 1)
             .Add(x => x.Fields, [new("state", "State"), new("assignee", "Assignee")
             {

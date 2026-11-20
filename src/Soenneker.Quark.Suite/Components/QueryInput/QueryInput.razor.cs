@@ -20,6 +20,7 @@ public partial class QueryInput
     [Parameter] public string Label { get; set; } = "Search query";
     [Parameter] public bool Disabled { get; set; }
     [Parameter] public bool UseSuggestionLabels { get; set; }
+    [Parameter] public bool AllowOr { get; set; }
     [Parameter] public int MaxSuggestions { get; set; } = 10;
 
     private readonly string _listId = $"query-options-{Guid.NewGuid():N}";
@@ -33,7 +34,7 @@ public partial class QueryInput
     private bool _excluded;
     private string _observedValue = "";
     private int? _restoreCaret;
-    private bool _completeValues;
+    private bool _refreshAfterSelection;
     private readonly List<QueryInputSelection> _selections = [];
 
     protected override void OnParametersSet()
@@ -58,9 +59,9 @@ public partial class QueryInput
         {
             _restoreCaret = null;
             await InputInterop.RestoreSelection(_input, caret, caret, Value);
-            if (_completeValues)
+            if (_refreshAfterSelection)
             {
-                _completeValues = false;
+                _refreshAfterSelection = false;
                 await RefreshSuggestions();
                 await InvokeAsync(StateHasChanged);
             }
@@ -96,7 +97,7 @@ public partial class QueryInput
     {
         foreach (QueryInputSelection selection in _selections.OrderByDescending(s => s.Start))
             text = text.Remove(selection.Start, selection.Length).Insert(selection.Start, selection.Query);
-        return QueryInputParser.Parse(text, Fields);
+        return QueryInputParser.Parse(text, Fields, AllowOr);
     }
 
     private void TrackEdit(string before, string after)
@@ -148,7 +149,8 @@ public partial class QueryInput
         InputSelectionSnapshot? selection = await InputInterop.GetSelection(_input);
         if (revision != _revision || (selection?.Value is { } live && live != query)) return;
         int caret = Math.Clamp(selection?.Start ?? query.Length, 0, query.Length);
-        QueryInputToken? token = QueryInputParser.Tokenize(query).FirstOrDefault(t => t.Start <= caret && caret <= t.End);
+        var tokens = QueryInputParser.Tokenize(query);
+        QueryInputToken? token = tokens.FirstOrDefault(t => t.Start <= caret && caret <= t.End);
         if (token is not null && QueryInputParser.IsOperator(token)) return;
         _start = token?.Start ?? caret;
         _end = token?.End ?? caret;
@@ -160,8 +162,7 @@ public partial class QueryInput
         string search = colon >= 0 ? fragment[(colon + 1)..] : fragment[(_excluded ? 1 : 0)..];
         IReadOnlyList<SelectOption> options;
         if (_field is null)
-            options = Fields.Where(f => Matches(f.Key, search) || Matches(f.Label, search))
-                .Select(f => new SelectOption(f.Key, f.Label + ":")).ToArray();
+            options = SuggestFields(tokens, token, search);
         else
         {
             QueryInputField? field = Fields.FirstOrDefault(f => string.Equals(f.Key, _field, StringComparison.OrdinalIgnoreCase));
@@ -200,6 +201,33 @@ public partial class QueryInput
         _open = _options.Count > 0;
     }
 
+    private IReadOnlyList<SelectOption> SuggestFields(IReadOnlyList<QueryInputToken> tokens, QueryInputToken? token, string search)
+    {
+        var used = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        QueryInputToken? previous = null;
+        foreach (QueryInputToken other in tokens)
+        {
+            if (other == token) continue;
+            if (other.End <= _start) previous = other;
+            if (AllowOr && QueryInputParser.IsOr(other))
+            {
+                if (other.Start >= _end) break;
+                used.Clear();
+            }
+            else if (other.Colon > 0)
+                used.Add(other.Text[..other.Colon].TrimStart('-'));
+        }
+
+        var fields = Fields.Where(f => (f.Repeatable || !used.Contains(f.Key)) && (Matches(f.Key, search) || Matches(f.Label, search)))
+            .Select(f => new SelectOption(f.Key, f.Label + ":"));
+        bool suggestOr = AllowOr && !_excluded && previous is { Closed: true } && !QueryInputParser.IsOperator(previous)
+            && (previous.Colon < 0 || previous.Colon + 1 < previous.Text.Length) && (token is null || (!token.HasQuotes && token.Colon < 0 && search.Length > 0))
+            && "OR".StartsWith(search, StringComparison.OrdinalIgnoreCase);
+        return suggestOr ? [.. fields.Take(MaxSuggestions - 1), OrOption] : fields.ToArray();
+    }
+
+    private static readonly SelectOption OrOption = new("OR", "OR");
+
     private static bool Matches(string value, string search) => value.Contains(search, StringComparison.OrdinalIgnoreCase);
 
     private async Task Choose(int index)
@@ -207,19 +235,20 @@ public partial class QueryInput
         if (Disabled || !_open || index < 0 || index >= _options.Count) return;
         SelectOption option = _options[index];
         string value = option.Value;
-        bool completingField = _field is null;
-        string replacement = (_excluded ? "-" : "") + (completingField ? value + ":" : _field + ":" + QueryInputParser.Quote(UseSuggestionLabels ? option.Label : value));
+        bool insertingOr = ReferenceEquals(option, OrOption);
+        bool completingField = _field is null && !insertingOr;
+        string replacement = insertingOr ? "OR" : (_excluded ? "-" : "") + (completingField ? value + ":" : _field + ":" + QueryInputParser.Quote(UseSuggestionLabels ? option.Label : value));
         string suffix = Value[_end..];
         if (!completingField && (suffix.Length == 0 || !char.IsWhiteSpace(suffix[0]))) replacement += " ";
         int caret = _start + replacement.Length;
         string updated = Value[.._start] + replacement + suffix;
         TrackEdit(Value, updated);
-        if (!completingField && UseSuggestionLabels)
+        if (_field is not null && UseSuggestionLabels)
             _selections.Add(new QueryInputSelection(_start, replacement.TrimEnd().Length,
                 (_excluded ? "-" : "") + _field + ":" + QueryInputParser.Quote(value)));
         Close();
         _restoreCaret = caret;
-        _completeValues = completingField;
+        _refreshAfterSelection = completingField || insertingOr || suffix.Length == 0;
         await Publish(updated);
         // Render the replacement before reading the browser caret for the next qualifier's values.
         await InvokeAsync(StateHasChanged);

@@ -9,7 +9,10 @@ namespace Soenneker.Quark;
 public static class QueryInputParser
 {
     /// <summary>Parses a query. When fields are supplied, unknown qualifiers are reported as errors. Suggested values are not an allowlist.</summary>
-    public static QueryInputResult Parse(string? query, IReadOnlyList<QueryInputField>? fields = null)
+    public static QueryInputResult Parse(string? query, IReadOnlyList<QueryInputField>? fields = null) => Parse(query, fields, true);
+
+    /// <summary>Parses a query and reports an error for an OR operator when alternatives are disabled.</summary>
+    public static QueryInputResult Parse(string? query, IReadOnlyList<QueryInputField>? fields, bool allowOr)
     {
         var filters = new List<QueryInputFilter>();
         var text = new List<string>();
@@ -21,6 +24,7 @@ public static class QueryInputParser
             if (!token.Closed) errors.Add($"Unclosed quote at position {token.Start}.");
             if (IsOperator(token))
             {
+                if (!allowOr && IsOr(token)) errors.Add("OR is disabled for this search.");
                 if (conjunction is null || pending is not null)
                     errors.Add($"Unexpected operator '{token.Text}' at position {token.Start}.");
                 else pending = string.Equals(token.Text, "OR", StringComparison.OrdinalIgnoreCase) ? QueryInputOperator.Or : QueryInputOperator.And;
@@ -58,6 +62,9 @@ public static class QueryInputParser
         QueryInputExpression? expression = disjunction is null ? conjunction : new QueryInputBinaryExpression(disjunction, QueryInputOperator.Or, conjunction!);
         return new QueryInputResult(string.Join(" ", text), filters.ToArray(), errors.ToArray()) { Expression = expression };
     }
+
+    internal static bool IsOr(QueryInputToken token) => token.Colon < 0 && !token.HasQuotes &&
+        string.Equals(token.Text, "OR", StringComparison.OrdinalIgnoreCase);
 
     internal static bool IsOperator(QueryInputToken token) => token.Colon < 0 && !token.HasQuotes &&
         (string.Equals(token.Text, "AND", StringComparison.OrdinalIgnoreCase) || string.Equals(token.Text, "OR", StringComparison.OrdinalIgnoreCase));
