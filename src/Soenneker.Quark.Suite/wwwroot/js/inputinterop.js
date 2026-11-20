@@ -80,7 +80,7 @@ export function registerComboboxKeys(input) {
 
         const open = input.getAttribute("aria-expanded") === "true";
         const key = event.key;
-        if (key === "ArrowDown" || key === "ArrowUp" ||
+        if (((key === "ArrowDown" || key === "ArrowUp") && (open || input.tagName !== "TEXTAREA")) ||
             (open && (key === "Home" || key === "End" || key === "Enter" || key === "Escape")) ||
             (key === "Backspace" && input.value === "" && input.getAttribute("data-combobox-multiple") === "true")) {
             event.preventDefault();

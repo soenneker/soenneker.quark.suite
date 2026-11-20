@@ -265,6 +265,7 @@ public partial class QueryInput
             case "Escape": Close(); break;
             case "ArrowDown":
             case "ArrowUp":
+                if (!_open && Multiline) break;
                 if (!_open) await RefreshSuggestions();
                 else _active = (_active + (args.Key == "ArrowDown" ? 1 : _options.Count - 1)) % _options.Count;
                 break;

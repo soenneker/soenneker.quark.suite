@@ -22,13 +22,16 @@ public sealed class QueryInputTests : BunitContext
     }
 
     [Test]
-    public async Task Labels_preserve_selected_values_until_the_token_is_edited()
+    [Arguments(false, "input")]
+    [Arguments(true, "textarea")]
+    public async Task Labels_preserve_selected_values_until_the_token_is_edited(bool multiline, string editor)
     {
         QueryInputResult? parsed = null;
-        var cut = Render<QueryInput>(p => p.Add(x => x.UseSuggestionLabels, true)
+        var cut = Render<QueryInput>(p => p.Add(x => x.Multiline, multiline)
+            .Add(x => x.UseSuggestionLabels, true)
             .Add(x => x.Fields, [new("source", "source", [new("source-id", "Website form")])])
             .Add(x => x.ParsedChanged, value => parsed = value));
-        await cut.Find("input").FocusAsync(new());
+        await cut.Find(editor).FocusAsync(new());
         await cut.Find("[role=option]").ClickAsync(new());
         cut.WaitForAssertion(() => cut.FindAll("[role=option]").Should().HaveCount(1));
         await cut.Find("[role=option]").ClickAsync(new());
@@ -36,9 +39,9 @@ public sealed class QueryInputTests : BunitContext
         parsed!.Filters[0].Value.Should().Be("source-id");
         parsed.Expression.Should().Be(new QueryInputFilterExpression(new("source", "source-id")));
         _interop.Selection = null;
-        await cut.Find("input").InputAsync(new() { Value = "source:\"Website form\" urgent" });
+        await cut.Find(editor).InputAsync(new() { Value = "source:\"Website form\" urgent" });
         parsed.Filters[0].Value.Should().Be("source-id");
-        await cut.Find("input").InputAsync(new() { Value = "source:\"Different form\" urgent" });
+        await cut.Find(editor).InputAsync(new() { Value = "source:\"Different form\" urgent" });
         parsed.Filters[0].Value.Should().Be("Different form");
     }
 
