@@ -392,13 +392,13 @@
     private int ResourcePageSize => Math.Max(1, MaximumVisibleResources);
     private IReadOnlyList<SchedulerEvent>? _cachedEvents;
     private readonly Dictionary<DateOnly, SchedulerEvent[]> _dayEvents = [];
-    private readonly HashSet<DateOnly> _preparedLaneDays = [];
+    private HashSet<DateOnly>? _preparedLaneDays;
     private readonly Dictionary<(DateOnly, string), IReadOnlyList<SchedulerEventPlacement>> _laneEvents = [];
     private readonly HashSet<string> _resourceIds = new(StringComparer.Ordinal);
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        _dayEvents.Clear(); _laneEvents.Clear(); _preparedLaneDays.Clear();
+        _dayEvents.Clear(); _laneEvents.Clear(); _preparedLaneDays?.Clear();
         _resourceIds.Clear();
         for (int i = 0; i < Resources.Count; i++) _resourceIds.Add(Resources[i].Id);
         _resourcePage = Math.Clamp(_resourcePage, 0, Resources.Count / ResourcePageSize);
@@ -410,6 +410,7 @@
         EnsureEventCache();
         var key = (day, resource?.Id ?? "");
         if (_laneEvents.TryGetValue(key, out var cached)) return cached;
+        _preparedLaneDays ??= [];
         if (!_preparedLaneDays.Add(day)) return _laneEvents[key] = [];
         var groups = DayEvents(day).GroupBy(e => Resources.Count == 0 || e.ResourceId is null || !_resourceIds.Contains(e.ResourceId) ? "" : e.ResourceId);
         foreach (var group in groups) _laneEvents[(day, group.Key)] = SchedulerLayout.Arrange(group, day, TimeZone);
@@ -418,7 +419,7 @@
     private void EnsureEventCache()
     {
         if (ReferenceEquals(_cachedEvents, Events)) return;
-        _cachedEvents = Events; _dayEvents.Clear(); _laneEvents.Clear(); _preparedLaneDays.Clear();
+        _cachedEvents = Events; _dayEvents.Clear(); _laneEvents.Clear(); _preparedLaneDays?.Clear();
     }
     private DateTimeOffset StartInstant(DateOnly day) => SchedulerDates.ToInstant(day.ToDateTime(TimeOnly.MinValue), TimeZone) ?? SchedulerDates.ToInstant(day.ToDateTime(new TimeOnly(1, 0)), TimeZone) ?? throw new InvalidOperationException("The selected date has no valid start in this timezone.");
     private IEnumerable<SchedulerEvent> DayEvents(DateOnly day)

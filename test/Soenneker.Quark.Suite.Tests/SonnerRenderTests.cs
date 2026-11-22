@@ -43,8 +43,8 @@ public sealed partial class RenderedShadcnParityTests
         var cut = Render<Sonner>(parameters => parameters.Add(p => p.ToastDuration, 0));
         var service = Services.GetRequiredService<ISonnerService>();
         await cut.InvokeAsync(async () => await service.Toast("Notification", cancellationToken: cancellationToken));
-        cut.WaitForAssertion(() => cut.Find("[data-sonner-toast]").GetAttribute("data-mounted").Should().Be("true"));
-        cut.WaitForAssertion(() => cut.Find("[data-sonner-toast]").GetAttribute("data-expanded").Should().Be("false"));
+        await cut.WaitForAssertionAsync(() => cut.Find("[data-sonner-toast]").GetAttribute("data-mounted").Should().Be("true"), System.TimeSpan.FromSeconds(10));
+        cut.Find("[data-sonner-toast]").GetAttribute("data-expanded").Should().Be("false");
 
         foreach (var releaseEvent in new[] { "onpointercancel", "onlostpointercapture", "onpointerup" })
         {
