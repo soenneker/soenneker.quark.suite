@@ -36,6 +36,8 @@ public interface IScheduler : IElement
     Func<SchedulerEvent, CancellationToken, ValueTask>? Delete { get; set; }
     /// <summary>Displays meeting details, a calendar and available appointment starts by default. Set to false for event management.</summary>
     bool BookingMode { get; set; }
+    /// <summary>Offers booking times throughout the local day and opens the list near the selected or current local time. Defaults to the 9 AM to 5 PM booking window.</summary>
+    bool FullDayBooking { get; set; }
     /// <summary>Title displayed above the meeting details on the booking page.</summary>
     string? BookingTitle { get; set; }
     /// <summary>Receives the edited title so the host application can persist it.</summary>

@@ -105,6 +105,20 @@ public sealed class WorkflowTests : BunitContext
     }
 
     [Test]
+    public void Scheduler_full_day_booking_exposes_all_quarter_hours_and_anchors_the_selected_time()
+    {
+        var day = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7));
+        var selected = new DateTimeOffset(day.ToDateTime(new TimeOnly(22, 30)), TimeSpan.Zero);
+        var cut = Render<Scheduler>(p => p.Add(c => c.Date, day).Add(c => c.SelectedStart, selected));
+        const string slots = "[aria-label='Available start times'] button";
+        cut.FindAll(slots).Should().HaveCount(32);
+
+        cut.Render(p => p.Add(c => c.FullDayBooking, true));
+        cut.FindAll(slots).Should().HaveCount(96);
+        cut.Find("button[data-booking-anchor]").GetAttribute("aria-pressed").Should().Be("true");
+    }
+
+    [Test]
     public async Task Scheduler_selects_slots_and_start_only_events_in_read_only_mode()
     {
         var day = new DateOnly(2026, 10, 18);

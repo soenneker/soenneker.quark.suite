@@ -3,6 +3,15 @@ export function saveViews(key, value) { localStorage.setItem("quark.views." + ke
 
 const interactions = new WeakMap();
 export function updateInteractions(element) {
+    const anchor = element.querySelector("[data-booking-anchor]");
+    if (anchor) {
+        const list = anchor.parentElement;
+        if (!list.dataset.bookingPositioned && list.clientHeight > 0) {
+            list.scrollTop += anchor.getBoundingClientRect().top - list.getBoundingClientRect().top
+                - (list.clientHeight - anchor.offsetHeight) / 2;
+            list.dataset.bookingPositioned = "true";
+        }
+    }
     const editor = element.querySelector("input[data-booking-title-editor]");
     if (editor && !editor.dataset.initialized) {
         editor.dataset.initialized = "true";

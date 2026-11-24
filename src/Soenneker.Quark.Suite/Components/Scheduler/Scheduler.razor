@@ -93,11 +93,15 @@
                 <strong class="flex min-h-9 items-center text-base font-semibold" aria-live="polite">@Date.ToString("ddd, MMM d", Text.Culture)</strong>
                 @{
                     var available = AvailableStarts(Date).ToList();
+                    var anchorTime = TimeZoneInfo.ConvertTime(SelectedStart ?? DateTimeOffset.UtcNow, TimeZone).TimeOfDay;
+                    DateTimeOffset? anchor = FullDayBooking && available.Count > 0
+                        ? available.MinBy(start => (TimeZoneInfo.ConvertTime(start, TimeZone).TimeOfDay - anchorTime).Duration())
+                        : null;
                 }
-                <div @key="(Date, BookingDuration)" class="grid gap-2 overflow-y-auto" style="max-height:14.5rem;scrollbar-width:none" tabindex="0" role="group" aria-label="Available start times">
+                <div @key="(Date, BookingDuration, TimeZone.Id, SelectedStart, FullDayBooking)" class="grid gap-2 overflow-y-auto" style="max-height:14.5rem;scrollbar-width:none" tabindex="0" role="group" aria-label="Available start times">
                     @foreach (var instant in available)
                     {
-                        <button type="button" class="flex h-10 items-center justify-center gap-2 rounded-lg border text-sm font-semibold transition-colors hover:bg-muted aria-pressed:bg-primary aria-pressed:text-primary-foreground" aria-pressed="@(instant == SelectedStart ? "true" : "false")" disabled="@_busy" @onclick="() => SelectBookingSlot(instant)"><span aria-hidden="true" class="size-1.5 rounded-full bg-emerald-500"></span>@TimeZoneInfo.ConvertTime(instant, TimeZone).ToString("t", Text.Culture)</button>
+                        <button type="button" class="flex h-10 items-center justify-center gap-2 rounded-lg border text-sm font-semibold transition-colors hover:bg-muted aria-pressed:bg-primary aria-pressed:text-primary-foreground" aria-pressed="@(instant == SelectedStart ? "true" : "false")" data-booking-anchor="@(instant == anchor ? string.Empty : null)" disabled="@_busy" @onclick="() => SelectBookingSlot(instant)"><span aria-hidden="true" class="size-1.5 rounded-full bg-emerald-500"></span>@TimeZoneInfo.ConvertTime(instant, TimeZone).ToString("t", Text.Culture)</button>
                     }
                     @if (_error is not null) { <span role="alert" class="text-destructive">@Text[_error]</span> }
                     @if (available.Count == 0) { <span class="text-sm text-muted-foreground">No available times.</span> }
@@ -169,7 +173,7 @@
                                     <span class="min-w-0 flex-1 space-y-1.5">
                                         <strong class="block truncate text-sm font-semibold">@appointment.Title</strong>
                                         <span class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                                            <span>@TimeLabel(appointment)@if (appointment.End is { } end) {<text> – @TimeZoneInfo.ConvertTime(end, TimeZone).ToString("t", Text.Culture)</text>}</span>
+                                            <span>@TimeLabel(appointment)@if (appointment.End is { } end) {<text> ï¿½ @TimeZoneInfo.ConvertTime(end, TimeZone).ToString("t", Text.Culture)</text>}</span>
                                             @if (Resources.Count > 0) { <span class="rounded-md bg-muted px-2 py-0.5">@ResourceLabel(appointment.ResourceId)</span> }
                                         </span>
                                     </span>
@@ -287,6 +291,7 @@
     [Parameter] public Func<SchedulerEvent, CancellationToken, ValueTask>? Delete { get; set; }
     [Parameter] public EventCallback<SchedulerSlot> SlotSelected { get; set; }
     [Parameter] public EventCallback<SchedulerEvent> EventSelected { get; set; }
+    [Parameter] public bool FullDayBooking { get; set; }
     [Parameter] public bool BookingMode { get; set; } = true;
     [Parameter] public string? BookingTitle { get; set; }
     [Parameter] public EventCallback<string?> BookingTitleChanged { get; set; }
@@ -365,8 +370,8 @@
     private IEnumerable<DateTimeOffset> AvailableStarts(DateOnly day)
     {
         var now = DateTimeOffset.UtcNow;
-        const int first = 9 * 60;
-        const int last = 17 * 60;
+        int first = FullDayBooking ? 0 : 9 * 60;
+        int last = FullDayBooking ? 24 * 60 : 17 * 60;
         for (int minute = first; minute < last && minute + BookingDuration.TotalMinutes <= last; minute += 15)
         {
             var local = day.ToDateTime(TimeOnly.MinValue).AddMinutes(minute);
