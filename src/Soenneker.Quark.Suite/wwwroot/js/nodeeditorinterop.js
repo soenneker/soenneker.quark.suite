@@ -108,7 +108,21 @@ export function initialize(id, optionsJson, dotNetRef) {
         () => window.removeEventListener("blur", onBlur)
     );
 
-    state.resizeObserver = new ResizeObserver(() => scheduleEdgeUpdate(state));
+    let canvasWidth = root.clientWidth;
+    let canvasHeight = root.clientHeight;
+    state.resizeObserver = new ResizeObserver(entries => {
+        if (state.options.fitViewOnInitialize && entries.some(entry => entry.target === root)) {
+            const width = root.clientWidth;
+            const height = root.clientHeight;
+            const resized = width !== canvasWidth || height !== canvasHeight;
+            canvasWidth = width;
+            canvasHeight = height;
+            if (resized && width > 0 && height > 0 && state.nodeElements.length > 0) {
+                fitView(id);
+            }
+        }
+        scheduleEdgeUpdate(state);
+    });
     state.resizeObserver.observe(root);
     editors.set(id, state);
 

@@ -31,7 +31,8 @@
         <Button Type="@ButtonType.Button" Href="@ActionHref" OnClick="@OnAction"
                 Variant="@ButtonVariant.Ghost" ButtonSize="@_staticCss0"
                 Disabled="@(Disabled || ActionDisabled)" AriaLabel="@ActionLabel" Title="@ActionLabel"
-                Shrink="Quark.Shrink.Is0" Size='Quark.Size.Token("6!")' Padding='Quark.Padding.Token("0!")' TextColor="Quark.TextColor.MutedForeground.OnHover.Foreground" BackgroundColor="Quark.BackgroundColor.OnHover.Transparent" Translate="Quark.Translate.OnActive.OnY.Is0"
+                Shrink="Quark.Shrink.Is0" Size='Quark.Size.Is6.Important' Padding='Quark.Padding.Is0.Important' TextColor="Quark.TextColor.MutedForeground.OnHover.Foreground" BackgroundColor="Quark.BackgroundColor.OnHover.Transparent" Translate="Quark.Translate.OnActive.OnY.Is0"
+                Class="@(FieldAppearance || AlwaysShowCopyButton ? null : HoverActionClass)"
                 DataSlot="copyable-text-action">
             <span aria-hidden="true"><Icon Name="@ActionIcon" Size="Soenneker.Quark.Size.Is4" /></span>
         </Button>
@@ -39,6 +40,7 @@
 </span>
 
 @code {
+    private const string HoverActionClass = "transition-opacity duration-200 ease-out md:opacity-0 group-hover/copyable-text:opacity-100 group-focus-within/copyable-text:opacity-100";
     private static readonly CssValue<ButtonSizeBuilder> _staticCss0 = ButtonSize.IconXs;
     private string? _textClass;
     private string? _copyButtonClass;
@@ -129,7 +131,7 @@
         {
             if (CopyButtonPreset is not null) return CopyButtonClass ?? string.Empty;
             const string always = "shrink-0 size-6! p-0! text-muted-foreground hover:bg-transparent hover:text-foreground active:translate-y-0";
-            const string onHover = always + " transition-opacity duration-200 ease-out md:opacity-0 group-hover/copyable-text:opacity-100 group-focus-within/copyable-text:opacity-100";
+            const string onHover = always + " " + HoverActionClass;
             return AppendClass(AlwaysShowCopyButton || FieldAppearance ? always : onHover, CopyButtonClass, ref _copyButtonClass);
         }
     }

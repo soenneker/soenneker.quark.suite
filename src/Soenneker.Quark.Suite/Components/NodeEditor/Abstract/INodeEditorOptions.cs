@@ -83,7 +83,7 @@ public interface INodeEditorOptions
     bool SnapToGrid { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the editor fits all initial nodes into the viewport after browser initialization.
+    /// Gets or sets whether the editor fits the graph after browser initialization and when the editor changes size.
     /// </summary>
     bool FitViewOnInitialize { get; set; }
 }

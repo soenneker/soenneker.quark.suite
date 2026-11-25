@@ -25,12 +25,12 @@ Quark is MIT-licensed and uses Bradix interaction primitives for behaviors such 
 
 ## Get started
 
-The following setup uses a **.NET 10 standalone Blazor WebAssembly app**. In an existing app, start with the package commands in its project directory.
+The following setup requires the **.NET 11 SDK** and creates a standalone Blazor WebAssembly app targeting **`net11.0`**. In an existing app, target `net11.0` and start with the package commands in its project directory.
 
 ### 1. Create an app and install Quark
 
 ```shell
-dotnet new blazorwasm -n MyQuarkApp
+dotnet new blazorwasm -n MyQuarkApp --framework net11.0
 cd MyQuarkApp
 
 dotnet add package Soenneker.Quark.Suite
