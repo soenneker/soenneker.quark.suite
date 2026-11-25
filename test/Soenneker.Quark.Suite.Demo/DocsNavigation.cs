@@ -91,6 +91,7 @@ public static class DocsNavigation
         new("Kbd", ComponentRoute("kbd")),
         new("Label", ComponentRoute("label")),
         new("Marquee", ComponentRoute("marquee")),
+        new("Media Preview", ComponentRoute("media-preview"), IsNew: true),
         new("Menubar", ComponentRoute("menubar")),
         new("Native Dialog", ComponentRoute("native-dialog"), IsNew: true),
         new("Native Select", ComponentRoute("native-select")),

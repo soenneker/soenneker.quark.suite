@@ -1,0 +1,100 @@
+@namespace Soenneker.Quark
+@using Microsoft.JSInterop
+@implements IMediaPreview
+@implements IAsyncDisposable
+@inject IMediaPreviewInterop Interop
+
+@if (_url is not null && _readyVersion == _version)
+{
+    @if (_blobType.StartsWith("image/", StringComparison.Ordinal))
+    {
+        <Image Source="@_url" Alt="@FileName" Fluid="true" />
+    }
+    else if (_blobType.StartsWith("audio/", StringComparison.Ordinal))
+    {
+        <Audio @key="_url" Source="@_url" Controls="true" Preload="metadata" AriaLabel="@FileName" />
+    }
+    else if (_blobType.StartsWith("video/", StringComparison.Ordinal))
+    {
+        <Video @key="_url" Source="@_url" Controls="true" PlaysInline="true" Preload="metadata" AriaLabel="@FileName" />
+    }
+    @if (ShowDownload)
+    {
+        <Anchor Href="@_url" download="@FileName" EnhanceNav="false">Download @FileName</Anchor>
+    }
+}
+
+@code {
+    [Parameter, EditorRequired] public byte[]? Bytes { get; set; }
+    [Parameter] public string? ContentType { get; set; }
+    [Parameter] public string FileName { get; set; } = "attachment";
+    [Parameter] public bool ShowDownload { get; set; } = true;
+
+    private const string BinaryType = "application/octet-stream";
+    private string _blobType = BinaryType;
+    private byte[]? _requestedBytes;
+    private string? _url;
+    private long _version, _startedVersion, _readyVersion;
+    private bool _disposed;
+
+    protected override void OnParametersSet()
+    {
+        string? mediaType = ContentType?.Split(';', 2)[0].Trim().ToLowerInvariant();
+        string blobType = mediaType switch
+        {
+            "image/jpeg" or "image/png" or "image/gif" or "image/webp" or "image/bmp" or "image/avif"
+            or "audio/mpeg" or "audio/ogg" or "audio/amr" or "audio/wav" or "audio/mp4" or "audio/webm"
+            or "video/mp4" or "video/3gpp" or "video/webm" or "video/ogg" => mediaType,
+            _ => BinaryType
+        };
+
+        byte[]? requested = blobType == BinaryType && !ShowDownload ? null : Bytes;
+        if (ReferenceEquals(requested, _requestedBytes) && blobType == _blobType)
+            return;
+
+        _requestedBytes = requested;
+        _blobType = blobType;
+        _version++;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        long version = _version;
+        if (_disposed || _startedVersion == version)
+            return;
+
+        _startedVersion = version;
+        string? previous = _url;
+        _url = null;
+        try
+        {
+            if (previous is not null)
+                await Interop.Release(previous);
+
+            if (_disposed || version != _version || _requestedBytes is null)
+                return;
+
+            string url = await Interop.Create(_requestedBytes, _blobType);
+            if (_disposed || version != _version)
+            {
+                await Interop.Release(url);
+                return;
+            }
+
+            _url = url;
+            _readyVersion = version;
+            StateHasChanged();
+        }
+        catch (JSDisconnectedException) { }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+        if (_url is not null)
+        {
+            try { await Interop.Release(_url); }
+            catch (JSDisconnectedException) { }
+        }
+    }
+}

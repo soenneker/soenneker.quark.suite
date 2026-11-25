@@ -1,0 +1,39 @@
+@page "/components/media-preview"
+@inject HttpClient Http
+
+<QuarkSeoHead Title="Blazor Media Preview | Quark Suite"
+              Description="Preview byte-backed images, audio, and video, and offer files for download with Quark MediaPreview." />
+
+<Div Space="Space.Y.Is8" MaxWidth="MaxWidth.Is4xl">
+    <DemoSection Title="Image preview" Description="MediaPreview uses the MIME type to choose an image, audio player, or video player. Toggle the download link for this sample image."
+                 Code="@ImageCode" CodeLanguage="razor">
+        <Div Space="Space.Y.Is3" MaxWidth="MaxWidth.IsSm">
+            <Div Display="Display.Flex" ItemsAlign="Items.Center" Gap="Gap.Is2">
+                <Switch Id="media-preview-download" @bind-Checked="_showDownload" />
+                <QLabel For="media-preview-download">Show download link</QLabel>
+            </Div>
+            <MediaPreview Bytes="@_image" ContentType="image/png" FileName="quark.png" ShowDownload="@_showDownload" />
+        </Div>
+    </DemoSection>
+
+    <DemoSection Title="Download-only file" Description="A text attachment appears as a download link. Open the downloaded file to see its contents."
+                 Code="@DownloadCode" CodeLanguage="razor">
+        <MediaPreview Bytes="@Notes" ContentType="text/plain" FileName="notes.txt" />
+    </DemoSection>
+</Div>
+
+@code {
+    private byte[]? _image;
+    private bool _showDownload = true;
+    private static readonly byte[] Notes = "Sample attachment from the Quark MediaPreview demo."u8.ToArray();
+
+    protected override async Task OnInitializedAsync() => _image = await Http.GetByteArrayAsync("icon.png");
+
+    private const string ImageCode = """
+        <MediaPreview Bytes="@_image" ContentType="image/png" FileName="quark.png" ShowDownload="@_showDownload" />
+        """;
+
+    private const string DownloadCode = """
+        <MediaPreview Bytes="@Notes" ContentType="text/plain" FileName="notes.txt" />
+        """;
+}

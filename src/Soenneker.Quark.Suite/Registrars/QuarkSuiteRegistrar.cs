@@ -45,6 +45,7 @@ public static class QuarkSuiteRegistrar
                 .AddQuarkInputAsScoped()
                 .AddQuarkCalendarAsScoped()
                 .AddQuarkFileDropZoneAsScoped()
+                .AddQuarkMediaPreviewAsScoped()
                 .AddQuarkFileDropAsScoped()
                 .AddQuarkDataTableAsScoped()
                 .AddQuarkSortableAsScoped()
