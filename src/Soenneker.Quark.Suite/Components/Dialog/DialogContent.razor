@@ -68,6 +68,9 @@
     [CascadingParameter(Name = nameof(ParentDialog))]
     public Dialog? ParentDialog { get; set; }
 
+    [CascadingParameter(Name = "DirectionProviderDir")]
+    private string? DirectionProviderDir { get; set; }
+
     [CascadingParameter]
     private OverlayLabelContext? Context { get; set; }
 
@@ -108,9 +111,8 @@
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
     {
         base.BuildAttributesCore(attributes);
-
-
-
+        if (DirectionProviderDir is not null)
+            attributes.TryAdd("dir", DirectionProviderDir);
     }
 
     private Dictionary<string, object> BuildOverlayAttributes()
@@ -145,5 +147,6 @@
         hc.Add(ParentDialog?.CloseOnEscape ?? true);
         hc.Add(ParentDialog?.CloseOnBackdropClick ?? true);
         hc.Add(Context?.ContentId);
+        hc.Add(DirectionProviderDir);
     }
 }
