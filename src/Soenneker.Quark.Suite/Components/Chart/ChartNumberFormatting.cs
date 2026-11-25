@@ -6,6 +6,16 @@ namespace Soenneker.Quark;
 
 internal static class ChartNumberFormatting
 {
+    internal const string TotalOutOfRange = "The chart total exceeds the supported numeric range.";
+
+    internal static double Fraction(double value, double low, double high)
+    {
+        if (high == low) return .5;
+        double range = high - low;
+        return double.IsFinite(range) ? (value - low) / range
+            : (value * .5 - low * .5) / (high * .5 - low * .5);
+    }
+
     internal static string Format(double value)
     {
         Span<char> buffer = stackalloc char[32];

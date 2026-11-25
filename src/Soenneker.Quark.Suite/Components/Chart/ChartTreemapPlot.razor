@@ -31,30 +31,34 @@
     {
         if (Values.Length == 0) yield break;
         var order = Enumerable.Range(0, Values.Length).OrderByDescending(i => Values[i]).ToArray();
-        var pending = new Stack<(int First,int End,double Weight,double X,double Y,double W,double H)>();
-        pending.Push((0,order.Length,Values.Sum(),X,Y,Width,Height));
+        var pending = new Stack<(int First,int End,double X,double Y,double W,double H)>();
+        pending.Push((0,order.Length,X,Y,Width,Height));
         while (pending.Count > 0)
         {
-            var (first,end,weight,x,y,w,h) = pending.Pop();
+            var (first,end,x,y,w,h) = pending.Pop();
             if (end-first == 1)
             {
                 yield return (order[first],x,y,w,h);
                 continue;
             }
             int split = first+1;
-            double left = Values[order[first]];
-            while (split < end-1 && left+Values[order[split]]/2 < weight/2)
-                left += Values[order[split++]];
+            double scale = Values[order[first]];
+            double weight = 1;
+            for (int i = split; i < end; i++)
+                weight += Values[order[i]] / scale;
+            double left = 1;
+            while (split < end-1 && left + Values[order[split]] / scale / 2 < weight / 2)
+                left += Values[order[split++]] / scale;
             double fraction = left/weight;
             if (w >= h)
             {
-                pending.Push((split,end,weight-left,x+w*fraction,y,w*(1-fraction),h));
-                pending.Push((first,split,left,x,y,w*fraction,h));
+                pending.Push((split,end,x+w*fraction,y,w*(1-fraction),h));
+                pending.Push((first,split,x,y,w*fraction,h));
             }
             else
             {
-                pending.Push((split,end,weight-left,x,y+h*fraction,w,h*(1-fraction)));
-                pending.Push((first,split,left,x,y,w,h*fraction));
+                pending.Push((split,end,x,y+h*fraction,w,h*(1-fraction)));
+                pending.Push((first,split,x,y,w,h*fraction));
             }
         }
     }

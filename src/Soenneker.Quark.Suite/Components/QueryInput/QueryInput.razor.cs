@@ -26,7 +26,7 @@ public partial class QueryInput
 
     private readonly string _listId = $"query-options-{Guid.NewGuid():N}";
     private ElementReference _input;
-    private IReadOnlyList<SelectOption> _options = [];
+    private SelectOption[] _options = [];
     private CancellationTokenSource? _request;
     private long _revision;
     private bool _focused, _open;
@@ -98,6 +98,7 @@ public partial class QueryInput
 
     private QueryInputResult Parse(string text)
     {
+        if (_selections.Count == 0) return QueryInputParser.Parse(text, Fields, AllowOr);
         foreach (QueryInputSelection selection in _selections.OrderByDescending(s => s.Start))
             text = text.Remove(selection.Start, selection.Length).Insert(selection.Start, selection.Query);
         return QueryInputParser.Parse(text, Fields, AllowOr);
@@ -105,6 +106,7 @@ public partial class QueryInput
 
     private void TrackEdit(string before, string after)
     {
+        if (_selections.Count == 0 || before == after) return;
         int start = 0;
         while (start < before.Length && start < after.Length && before[start] == after[start]) start++;
         int end = before.Length, nextEnd = after.Length;
@@ -113,8 +115,9 @@ public partial class QueryInput
         for (int i = _selections.Count - 1; i >= 0; i--)
         {
             QueryInputSelection selection = _selections[i];
-            if (selection.Start + selection.Length < start) continue;
-            if (selection.Start > end)
+            int selectionEnd = selection.Start + selection.Length;
+            if (selectionEnd < start || selectionEnd == start && (start == after.Length || char.IsWhiteSpace(after[start]))) continue;
+            if (selection.Start > end || selection.Start == end && (nextEnd == 0 || char.IsWhiteSpace(after[nextEnd - 1])))
                 _selections[i] = selection with { Start = selection.Start + delta };
             else
                 _selections.RemoveAt(i);
@@ -157,13 +160,13 @@ public partial class QueryInput
         if (token is not null && QueryInputParser.IsOperator(token)) return;
         _start = token?.Start ?? caret;
         _end = token?.End ?? caret;
-        QueryInputToken? prefix = QueryInputParser.Tokenize(query[_start..caret]).FirstOrDefault();
+        QueryInputToken? prefix = caret == _end ? token : QueryInputParser.Tokenize(query[_start..caret]).FirstOrDefault();
         string fragment = prefix?.Text ?? "";
         _excluded = fragment.StartsWith('-');
         int colon = prefix?.Colon ?? -1;
         _field = colon >= 0 ? fragment[(_excluded ? 1 : 0)..colon] : null;
         string search = colon >= 0 ? fragment[(colon + 1)..] : fragment[(_excluded ? 1 : 0)..];
-        IReadOnlyList<SelectOption> options;
+        IEnumerable<SelectOption> options;
         if (_field is null)
             options = SuggestFields(tokens, token, search);
         else
@@ -196,15 +199,15 @@ public partial class QueryInput
                     }
                 }
             }
-            else options = (field.Values ?? []).Where(v => Matches(v.Value, search) || Matches(v.Label, search)).ToArray();
+            else options = (field.Values ?? []).Where(v => Matches(v.Value, search) || Matches(v.Label, search));
         }
         if (revision != _revision || !_focused || Disabled || IsDisposed) return;
         _options = options.Where(o => !o.Disabled).Take(MaxSuggestions).ToArray();
-        _active = _options.Count > 0 ? 0 : -1;
-        _open = _options.Count > 0;
+        _active = _options.Length > 0 ? 0 : -1;
+        _open = _options.Length > 0;
     }
 
-    private IReadOnlyList<SelectOption> SuggestFields(IReadOnlyList<QueryInputToken> tokens, QueryInputToken? token, string search)
+    private IEnumerable<SelectOption> SuggestFields(IReadOnlyList<QueryInputToken> tokens, QueryInputToken? token, string search)
     {
         var used = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         QueryInputToken? previous = null;
@@ -226,7 +229,7 @@ public partial class QueryInput
         bool suggestOr = AllowOr && !_excluded && previous is { Closed: true } && !QueryInputParser.IsOperator(previous)
             && (previous.Colon < 0 || previous.Colon + 1 < previous.Text.Length) && (token is null || (!token.HasQuotes && token.Colon < 0 && search.Length > 0))
             && "OR".StartsWith(search, StringComparison.OrdinalIgnoreCase);
-        return suggestOr ? [.. fields.Take(MaxSuggestions - 1), OrOption] : fields.ToArray();
+        return suggestOr ? fields.Take(MaxSuggestions - 1).Append(OrOption) : fields;
     }
 
     private static readonly SelectOption OrOption = new("OR", "OR");
@@ -235,7 +238,7 @@ public partial class QueryInput
 
     private async Task Choose(int index)
     {
-        if (Disabled || !_open || index < 0 || index >= _options.Count) return;
+        if (Disabled || !_open || index < 0 || index >= _options.Length) return;
         SelectOption option = _options[index];
         string value = option.Value;
         bool insertingOr = ReferenceEquals(option, OrOption);
@@ -267,10 +270,10 @@ public partial class QueryInput
             case "ArrowUp":
                 if (!_open && Multiline) break;
                 if (!_open) await RefreshSuggestions();
-                else _active = (_active + (args.Key == "ArrowDown" ? 1 : _options.Count - 1)) % _options.Count;
+                else _active = (_active + (args.Key == "ArrowDown" ? 1 : _options.Length - 1)) % _options.Length;
                 break;
             case "Home" when _open: _active = 0; break;
-            case "End" when _open: _active = _options.Count - 1; break;
+            case "End" when _open: _active = _options.Length - 1; break;
             case "Enter" when _open: await Choose(_active); break;
             case "Tab": Close(); break;
         }

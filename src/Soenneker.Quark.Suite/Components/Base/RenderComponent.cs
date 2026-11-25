@@ -17,19 +17,15 @@ namespace Soenneker.Quark;
 public abstract class RenderComponent : LeptonDisposableIdentifiableContentElement, IHandleEvent
 {
     private ValueAtomicBool _shouldRender = new(true);
-    private int _lastRenderKey;
     private Dictionary<string, object>? _cachedAttrs;
     private Dictionary<string, object>? _attrsA;
     private Dictionary<string, object>? _attrsB;
-    private int _cachedAttrsKey;
-    private int _renderVersion;
     private List<KeyValuePair<string, object?>>? _previousParameters;
-    private ValueAtomicBool _renderKeyDirty;
+    private ValueAtomicBool _renderInvalidated;
     private bool _useAttrsA;
-    private bool _hasIncomingParametersKey;
+    private bool _hasPreviousParameters;
     private ValueAtomicBool _incomingParametersChanged;
     private ValueAtomicBool _defaultsApplied;
-    private bool _requiresDetailedRenderKey;
     private string? _lastClass;
     private string? _lastStyle;
 
@@ -58,20 +54,17 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         if (AlwaysRender)
         {
             _previousParameters = null;
-            _hasIncomingParametersKey = false;
+            _hasPreviousParameters = false;
             _incomingParametersChanged.Value = true;
             _cachedAttrs = null;
             return base.SetParametersAsync(parameters);
         }
 
-        bool equal = CompareAndCaptureParameters(parameters, out bool hasRenderFragment);
-        _incomingParametersChanged.Value = hasRenderFragment || !equal || _requiresDetailedRenderKey;
+        bool equal = CompareAndCaptureParameters(parameters, out bool hasRenderFragment, out bool hasMutableParameter);
+        _incomingParametersChanged.Value = hasRenderFragment || !equal || hasMutableParameter;
 
-        if (!equal || _requiresDetailedRenderKey || _renderKeyDirty.Value || (hasRenderFragment && !IndependentChildContent))
-        {
+        if (!equal || hasMutableParameter || _renderInvalidated.Value || (hasRenderFragment && !IndependentChildContent))
             _cachedAttrs = null;
-            _cachedAttrsKey = 0;
-        }
 
         return base.SetParametersAsync(parameters);
     }
@@ -98,17 +91,9 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void InvalidateRender()
     {
-        unchecked
-        {
-            _renderVersion++;
-        }
-
-        // Multiple state changes can be coalesced into one render. Defer the expensive
-        // component-wide hash until attributes are actually requested for that render.
-        _renderKeyDirty.Value = true;
+        _renderInvalidated.Value = true;
         _defaultsApplied.Value = false;
         _cachedAttrs = null;
-        _cachedAttrsKey = 0;
         _shouldRender.Value = true;
     }
 
@@ -135,13 +120,13 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
         if (AlwaysRender)
         {
             _shouldRender.Value = true;
-            _renderKeyDirty.Value = false;
+            _renderInvalidated.Value = false;
             return;
         }
 
-        _shouldRender.Value = _incomingParametersChanged.Value || _renderKeyDirty.Value;
-        _renderKeyDirty.Value = false;
-        _hasIncomingParametersKey = true;
+        _shouldRender.Value = _incomingParametersChanged.Value || _renderInvalidated.Value;
+        _renderInvalidated.Value = false;
+        _hasPreviousParameters = true;
         _incomingParametersChanged.Value = false;
     }
 
@@ -149,16 +134,12 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
     {
         EnsureDefaultParameters();
 
-        if (!AlwaysRender && _renderKeyDirty.Value)
+        if (!AlwaysRender)
         {
-            _lastRenderKey = _renderVersion;
-            _renderKeyDirty.Value = false;
+            _renderInvalidated.Value = false;
+            if (_cachedAttrs is not null)
+                return _cachedAttrs;
         }
-
-        var currentKey = _lastRenderKey;
-
-        if (!AlwaysRender && _cachedAttrs is not null && _cachedAttrsKey == currentKey)
-            return _cachedAttrs;
 
         var attrs = BeginAttributeBuild(8 + (AdditionalAttributes?.Count ?? 0) + (Attributes?.Count ?? 0));
         var cls = new PooledStringBuilder(stackalloc char[64]);
@@ -185,7 +166,6 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             BuildFinalAttributes(attrs);
 
             _cachedAttrs = attrs;
-            _cachedAttrsKey = currentKey;
 
             return attrs;
         }
@@ -290,11 +270,11 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             hc.Add(v.Value);
     }
 
-    private bool CompareAndCaptureParameters(ParameterView parameters, out bool hasRenderFragment)
+    private bool CompareAndCaptureParameters(ParameterView parameters, out bool hasRenderFragment, out bool hasMutableParameter)
     {
-        bool equal = _hasIncomingParametersKey;
+        bool equal = _hasPreviousParameters;
         hasRenderFragment = false;
-        _requiresDetailedRenderKey = false;
+        hasMutableParameter = false;
         int index = 0;
         foreach (var parameter in parameters)
         {
@@ -307,8 +287,8 @@ public abstract class RenderComponent : LeptonDisposableIdentifiableContentEleme
             }
 
             object? value = parameter.Value;
-            if (!_requiresDetailedRenderKey && !IsStableParameter(value))
-                _requiresDetailedRenderKey = true;
+            if (!hasMutableParameter && !IsStableParameter(value))
+                hasMutableParameter = true;
             var previousParameters = _previousParameters ??= new List<KeyValuePair<string, object?>>();
             if (index >= previousParameters.Count)
             {

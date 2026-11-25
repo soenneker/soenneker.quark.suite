@@ -31,24 +31,31 @@
     [Parameter] public IReadOnlyList<SelectOption>? Options { get; set; }
     [Parameter] public RenderFragment<SelectOption>? OptionTemplate { get; set; }
     private List<SelectOption> _filtered = [];
-    private Dictionary<string, int> _indexes = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, int> _indexes = new(StringComparer.Ordinal);
     private Virtualize<SelectOption>? _virtualItems;
     private string? _lastSearch;
     private SelectOption[] _optionSnapshot = [];
     private string? _filterSearch;
-    private bool _filterOptions;
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        if (_filterSearch != ParentCombobox?.Search || _filterOptions != FilterOptions || !_optionSnapshot.SequenceEqual(Options ?? []))
+        var search = FilterOptions ? ParentCombobox?.Search : null;
+        bool optionsChanged = !_optionSnapshot.SequenceEqual(Options ?? []);
+        if (optionsChanged || _filterSearch != search)
         {
-        _optionSnapshot = Options?.ToArray() ?? [];
-        _filterSearch = ParentCombobox?.Search;
-        _filterOptions = FilterOptions;
-        _filtered = Options?.Where(option => !FilterOptions || string.IsNullOrWhiteSpace(ParentCombobox?.Search) ||
-            OptionNavigation.Matches(option.Label, option.Value, ParentCombobox.Search)).ToList() ?? [];
-        _indexes = _filtered.Select((option, index) => (option.Value, index)).ToDictionary(item => item.Value, item => item.index, StringComparer.Ordinal);
+            if (optionsChanged) _optionSnapshot = Options?.ToArray() ?? [];
+            _filterSearch = search;
+            _indexes.Clear();
+            // The parent uses list identity to detect changes to virtual keyboard navigation.
+            _filtered = [];
+            foreach (var option in _optionSnapshot)
+            {
+                if (!string.IsNullOrWhiteSpace(search) && !OptionNavigation.Matches(option.Label, option.Value, search))
+                    continue;
+                _indexes.Add(option.Value, _filtered.Count);
+                _filtered.Add(option);
+            }
         }
         if (Virtualize && Options is not null) ParentCombobox?.SetVirtualOptions(this, _filtered);
         else

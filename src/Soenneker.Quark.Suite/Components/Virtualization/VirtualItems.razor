@@ -68,9 +68,16 @@ else
     private bool HasPin => Enabled && _pinned >= 0 && _pinned < ItemKeys.Count && (_pinned < Start || _pinned >= End);
     private int FirstIndex => HasPin && _pinned < Start ? _pinned : Start;
     private double TailSpace => !Enabled ? 0 : HasPin && _pinned >= End ? _pinAfter : _bottom;
-    private IEnumerable<int> RenderedIndexes => HasPin
-        ? Enumerable.Range(Start, End - Start).Append(_pinned).Order()
-        : Enumerable.Range(Start, End - Start);
+    private IEnumerable<int> RenderedIndexes
+    {
+        get
+        {
+            int start = Start, end = End;
+            if (HasPin && _pinned < start) yield return _pinned;
+            for (int index = start; index < end; index++) yield return index;
+            if (HasPin && _pinned >= end) yield return _pinned;
+        }
+    }
     private double? SpaceBefore(int index)
     {
         if (!Enabled) return index == 0 ? 0 : null;

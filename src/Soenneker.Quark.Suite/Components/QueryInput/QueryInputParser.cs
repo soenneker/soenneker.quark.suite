@@ -1,25 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Soenneker.Utils.PooledStringBuilders;
 
 namespace Soenneker.Quark;
 
 /// <summary>Parses whitespace-separated qualifiers, quoted values, escaped quotes/backslashes, free text, and case-insensitive AND/OR operators without executing queries.</summary>
 public static class QueryInputParser
 {
+    private static readonly QueryInputResult Empty = new("", [], []);
+
     /// <summary>Parses a query. When fields are supplied, unknown qualifiers are reported as errors. Suggested values are not an allowlist.</summary>
     public static QueryInputResult Parse(string? query, IReadOnlyList<QueryInputField>? fields = null) => Parse(query, fields, true);
 
     /// <summary>Parses a query and reports an error for an OR operator when alternatives are disabled.</summary>
     public static QueryInputResult Parse(string? query, IReadOnlyList<QueryInputField>? fields, bool allowOr)
     {
+        if (string.IsNullOrWhiteSpace(query)) return Empty;
         var filters = new List<QueryInputFilter>();
         var text = new List<string>();
         var errors = new List<string>();
         QueryInputExpression? conjunction = null, disjunction = null;
         QueryInputOperator? pending = null;
-        foreach (QueryInputToken token in Tokenize(query ?? ""))
+        foreach (QueryInputToken token in Tokenize(query))
         {
             if (!token.Closed) errors.Add($"Unclosed quote at position {token.Start}.");
             if (IsOperator(token))
@@ -76,13 +79,14 @@ public static class QueryInputParser
     internal static IReadOnlyList<QueryInputToken> Tokenize(string query)
     {
         var tokens = new List<QueryInputToken>();
+        using var value = new PooledStringBuilder(stackalloc char[128]);
         int i = 0;
         while (i < query.Length)
         {
             if (char.IsWhiteSpace(query[i])) { i++; continue; }
             int start = i, colon = -1;
             bool quoted = false, hasQuotes = false;
-            var value = new StringBuilder();
+            value.Clear();
             for (; i < query.Length; i++)
             {
                 char c = query[i];

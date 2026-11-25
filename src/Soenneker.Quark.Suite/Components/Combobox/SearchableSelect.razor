@@ -77,11 +77,11 @@
     [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object>? InputAttributes { get; set; }
     [CascadingParameter(Name = nameof(ParentValidation))] public Validation? ParentValidation { get; set; }
     public object? ValidationValue => Multiple ? Values : Value;
-    private readonly CancellationTokenSource _lifetime = new();
     private CancellationTokenSource? _searchCancellation;
     private CancellationTokenSource? _resolveCancellation;
     private readonly Dictionary<string, SelectOption> _labels = [];
     private List<SelectOption> _items = [];
+    private Validation? _registeredValidation;
     private string? _search, _continuation;
     private bool _open, _loading, _error, _failedAppend, _resolveError, IsDisposed;
     private int _version, _resolveVersion;
@@ -114,7 +114,10 @@
     private void ReportError(Exception exception, string operation) => Services.GetService<ILogger<SearchableSelect>>()?.LogWarning(exception, "SearchableSelect failed to {Operation}", operation);
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && ParentValidation is not null) await ParentValidation.InitializeInput(this);
+        if (ReferenceEquals(_registeredValidation, ParentValidation)) return;
+        _registeredValidation?.UnregisterInput(this);
+        _registeredValidation = ParentValidation;
+        if (_registeredValidation is not null) await _registeredValidation.InitializeInput(this);
     }
     protected override async Task OnParametersSetAsync()
     {
@@ -170,7 +173,7 @@
         var selected = Multiple ? Values : Value is null ? [] : new[] { Value };
         var missing = selected.Where(v => !_labels.ContainsKey(v) && !Choices.Any(o => o.Value == v)).Distinct().ToArray();
         if (missing.Length == 0) return;
-        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        using var cancellation = new CancellationTokenSource();
         _resolveCancellation = cancellation;
         try
         {
@@ -191,13 +194,7 @@
         if (_selectionChanged)
         {
             _selectionChanged = false;
-            _version++;
-            _searchCancellation?.Cancel();
-            _loading = false;
-            _error = false;
-            _hasLoaded = false;
-            _items = [];
-            _continuation = null;
+            ResetSearchResults();
             return;
         }
         _open = true;
@@ -214,11 +211,11 @@
         if (Disabled || IsDisposed || LoadOptions is null || (append && _loading)) return;
         _hasLoaded = true;
         _searchCancellation?.Cancel();
-        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);
+        using var cancellation = new CancellationTokenSource();
         _searchCancellation = cancellation;
         var version = ++_version; var query = _search ?? ""; var token = append ? _continuation : null;
         _loading = true; _error = false; _failedAppend = append;
-        if (!append) { _items = []; _continuation = null; _encodedOptions = null; }
+        if (!append) { _items.Clear(); _continuation = null; _encodedOptions = null; }
         try
         {
             if (debounce) await Task.Delay(Math.Clamp(DebounceMilliseconds, 0, 10000), cancellation.Token);
@@ -240,7 +237,8 @@
     private async Task HandleValueChanged(string? encoded)
     {
         if (Disabled || encoded is null || !encoded.StartsWith("option:", StringComparison.Ordinal)) return;
-        var option = Options.FirstOrDefault(o => o.Value == encoded[7..] && !o.Disabled);
+        var value = encoded[7..];
+        var option = Options.FirstOrDefault(o => o.Value == value && !o.Disabled);
         if (option is null) return;
         _labels[option.Value] = option;
         _selectionChanged = true;
@@ -255,24 +253,25 @@
     {
         if (Disabled) return;
         foreach (var option in Options) _labels[option.Value] = option;
-        var previousValues = Values.ToArray();
-        Values = encoded.Where(v => v.StartsWith("option:", StringComparison.Ordinal)).Select(v => v[7..]).ToArray();
+        var nextValues = encoded.Where(v => v.StartsWith("option:", StringComparison.Ordinal)).Select(v => v[7..]).ToArray();
+        bool changed = !Values.SequenceEqual(nextValues);
+        Values = nextValues;
         PruneLabels();
         await ValuesChanged.InvokeAsync(Values);
-        if (!previousValues.SequenceEqual(Values)) await NotifyAutoSaveMultiple(Values);
+        if (changed) await NotifyAutoSaveMultiple(nextValues);
         if (ParentValidation is not null) await ParentValidation.NotifyInputChanged(Values);
     }
-    public void Dispose()
-    {
-        if (IsDisposed) return;
-        _ = _autoSave.DisposeAsync();
-        _ = _autoSaveMultiple.DisposeAsync();
-        IsDisposed = true; _version++; _resolveVersion++; _lifetime.Cancel(); _lifetime.Dispose();
-    }
+    public void Dispose() => _ = DisposeAsync().AsTask();
+
     public async ValueTask DisposeAsync()
     {
+        if (IsDisposed) return;
+        IsDisposed = true;
+        _registeredValidation?.UnregisterInput(this);
+        _registeredValidation = null;
+        _searchCancellation?.Cancel();
+        _resolveCancellation?.Cancel();
         await _autoSave.DisposeAsync();
         await _autoSaveMultiple.DisposeAsync();
-        Dispose();
     }
 }

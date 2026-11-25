@@ -19,25 +19,40 @@
     [Parameter] public Func<int, bool>? ItemDisabled { get; set; }
     private VirtualItems? _virtualItems;
     private string? _currentKey;
-    private IReadOnlyList<string> _previousKeys = [];
+    private string[] _previousKeys = [];
 
-    private Dictionary<string, int> _keyIndexes = new(StringComparer.Ordinal);
+    private IReadOnlyDictionary<string, int> _keyIndexes = System.Collections.ObjectModel.ReadOnlyDictionary<string, int>.Empty;
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        if (!Virtualize) return;
-        if (!_previousKeys.SequenceEqual(ItemKeys))
+        if (!Virtualize)
         {
-            _keyIndexes = new Dictionary<string, int>(StringComparer.Ordinal);
-            for (int i = 0; i < ItemKeys.Count; i++) _keyIndexes.Add(ItemKeys[i], i);
+            _virtualItems = null;
+            return;
         }
-        if (_currentKey is null || !_keyIndexes.ContainsKey(_currentKey))
+
+        bool changed = !_previousKeys.SequenceEqual(ItemKeys);
+        int previous = _currentKey is null ? -1 : _keyIndexes.GetValueOrDefault(_currentKey, -1);
+        if (changed)
         {
-            int previous = _currentKey is null ? 0 : _previousKeys.ToList().IndexOf(_currentKey);
-            _currentKey = _previousKeys.Take(Math.Max(0, previous)).Reverse().FirstOrDefault(key => _keyIndexes.TryGetValue(key, out int i) && ItemDisabled?.Invoke(i) != true)
-                ?? ItemKeys.Where((_, index) => ItemDisabled?.Invoke(index) != true).FirstOrDefault();
+            var indexes = new Dictionary<string, int>(ItemKeys.Count, StringComparer.Ordinal);
+            for (int i = 0; i < ItemKeys.Count; i++) indexes.Add(ItemKeys[i], i);
+            _keyIndexes = indexes;
         }
-        if (!_previousKeys.SequenceEqual(ItemKeys)) _previousKeys = ItemKeys.ToArray();
+        if (_currentKey is null || !_keyIndexes.TryGetValue(_currentKey, out int current) || ItemDisabled?.Invoke(current) == true)
+        {
+            _currentKey = null;
+            for (int i = previous - 1; i >= 0; i--)
+            {
+                var key = _previousKeys[i];
+                if (!_keyIndexes.TryGetValue(key, out int index) || ItemDisabled?.Invoke(index) == true) continue;
+                _currentKey = key;
+                break;
+            }
+            for (int i = 0; _currentKey is null && i < ItemKeys.Count; i++)
+                if (ItemDisabled?.Invoke(i) != true) _currentKey = ItemKeys[i];
+        }
+        if (changed) _previousKeys = ItemKeys.ToArray();
     }
 
     private CurrentCultureInt32TextCache _spacingText;
@@ -68,10 +83,9 @@
     {
         _items.Remove(item);
 
-        if (Virtualize) return;
         if (ReferenceEquals(_currentItem, item))
         {
-            _currentItem = FindFirstEnabledItem();
+            _currentItem = Virtualize ? null : FindFirstEnabledItem();
             _currentItem?.RefreshTreeItem();
         }
     }
@@ -80,7 +94,9 @@
 
     internal void UpdateAvailability(TreeItem item)
     {
-        if (ReferenceEquals(_currentItem, item) && (item.Disabled || !item.Visible))
+        if (_currentItem is null && !item.Disabled && item.Visible)
+            _currentItem = item;
+        else if (ReferenceEquals(_currentItem, item) && (item.Disabled || !item.Visible))
         {
             _currentItem = FindFirstEnabledItem();
             _currentItem?.RefreshTreeItem();
@@ -89,7 +105,7 @@
 
     internal void SetCurrent(TreeItem item)
     {
-        if (item.Disabled || !item.Visible || ReferenceEquals(_currentItem, item))
+        if (item.Disabled || !item.Visible || (ReferenceEquals(_currentItem, item) && (!Virtualize || _currentKey == item.Id)))
             return;
 
         var previous = _currentItem;

@@ -116,7 +116,7 @@ else
     {
         SelectableRowKeys = keys;
         TotalRecordsCount = count; CurrentPage = page + 1; PageSize = pageSize;
-        TotalPages = Math.Max(1, (count + pageSize - 1) / pageSize);
+        TotalPages = Math.Max(1, (int)(((long)count + pageSize - 1) / pageSize));
     }
     [Parameter] public DataTableData? Data { get; set; }
     [Parameter] public QuarkViewState State { get; set; } = new();
@@ -414,7 +414,7 @@ else
     private bool ShouldRenderPageSizeSelector => !Virtualize && Options.ShowPageSizeSelector && BottomContent is null;
     private int[] ResolvedPageSizeOptions => GetResolvedPageSizeOptions();
     private int StartRecord => TotalRecordsCount == 0 ? 0 : (CurrentPage - 1) * PageSize + 1;
-    private int EndRecord => Math.Min(CurrentPage * PageSize, TotalRecordsCount);
+    private int EndRecord => (int)Math.Min((long)CurrentPage * PageSize, TotalRecordsCount);
     private string VisibleRecordRangeText => StartRecord == EndRecord ? StartRecord.ToString() : $"{StartRecord}-{EndRecord}";
     private string PageInfoRecordSuffix => Options.PageInfoRecordText.HasContent() ? $" {Options.PageInfoRecordText}" : string.Empty;
     private (int Page, int Start, int End, int Total, bool Exact, string? Suffix) _pageInfoKey;

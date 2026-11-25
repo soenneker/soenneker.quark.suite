@@ -24,7 +24,7 @@
     [Parameter] public IReadOnlyList<string> ItemKeys { get; set; } = [];
     [Parameter] public RenderFragment<int>? ItemTemplate { get; set; }
     private bool _wasVirtual;
-    private IReadOnlyList<string> DisabledKeys => ItemKeys.Where((_, index) => ItemDisabled?.Invoke(index) == true).ToArray();
+    private IReadOnlyList<string> DisabledKeys => ItemDisabled is null ? [] : ItemKeys.Where((_, index) => ItemDisabled(index)).ToArray();
 
     private static readonly CssValue<DisplayBuilder> _defaultDisplay = Quark.Display.Flex;
     private static readonly CssValue<FlexDirectionBuilder> _defaultFlexDirection = Quark.FlexDirection.Col;

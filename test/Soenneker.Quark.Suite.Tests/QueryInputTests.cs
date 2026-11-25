@@ -39,6 +39,12 @@ public sealed class QueryInputTests : BunitContext
         parsed!.Filters[0].Value.Should().Be("source-id");
         parsed.Expression.Should().Be(new QueryInputFilterExpression(new("source", "source-id")));
         _interop.Selection = null;
+        await cut.Find(editor).InputAsync(new() { Value = "source:\"Website form\"" });
+        parsed.Filters[0].Value.Should().Be("source-id");
+        await cut.Find(editor).InputAsync(new() { Value = "first source:\"Website form\"" });
+        parsed.Filters[0].Value.Should().Be("source-id");
+        await cut.Find(editor).InputAsync(new() { Value = "source:\"Website form\"" });
+        parsed.Filters[0].Value.Should().Be("source-id");
         await cut.Find(editor).InputAsync(new() { Value = "source:\"Website form\" urgent" });
         parsed.Filters[0].Value.Should().Be("source-id");
         await cut.Find(editor).InputAsync(new() { Value = "source:\"Different form\" urgent" });
@@ -215,22 +221,31 @@ public sealed class QueryInputTests : BunitContext
     {
         var first = new TaskCompletionSource<IReadOnlyList<SelectOption>>(TaskCreationOptions.RunContinuationsAsynchronously);
         var second = new TaskCompletionSource<IReadOnlyList<SelectOption>>(TaskCreationOptions.RunContinuationsAsynchronously);
-        int calls = 0;
+        var firstStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var secondStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var cut = Render<QueryInput>(p => p.Add(x => x.Value, "state:")
             .Add(x => x.Fields, [new("state", "State")])
-            .Add(x => x.SuggestValues, (_, _) => new ValueTask<IReadOnlyList<SelectOption>>(++calls == 1 ? first.Task : second.Task)));
+            .Add(x => x.SuggestValues, (_, _) =>
+            {
+                if (firstStarted.TrySetResult()) return new(first.Task);
+                secondStarted.SetResult();
+                return new(second.Task);
+            }));
         Task focus = cut.Find("input").FocusAsync(new());
-        cut.WaitForAssertion(() => calls.Should().Be(1));
+        await firstStarted.Task.WaitAsync(System.TimeSpan.FromSeconds(10));
         Task input = cut.Find("input").InputAsync(new() { Value = "state:o" });
-        cut.WaitForAssertion(() => calls.Should().Be(2));
+        await secondStarted.Task.WaitAsync(System.TimeSpan.FromSeconds(10));
         first.SetResult([new("closed", "Closed")]);
         await focus;
         cut.FindAll("[data-slot=query-input-loading]").Should().HaveCount(1);
         cut.Find("input").GetAttribute("aria-busy").Should().Be("true");
         second.SetResult([]);
         await input;
-        cut.WaitForAssertion(() => cut.FindAll("[data-slot=query-input-loading]").Should().BeEmpty());
-        cut.Find("input").GetAttribute("aria-busy").Should().Be("false");
+        await cut.InvokeAsync(() =>
+        {
+            cut.FindAll("[data-slot=query-input-loading]").Should().BeEmpty();
+            cut.Find("input").GetAttribute("aria-busy").Should().Be("false");
+        });
     }
 
 }

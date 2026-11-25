@@ -133,7 +133,7 @@
     /// Gets the value used for validation.
     /// </summary>
     public object? ValidationValue => SelectedValue;
-    private readonly Dictionary<string, TValue?> _registeredItemValues = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, SelectItem<TValue>> _registeredItemValues = new(StringComparer.Ordinal);
     private SelectContext _context = null!;
     private string? SelectedValueString => GetValueString(SelectedValue);
     private bool IsInvalidState => IsEditFieldInvalid || ParentValidation?.Status == ValidationStatus.Error;
@@ -155,17 +155,30 @@
         };
     }
 
+    private Validation? _subscribedValidation;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && ParentValidation is not null)
+        if (!ReferenceEquals(_subscribedValidation, ParentValidation))
         {
-            ParentValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
-            await ParentValidation.InitializeInput(this);
-
-
+            DetachValidation();
+            _subscribedValidation = ParentValidation;
+            if (_subscribedValidation is not null)
+            {
+                _subscribedValidation.ValidationStatusChanged += OnParentValidationStatusChanged;
+                await _subscribedValidation.InitializeInput(this);
+            }
         }
 
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void DetachValidation()
+    {
+        if (_subscribedValidation is null) return;
+        _subscribedValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+        _subscribedValidation.UnregisterInput(this);
+        _subscribedValidation = null;
     }
 
     private void OnParentValidationStatusChanged(object? sender, ValidationStatusChangedEventArgs e)
@@ -173,20 +186,18 @@
         _ = RefreshOffThread();
     }
 
-    internal void RegisterItemValue(string value, TValue? itemValue)
+    internal void RegisterItemValue(string value, SelectItem<TValue> item)
     {
         if (string.IsNullOrWhiteSpace(value))
             return;
 
-        _registeredItemValues[value] = itemValue;
+        _registeredItemValues[value] = item;
     }
 
-    internal void UnregisterItemValue(string value)
+    internal void UnregisterItemValue(string value, SelectItem<TValue> item)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return;
-
-        _registeredItemValues.Remove(value);
+        if (_registeredItemValues.TryGetValue(value, out var current) && ReferenceEquals(current, item))
+            _registeredItemValues.Remove(value);
     }
 
     private async Task HandleBradixValueChanged(string? value)
@@ -221,8 +232,8 @@
         if (string.IsNullOrEmpty(value))
             return DefaultItemValue;
 
-        if (_registeredItemValues.TryGetValue(value, out var registeredValue))
-            return registeredValue;
+        if (_registeredItemValues.TryGetValue(value, out var item))
+            return item.ItemValue;
 
         return BindConverter.TryConvertTo(value, CultureInfo.CurrentCulture, out TValue? convertedValue)
             ? convertedValue
@@ -273,8 +284,7 @@
 
     public override async ValueTask DisposeAsync()
     {
-        if (ParentValidation is not null)
-            ParentValidation.ValidationStatusChanged -= OnParentValidationStatusChanged;
+        DetachValidation();
         try { await _autoSave.DisposeAsync(); }
         finally { await base.DisposeAsync(); }
     }

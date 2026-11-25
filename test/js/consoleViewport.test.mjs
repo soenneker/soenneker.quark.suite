@@ -169,4 +169,7 @@ test('short pages load more once and do not loop if the provider makes no progre
     assert.equal(f.afterCalls, 1);
     f.generic([...f.keys, '5'], true); await f.flush();
     assert.equal(f.afterCalls, 2);
+    f.generic(f.keys, false); await f.flush();
+    f.generic(f.keys, true); await f.flush();
+    assert.equal(f.afterCalls, 3);
 });

@@ -44,6 +44,60 @@ public sealed class ChartRenderTests : BunitContext
     }
 
     [Test]
+    public void Opposite_finite_extremes_produce_finite_chart_coordinates()
+    {
+        var series = new ChartSeries[] { new("Range", new[] { -double.MaxValue, double.MaxValue }) };
+        var chart = Render<Chart>(p => p.Add(c => c.Series, series).Add(c => c.Type, ChartType.Line)
+            .Add(c => c.XValues, new[] { -double.MaxValue, double.MaxValue }));
+        chart.Markup.Should().NotContain("NaN").And.NotContain("Infinity");
+        chart.Render(p => p.Add(c => c.Type, ChartType.Scatter));
+        chart.FindAll("circle").Select(c => c.GetAttribute("cx")).Should().Equal("76", "746");
+        chart.FindAll("circle").Select(c => c.GetAttribute("cy")).Should().Equal("256", "42");
+    }
+
+    [Test]
+    public void Explicit_axis_bound_survives_data_outside_the_domain()
+    {
+        var chart = Render<Chart>(p => p.Add(c => c.Series, new ChartSeries[] { new("Data", new double[] { 1, 2 }) })
+            .Add(c => c.Options, new ChartOptions { IncludeZero = false, Minimum = 5 }));
+        chart.Find("[data-slot=chart]").GetAttribute("data-scroll-y-min").Should().Be("5");
+        chart.Render(p => p.Add(c => c.Options, new ChartOptions { IncludeZero = false, Maximum = -5 }));
+        chart.Find("[data-slot=chart]").GetAttribute("data-scroll-y-max").Should().Be("-5");
+    }
+
+    [Test]
+    public void Unrepresentable_totals_show_a_status_and_recover_with_new_data()
+    {
+        ChartSeries[] series = [new("A", new[] { double.MaxValue, double.MaxValue }), new("B", new[] { double.MaxValue })];
+        var chart = Render<Chart>(p => p.Add(c => c.Type, ChartType.Waterfall).Add(c => c.Series, series));
+        chart.Find("[role=status]").TextContent.Should().Contain("numeric range");
+        chart.Render(p => p.Add(c => c.Type, ChartType.Bar).Add(c => c.Options, new ChartOptions { Stacked = true }));
+        chart.Find("[role=status]").TextContent.Should().Contain("numeric range");
+        chart.Render(p => p.Add(c => c.Series, new ChartSeries[] { new("A", new double[] { 1, 2 }), new("B", new double[] { 2, 1 }) }));
+        chart.FindAll("[data-slot=chart-bar]").Should().HaveCount(4);
+    }
+
+    [Test]
+    public void Pie_slices_keep_their_proportions_when_the_raw_sum_overflows()
+    {
+        ChartSeries[] series = [new("Large", new[] { double.MaxValue, double.MaxValue })];
+        var chart = Render<Chart>(p => p.Add(c => c.Type, ChartType.Pie).Add(c => c.Series, series));
+        var slices = chart.FindAll("[data-slot=chart-slice]");
+        slices.Select(slice => slice.GetAttribute("data-radial-geometry")!.Split(' ')[4]).Should().Equal("180", "180");
+    }
+
+    [Test]
+    public void Treemap_sizes_stay_finite_across_extreme_weights()
+    {
+        ChartSeries[] series = [new("Large", new[] { double.MaxValue, double.MaxValue }),
+            new("Mixed", new[] { double.MaxValue, 1, double.Epsilon })];
+        var chart = Render<Chart>(p => p.Add(c => c.Series, series).Add(c => c.Type, ChartType.Treemap));
+        chart.FindAll("svg rect").Should().HaveCount(5);
+        chart.Markup.Should().NotContain("NaN").And.NotContain("Infinity");
+        chart.Find("svg rect").GetAttribute("width").Should().Be("260");
+    }
+
+    [Test]
     public void Sankey_rejects_cycles_and_recovers_when_links_change()
     {
         var chart = Render<Chart>(p => p.Add(c => c.Type, ChartType.Sankey)
@@ -373,6 +427,14 @@ public sealed class ChartRenderTests : BunitContext
         stacked.FindAll("[data-slot='chart-bar']").Should().HaveCount(6);
         grouped.FindAll("[data-slot='chart-bar']")[0].GetAttribute("width")
             .Should().NotBe(stacked.FindAll("[data-slot='chart-bar']")[0].GetAttribute("width"));
+
+        ChartSeries[] mixed = [new("First", new double[] { 3, -3 }), new("Second", new double[] { -2, 2 }),
+            new("Third", new double[] { 4, -4 })];
+        stacked.Render(p => p.Add(c => c.Series, mixed));
+        var bars = stacked.FindAll("[data-slot='chart-bar']");
+        double Coordinate(int index, string attribute) => double.Parse(bars[index].GetAttribute(attribute)!, CultureInfo.InvariantCulture);
+        (Coordinate(4, "y") + Coordinate(4, "height")).Should().BeApproximately(Coordinate(0, "y"), 0.002);
+        (Coordinate(1, "y") + Coordinate(1, "height")).Should().BeApproximately(Coordinate(5, "y"), 0.002);
     }
 
     [Test]

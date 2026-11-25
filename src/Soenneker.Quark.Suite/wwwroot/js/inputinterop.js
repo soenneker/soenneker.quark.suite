@@ -3,11 +3,11 @@ const digitMasks = new WeakMap();
 const onlyDigits = value => value.replace(/[^0-9]/g, "");
 
 function applyDigitMask(input) {
-    const mask = digitMasks.get(input);
+    const { mask, slots } = digitMasks.get(input);
     const raw = onlyDigits(input.value);
     const before = onlyDigits(input.value.slice(0, input.selectionStart)).length;
     let formatted = "", count = 0, caret = 0;
-    const complete = raw.length >= mask.split("#").length - 1;
+    const complete = raw.length >= slots;
     for (const token of mask) {
         if (count === raw.length && !complete) break;
         formatted += token === "#" ? raw[count++] : token;
@@ -32,7 +32,7 @@ export function registerDigitMask(input, mask) {
         });
         input.addEventListener("input", () => applyDigitMask(input));
     }
-    digitMasks.set(input, mask);
+    digitMasks.set(input, { mask, slots: mask.split("#").length - 1 });
 }
 
 export function getSelection(input) {

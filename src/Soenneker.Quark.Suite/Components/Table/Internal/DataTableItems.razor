@@ -184,6 +184,7 @@
     }
 
     [Parameter] public long? DataVersion { get; set; }
+    private bool _preparedVirtualRows;
     private long? _preparedVersion;
     private IReadOnlyList<TItem>? _preparedItems;
     private IReadOnlyList<DataTableColumn<TItem>>? _preparedColumns;
@@ -225,15 +226,30 @@
     private readonly HashSet<string> _expanded = [];
     private readonly CancellationTokenSource _lifetime = new();
     private List<TItem> _filtered = [];
-    private int PageCount => Math.Max(1, ((LoadData is null ? _filtered.Count : _remoteCount) + PageSize - 1) / PageSize);
+    private int PageCount => Math.Max(1, (int)(((long)(LoadData is null ? _filtered.Count : _remoteCount) + PageSize - 1) / PageSize));
     private int PageSize => Math.Clamp(State.PageSize, 1, 10000);
     protected override async Task OnParametersSetAsync()
     {
-        if (!ReferenceEquals(State, _loadedState)) _page = 0;
-        bool cached = ParentKey is null && _depth.Count == 0 && DataVersion.HasValue && DataVersion == _preparedVersion && ReferenceEquals(Items, _preparedItems) &&
+        bool modeChanged = UseVirtualRows != _preparedVirtualRows;
+        bool providerChanged = LoadData != _loadedProvider;
+        if (!ReferenceEquals(State, _loadedState) || modeChanged || providerChanged)
+        {
+            _page = 0;
+            _pageItems = null;
+        }
+        bool cached = !modeChanged && !providerChanged && ParentKey is null && _depth.Count == 0 && DataVersion.HasValue && DataVersion == _preparedVersion && ReferenceEquals(Items, _preparedItems) &&
             ReferenceEquals(Columns, _preparedColumns) && RowKey == _preparedRowKey && SameQuery(State, _preparedState);
+        _preparedVirtualRows = UseVirtualRows;
+        if (providerChanged)
+        {
+            _remoteItems.Clear();
+            _remoteKeys.Clear();
+            _remoteKeyOrder.Clear();
+            _remoteCount = 0;
+            _loadError = false;
+        }
         Prepare(!cached);
-        if (LoadData is not null && (!ReferenceEquals(State, _loadedState) || LoadData != _loadedProvider)) { _page = 0; await Reload(); }
+        if (LoadData is not null && (!ReferenceEquals(State, _loadedState) || providerChanged || modeChanged)) { _page = 0; await Reload(); }
         else if (LoadData is null) { _loadedState = State; if (_loadedProvider is not null) { _requestVersion++; _loadCancellation?.Cancel(); _loadedProvider = null; _loading = false; } }
     }
     private bool HasNextRows => UseVirtualRows && LoadData is not null && !_loadError && _remoteItems.Count < _remoteCount;
@@ -267,7 +283,8 @@
             _remoteKeys.UnionWith(incomingKeys);
             _remoteKeyOrder.AddRange(incomingOrder);
             _page = requestedPage;
-            _remoteCount = result.Items.Count == 0 ? _remoteItems.Count : Math.Max(0, result.TotalCount); Prepare();
+            _remoteCount = UseVirtualRows && result.Items.Count == 0 ? _remoteItems.Count : Math.Max(0, result.TotalCount);
+            Prepare();
             if (!UseVirtualRows && _page >= PageCount) { _page = PageCount - 1; await Reload(); }
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
@@ -281,9 +298,19 @@
         ReferenceEquals(state.Filters, previous.Filters) && state.Sorts.SequenceEqual(previous.Sorts) && state.PageSize == previous.PageSize;
     private void Prepare(bool prepareData = true)
     {
-        if (Columns.Select(c => c.Key).Distinct().Count() != Columns.Count) throw new ArgumentException("Column keys must be unique.");
-        _columnMap = Columns.ToDictionary(c => c.Key);
-        _fields = Columns.Select(c => new FilterField(c.Key, c.Title, c.FilterType, c.Choices)).ToArray();
+        if (prepareData)
+        {
+            _columnMap = new(Columns.Count, StringComparer.Ordinal);
+            var fields = new FilterField[Columns.Count];
+            for (int i = 0; i < fields.Length; i++)
+            {
+                var column = Columns[i];
+                if (!_columnMap.TryAdd(column.Key, column))
+                    throw new ArgumentException("Column keys must be unique.");
+                fields[i] = new FilterField(column.Key, column.Title, column.FilterType, column.Choices);
+            }
+            _fields = fields;
+        }
         _preferences = BuildPreferences();
         _visibleColumns = _preferences.Where(p => p.Visible).OrderBy(p => p.Pin == DataTableColumnPin.Start ? 0 : p.Pin == DataTableColumnPin.End ? 2 : 1).ToList();
         _columnStyles = new();
@@ -295,25 +322,27 @@
             _columnStyles[column.Key] = ComputeColumnStyle(column, column.Pin == DataTableColumnPin.Start ? startOffset : endOffset);
             if (column.Pin == DataTableColumnPin.Start) startOffset += column.Width;
         }
-        if (!prepareData) return;
+        if (!prepareData)
+        {
+            if (_pageItems is null)
+                Owner.UpdateDataStatus(LoadData is null ? _filtered.Count : _remoteCount, _page, PageSize, VisibleRowKeys());
+            return;
+        }
         _preparedVersion = DataVersion; _preparedItems = Items; _preparedColumns = Columns; _preparedRowKey = RowKey; _preparedState = State;
         _pageItems = null;
         if (ParentKey is not null && LoadData is not null) throw new ArgumentException("ParentKey requires a local record collection.");
         if (RowKey is null) throw new ArgumentException("RowKey is required.");
         if (LoadData is not null) { _filtered = _remoteItems; Owner.UpdateDataStatus(_remoteCount, _page, PageSize, VisibleRowKeys()); return; }
         if (Items.Select(RowKey).Distinct().Count() != Items.Count) throw new ArgumentException("Row keys must be unique.");
-        var fields = FilterFields();
-        var matches = FilterEvaluator.Compile<TItem>(State.Filters, fields, (item, key) => _columnMap[key].Value(item));
+        var matches = FilterEvaluator.Compile<TItem>(State.Filters, _fields, (item, key) => _columnMap[key].Value(item));
         IEnumerable<TItem> query = Items.Where(item => matches(item) &&
             (string.IsNullOrWhiteSpace(State.Search) || Columns.Any(c => (Convert.ToString(c.Value(item), Text.Culture) ?? "").Contains(State.Search, StringComparison.OrdinalIgnoreCase))));
         IOrderedEnumerable<TItem>? ordered = null;
         foreach (var sort in State.Sorts)
         {
-            var column = Columns.FirstOrDefault(c => c.Key == sort.Key && c.Sortable);
-            if (column is null) continue;
-            var comparer = Comparer<object?>.Create(Compare);
-            ordered = ordered is null ? sort.Descending ? query.OrderByDescending(column.Value, comparer) : query.OrderBy(column.Value, comparer)
-                : sort.Descending ? ordered.ThenByDescending(column.Value, comparer) : ordered.ThenBy(column.Value, comparer);
+            if (!_columnMap.TryGetValue(sort.Key, out var column) || !column.Sortable) continue;
+            ordered = ordered is null ? sort.Descending ? query.OrderByDescending(column.Value, ValueComparer) : query.OrderBy(column.Value, ValueComparer)
+                : sort.Descending ? ordered.ThenByDescending(column.Value, ValueComparer) : ordered.ThenBy(column.Value, ValueComparer);
         }
         _filtered = (ordered ?? query).ToList();
         _depth.Clear();
@@ -332,11 +361,12 @@
         var expanded = State.ExpandedRowKeys.ToHashSet();
         var visible = new List<TItem>();
         _branches.Clear();
-        foreach (string stale in _rowButtons.Keys.Where(k => !keys.Contains(k)).ToArray()) _rowButtons.Remove(stale);
+        foreach (string key in _rowButtons.Keys)
+            if (!keys.Contains(key)) _rowButtons.Remove(key);
         var pending = new Stack<(TItem Item, int Depth)>();
         // A matching child whose parent was filtered out becomes a visible root.
-        foreach (var root in rows.Where(r => ParentKey!(r) is not { } parent || !keys.Contains(parent)).Reverse())
-            pending.Push((root, 0));
+        for (int i = rows.Count - 1; i >= 0; i--)
+            if (ParentKey!(rows[i]) is not { } parent || !keys.Contains(parent)) pending.Push((rows[i], 0));
         while (pending.TryPop(out var entry))
         {
             var key = RowKey(entry.Item);
@@ -386,6 +416,7 @@
         if (target is not null && _rowButtons.TryGetValue(target, out var button)) await button.FocusAsync();
     }
 
+    private static readonly IComparer<object?> ValueComparer = Comparer<object?>.Create(Compare);
     private static int Compare(object? a, object? b) => a is null ? b is null ? 0 : -1 : b is null ? 1 : a.GetType() == b.GetType() && a is IComparable comparable ? comparable.CompareTo(b) : StringComparer.OrdinalIgnoreCase.Compare(a.ToString(), b.ToString());
     private IReadOnlyList<TItem> PageItems()
     {
@@ -399,7 +430,7 @@
         var preferences = new List<DataTableColumnState>(Columns.Count);
         foreach (var preference in State.Columns)
             if (_columnMap.ContainsKey(preference.Key) && seen.Add(preference.Key))
-                preferences.Add(preference with { Width = Math.Clamp(preference.Width, 64, 1200) });
+                preferences.Add(preference.Width is >= 64 and <= 1200 ? preference : preference with { Width = Math.Clamp(preference.Width, 64, 1200) });
         foreach (var column in Columns)
             if (seen.Add(column.Key))
                 preferences.Add(new DataTableColumnState(column.Key, Width: Math.Clamp(column.Width, 64, 1200)));

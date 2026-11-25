@@ -101,15 +101,12 @@
 
         var resolvedValue = ResolvedValue;
         if (_registeredValue.HasContent() && (!ReferenceEquals(_registeredParent, ParentSelect) || !string.Equals(_registeredValue, resolvedValue, StringComparison.Ordinal)))
-            _registeredParent?.UnregisterItemValue(_registeredValue!);
+            _registeredParent?.UnregisterItemValue(_registeredValue!, this);
         _registeredParent = ParentSelect;
         _registeredValue = resolvedValue;
 
         if (resolvedValue.HasContent())
-        {
-            ParentSelect?.RegisterItemValue(resolvedValue, ItemValue);
-            _registeredValue = resolvedValue;
-        }
+            ParentSelect?.RegisterItemValue(resolvedValue, this);
     }
 
     protected override void BuildAttributesCore(Dictionary<string, object> attributes)
@@ -136,7 +133,7 @@
     public override async ValueTask DisposeAsync()
     {
         if (_registeredValue.HasContent())
-            _registeredParent?.UnregisterItemValue(_registeredValue!);
+            _registeredParent?.UnregisterItemValue(_registeredValue!, this);
 
         await base.DisposeAsync();
     }

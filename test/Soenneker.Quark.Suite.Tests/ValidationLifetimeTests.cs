@@ -110,14 +110,18 @@ public sealed partial class ValidationLifetimeTests : BunitContext
     }
 
     [Test]
-    public async ValueTask Generated_validation_reads_the_model_and_rebinds_to_a_new_edit_context(CancellationToken cancellationToken)
+    [Arguments(nameof(EditContext))]
+    [Arguments(null)]
+    public async ValueTask Generated_validation_reads_the_model_and_rebinds_to_a_new_edit_context(string? cascadeName, CancellationToken cancellationToken)
     {
         var model = new Model();
         var first = new EditContext(model);
         Microsoft.AspNetCore.Components.RenderFragment content = b => { b.OpenComponent<Validation>(0); b.CloseComponent(); };
-        var host = Render<Microsoft.AspNetCore.Components.CascadingValue<EditContext>>(p => p
-            .Add(c => c.Name, nameof(EditContext)).Add(c => c.Value, first)
-            .Add(c => c.ChildContent, content));
+        var host = Render<Microsoft.AspNetCore.Components.CascadingValue<EditContext>>(p =>
+        {
+            if (cascadeName is not null) p.Add(c => c.Name, cascadeName);
+            p.Add(c => c.Value, first).Add(c => c.ChildContent, content);
+        });
         var cut = host.FindComponent<Validation>();
         await cut.InvokeAsync(() => cut.Instance.InitializeInput(new Input()));
         await cut.InvokeAsync(() => cut.Instance.InitializeInputField(new FieldIdentifier(model, nameof(model.Name))));
@@ -126,7 +130,11 @@ public sealed partial class ValidationLifetimeTests : BunitContext
 
         model = new Model { Name = "valid" };
         var second = new EditContext(model);
-        host.Render(p => p.Add(c => c.Name, nameof(EditContext)).Add(c => c.Value, second).Add(c => c.ChildContent, content));
+        host.Render(p =>
+        {
+            if (cascadeName is not null) p.Add(c => c.Name, cascadeName);
+            p.Add(c => c.Value, second).Add(c => c.ChildContent, content);
+        });
         await cut.InvokeAsync(() => cut.Instance.InitializeInputField(new FieldIdentifier(model, nameof(model.Name))));
         await cut.InvokeAsync(() => cut.Instance.ValidateValue(""));
         first.GetValidationMessages().Should().BeEmpty();

@@ -352,6 +352,29 @@ public sealed class WorkflowTests : BunitContext
     }
 
     [Test]
+    public void Versioned_table_rebuilds_its_page_when_virtualization_or_provider_changes()
+    {
+        var data = new DataTableData<SelectOption>
+        {
+            RowKey = x => x.Value, DataVersion = 1,
+            Items = [new("a", "Local A"), new("b", "Local B")],
+            Columns = [new() { Key = "name", Title = "Name", Value = x => x.Label }]
+        };
+        var cut = Render<DataTable>(p => p.Add(c => c.Data, data).Add(c => c.State, new QuarkViewState { PageSize = 1 }));
+        cut.FindAll("tbody tr").Should().ContainSingle();
+        cut.Render(p => p.Add(c => c.Virtualize, true));
+        cut.FindComponent<VirtualItems>().Instance.ItemKeys.Should().Equal("a", "b");
+
+        data.LoadData = (_, _) => ValueTask.FromResult(new DataTableResult<SelectOption>([new("c", "Remote C")], int.MaxValue));
+        cut.Render(p => p.Add(c => c.Virtualize, false).Add(c => c.State, new QuarkViewState { PageSize = 2 }));
+        cut.Find("tbody").TextContent.Should().Contain("Remote C");
+        cut.Instance.TotalPages.Should().Be(1_073_741_824);
+        data.LoadData = null;
+        cut.Render(p => p.Add(c => c.Data, data));
+        cut.Find("tbody").TextContent.Should().Contain("Local A");
+    }
+
+    [Test]
     public void DataTable_local_virtualization_uses_all_records_and_preserves_root_attributes()
     {
         var cut = Render<DataTable>(p => p.Add(c => c.Virtualize, true).Add(c => c.Class, "custom-table").AddUnmatched("data-application", "contacts")

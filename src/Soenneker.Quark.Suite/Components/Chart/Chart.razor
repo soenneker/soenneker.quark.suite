@@ -53,6 +53,10 @@ data requires proportional horizontal spacing instead of categorical spacing.
     {
         <SpecializedChart XValues="XValues" IsSeriesHidden="IsSeriesHidden" Type="Type" Labels="Labels" Series="Series" Candles="Candles" Boxes="Boxes" Flows="Flows" Options="Options" AriaLabel="@AriaLabel" />
     }
+    else if (_stackExceedsRange)
+    {
+        <div role="status">@ChartNumberFormatting.TotalOutOfRange</div>
+    }
     else if (!HasData)
     {
         <div class="quark-chart-empty grid min-h-48 place-items-center rounded-lg border border-dashed text-sm text-muted-foreground" role="status">@Options.EmptyText</div>
@@ -95,7 +99,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
 
                     @if (IsRadial)
                     {
-                        var total = RadialTotal;
+                        var (total, scale) = GetRadialWeights();
                         double angle = -90;
                         var cx = Options.Width / 2;
                         var cy = Options.Height / 2;
@@ -104,7 +108,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
                         @for (var index = VisibleStart; index <= VisibleEnd; index++)
                         {
                             var value = RadialValue(index);
-                            var sweep = total <= 0 ? 0 : value / total * 360;
+                            var sweep = total <= 0 ? 0 : (value / scale) / total * 360;
                             var sliceIndex = index;
 
                             if (sweep > 0)
@@ -195,6 +199,15 @@ data requires proportional horizontal spacing instead of categorical spacing.
                         }
 
                         </ChartRenderBoundary>
+                        @{
+                            int barPosition = 0;
+                            if (Options.Stacked && _barSeriesCount > 1)
+                            {
+                                int count = Math.Max(0, VisibleEnd - VisibleStart + 1);
+                                if (_stackOffsets.Length < count) _stackOffsets = new (double, double)[count];
+                                else Array.Clear(_stackOffsets, 0, count);
+                            }
+                        }
                         @for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
                         {
                             var series = Series[seriesIndex];
@@ -206,12 +219,13 @@ data requires proportional horizontal spacing instead of categorical spacing.
                             {
                                 @if (seriesType == ChartType.Bar)
                                 {
+                                    int position = barPosition++;
                                     @for (var index = VisibleStart; index <= VisibleEnd; index++)
                                     {
                                         var value = ValueAt(series, index);
                                         if (value is not null)
                                         {
-                                            var bar = GetBarRect(currentSeries, index, value.Value);
+                                            var bar = GetBarRect(position, index, value.Value);
                                             var currentIndex = index;
                                             var events = GetItemEvents(currentIndex, currentSeries);
                                             var hover = events.Hover;
@@ -239,7 +253,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
                                                     break;
                                                 if (sample.Value is { } outgoingValue)
                                                 {
-                                                    var outgoingX = PlotLeft + (sample.X - _xMinimum) / (_xMaximum - _xMinimum) * PlotWidth;
+                                                    var outgoingX = PlotLeft + ChartNumberFormatting.Fraction(sample.X, _xMinimum, _xMaximum) * PlotWidth;
                                                     <circle cx="@F(outgoingX)" cy="@F(ValueY(outgoingValue))" r="@F(Options.PointRadius)" fill="@Options.PointFill" stroke="@color" stroke-width="2" vector-effect="non-scaling-stroke" class="pointer-events-none" data-slot="chart-scroll-point" aria-hidden="true"/>
                                                 }
                                             }
@@ -542,9 +556,8 @@ data requires proportional horizontal spacing instead of categorical spacing.
     private double _xMaximum = 1;
     private bool _useContinuousX;
     private double[] _tickValues = [1, 0];
-    private int[] _barSeries = [];
+    private (double Positive, double Negative)[] _stackOffsets = [];
     private int _barSeriesCount;
-    private readonly Dictionary<int, int> _barSeriesPositions = [];
     private readonly Dictionary<int, string> _linePaths = [];
     private System.Text.StringBuilder? _pathBuilder;
     private readonly List<List<ChartPoint>> _segments = [];
@@ -573,6 +586,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
     private double _radialTotal;
     private bool _hasData;
     private bool _hasBarSeries;
+    private bool _stackExceedsRange;
     private bool _allLineOrAreaSeries;
     private string _viewBox = "0 0 800 320";
     private string _stageStyle = "aspect-ratio:800/320";
@@ -732,7 +746,15 @@ data requires proportional horizontal spacing instead of categorical spacing.
     private string ViewBox => _viewBox;
     private string StageStyle => _stageStyle;
     private string AnimationClass => Options.Animate ? "quark-chart-mark animate-in fade-in zoom-in-95 duration-500" : "quark-chart-mark";
-    private double RadialTotal => _radialTotal;
+    private (double Total, double Scale) GetRadialWeights()
+    {
+        if (double.IsFinite(_radialTotal)) return (_radialTotal, 1);
+        double total = 0;
+        for (int i = 0; i < Series[0].Values.Count; i++)
+            total += RadialValue(i) / double.MaxValue;
+        return (total, double.MaxValue);
+    }
+
     private string XAxisTextAnchor => Options.XAxisLabelRotation > 0 ? "start" : Options.XAxisLabelRotation < 0 ? "end" : "middle";
     private Func<int, double>? _categoryCenterAccessor;
     private Func<double, double>? _valueYAccessor;
@@ -892,6 +914,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
             }
         }
 
+        _stackExceedsRange = false;
         if (Options.Stacked && hasStackedBars)
         {
             for (var point = 0; point < PointCount; point++)
@@ -910,6 +933,11 @@ data requires proportional horizontal spacing instead of categorical spacing.
                         negative += value;
                 }
 
+                if (!double.IsFinite(positive) || !double.IsFinite(negative))
+                {
+                    _stackExceedsRange = true;
+                    break;
+                }
                 hasValue = true;
                 minimum = Math.Min(minimum, negative);
                 maximum = Math.Max(maximum, positive);
@@ -924,12 +952,18 @@ data requires proportional horizontal spacing instead of categorical spacing.
             _maximum = Math.Max(0, _maximum);
         }
 
+        if (_minimum > _maximum)
+        {
+            if (Options.Minimum.HasValue) _maximum = _minimum;
+            else _minimum = _maximum;
+        }
         if (Math.Abs(_maximum - _minimum) < 0.0000001)
         {
             var padding = Math.Abs(_maximum) < 1 ? 1 : Math.Abs(_maximum) * 0.1;
-            if (!Options.IncludeZero || _minimum != 0 || _maximum != 0)
-                _minimum -= padding;
-            _maximum += padding;
+            if (Options.Minimum is null && (!Options.IncludeZero || _minimum != 0 || _maximum != 0 || Options.Maximum.HasValue))
+                _minimum = Math.Max(double.MinValue, _minimum - padding);
+            if (Options.Maximum is null)
+                _maximum = Math.Min(double.MaxValue, _maximum + padding);
         }
     }
 
@@ -1083,8 +1117,8 @@ data requires proportional horizontal spacing instead of categorical spacing.
         _xMaximum = XValues[VisibleEnd];
         if (_hasBarSeries)
         {
-            _xMinimum -= (XValues[VisibleStart + 1] - XValues[VisibleStart]) / 2;
-            _xMaximum += (XValues[VisibleEnd] - XValues[VisibleEnd - 1]) / 2;
+            _xMinimum = Math.Max(double.MinValue, _xMinimum - (XValues[VisibleStart + 1] * .5 - _xMinimum * .5));
+            _xMaximum = Math.Min(double.MaxValue, _xMaximum + (_xMaximum * .5 - XValues[VisibleEnd - 1] * .5));
         }
     }
 
@@ -1094,10 +1128,12 @@ data requires proportional horizontal spacing instead of categorical spacing.
         if (Options.NiceYAxis && Options.Minimum is null && Options.Maximum is null)
         {
             var step = NiceNumber((_maximum - _minimum) / (requested - 1), true);
-            if (step > 0 && double.IsFinite(step))
+            double lower = step > 0 ? Math.Floor(_minimum / step) * step : double.NaN;
+            double upper = step > 0 ? Math.Ceiling(_maximum / step) * step : double.NaN;
+            if (double.IsFinite(upper - lower) && upper > lower)
             {
-                _minimum = Math.Floor(_minimum / step) * step;
-                _maximum = Math.Ceiling(_maximum / step) * step;
+                _minimum = lower;
+                _maximum = upper;
                 var count = Math.Clamp((int)Math.Round((_maximum - _minimum) / step) + 1, 2, 100);
                 if (_tickValues.Length != count)
                     Array.Resize(ref _tickValues, count);
@@ -1111,7 +1147,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
         if (_tickValues.Length != requested)
             Array.Resize(ref _tickValues, requested);
         for (var index = 0; index < requested; index++)
-            _tickValues[index] = _maximum - index * (_maximum - _minimum) / (requested - 1);
+            _tickValues[index] = double.Lerp(_maximum, _minimum, (double)index / (requested - 1));
     }
 
     private static double NiceNumber(double value, bool round)
@@ -1129,25 +1165,13 @@ data requires proportional horizontal spacing instead of categorical spacing.
         _usedSegmentBuffers = 0;
         _linePaths.Clear();
         _areaPaths.Clear();
-        _barSeriesPositions.Clear();
-        if (_barSeries.Length < Series.Count)
-            Array.Resize(ref _barSeries, Series.Count);
         _barSeriesCount = 0;
         for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
         {
-            if (IsSeriesHidden(seriesIndex) || (Series[seriesIndex].Type ?? Type) != ChartType.Bar)
-                continue;
-
-            _barSeries[_barSeriesCount] = seriesIndex;
-            _barSeriesPositions[seriesIndex] = _barSeriesCount;
-            _barSeriesCount++;
-        }
-
-        for (var seriesIndex = 0; seriesIndex < Series.Count; seriesIndex++)
-        {
             var seriesType = Series[seriesIndex].Type ?? Type;
-            if (IsSeriesHidden(seriesIndex) || (seriesType != ChartType.Line && seriesType != ChartType.Area))
-                continue;
+            if (IsSeriesHidden(seriesIndex)) continue;
+            if (seriesType == ChartType.Bar) _barSeriesCount++;
+            if (seriesType != ChartType.Line && seriesType != ChartType.Area) continue;
             var segments = BuildSegments(Series[seriesIndex], seriesIndex);
             _linePaths[seriesIndex] = BuildLinePath(segments);
             if (seriesType == ChartType.Area)
@@ -1199,7 +1223,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
                 return PlotLeft + (index - VisibleStart) * PlotWidth / Math.Max(1, VisibleCount - 1);
             return PlotLeft + (index - VisibleStart + 0.5) * PlotWidth / Math.Max(1, VisibleCount);
         }
-        return PlotLeft + (XValues![index] - _xMinimum) / (_xMaximum - _xMinimum) * PlotWidth;
+        return PlotLeft + ChartNumberFormatting.Fraction(XValues![index], _xMinimum, _xMaximum) * PlotWidth;
     }
 
     private double CategoryWidthAt(int index)
@@ -1210,7 +1234,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
         return Math.Max(1, right - CategoryStart(index));
     }
 
-    private double ValueY(double value) => PlotBottom - (value - _minimum) / (_maximum - _minimum) * PlotHeight;
+    private double ValueY(double value) => PlotBottom - ChartNumberFormatting.Fraction(value, _minimum, _maximum) * PlotHeight;
     private double TickValue(int tick) => _tickValues[tick];
     private double TickY(int tick) => ValueY(TickValue(tick));
 
@@ -1517,7 +1541,7 @@ data requires proportional horizontal spacing instead of categorical spacing.
             {
                 if (sample.X >= _xMinimum)
                     break;
-                AddSample(PlotLeft + (sample.X - _xMinimum) / (_xMaximum - _xMinimum) * PlotWidth, sample.Value);
+                AddSample(PlotLeft + ChartNumberFormatting.Fraction(sample.X, _xMinimum, _xMaximum) * PlotWidth, sample.Value);
             }
         }
         for (var index = VisibleStart; index <= VisibleEnd; index++)
@@ -1550,21 +1574,18 @@ data requires proportional horizontal spacing instead of categorical spacing.
         }
     }
 
-    private BarRect GetBarRect(int seriesIndex, int pointIndex, double value)
+    private BarRect GetBarRect(int position, int pointIndex, double value)
     {
-        var position = _barSeriesPositions.GetValueOrDefault(seriesIndex);
         var usableWidth = CategoryWidthAt(pointIndex) * 0.76;
         var width = Options.Stacked ? usableWidth : Math.Max(1, (usableWidth - Options.BarGap * Math.Max(0, _barSeriesCount - 1)) / Math.Max(1, _barSeriesCount));
         var x = CategoryCenter(pointIndex) - usableWidth / 2 + (Options.Stacked ? 0 : position * (width + Options.BarGap));
         double start = 0;
-        if (Options.Stacked)
+        if (Options.Stacked && _barSeriesCount > 1 && value != 0)
         {
-            for (var index = 0; index < position && index < _barSeriesCount; index++)
-            {
-                var other = ValueAt(Series[_barSeries[index]], pointIndex) ?? 0;
-                if (Math.Sign(other) == Math.Sign(value))
-                    start += other;
-            }
+            ref var offsets = ref _stackOffsets[pointIndex - VisibleStart];
+            ref double offset = ref (value > 0 ? ref offsets.Positive : ref offsets.Negative);
+            start = offset;
+            offset += value;
         }
 
         var y1 = ValueY(start);

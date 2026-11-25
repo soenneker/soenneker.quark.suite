@@ -12,7 +12,7 @@ public sealed class DataTableContinuationTokenPaging
 {
     private readonly Dictionary<int, string> _pageTokens = new();
     private readonly Dictionary<int, int> _pageCounts = new();
-    private int _knownRecords;
+    private long _knownRecords;
     private int _maxKnownPage = -1;
     private int _currentVirtualPage;
     private int _estimatedTotalRecords;
@@ -78,14 +78,7 @@ public sealed class DataTableContinuationTokenPaging
             throw new ArgumentException("pageNumber must be non-negative", nameof(pageNumber));
         }
 
-        if (continuationToken == null)
-        {
-            _pageTokens[pageNumber] = string.Empty;
-        }
-        else
-        {
-            _pageTokens[pageNumber] = continuationToken;
-        }
+        _pageTokens[pageNumber] = continuationToken ?? string.Empty;
     }
 
     /// <summary>
@@ -132,7 +125,7 @@ public sealed class DataTableContinuationTokenPaging
     /// <returns>The virtual start position.</returns>
     public int CalculateVirtualStart(int pageSize)
     {
-        return _currentVirtualPage * pageSize;
+        return int.CreateSaturating((long)_currentVirtualPage * pageSize);
     }
 
     /// <summary>
@@ -148,15 +141,15 @@ public sealed class DataTableContinuationTokenPaging
         }
 
         var knownRecords = _knownRecords;
-        var maxPage = _maxKnownPage;
+        long maxPage = _maxKnownPage;
 
         if (_hasMorePages && maxPage >= 0)
         {
             var avgRecordsPerPage = knownRecords / (maxPage + 1);
-            return Math.Max(knownRecords + avgRecordsPerPage, (maxPage + 2) * pageSize);
+            return int.CreateSaturating(Math.Max(knownRecords + avgRecordsPerPage, (maxPage + 2) * pageSize));
         }
 
-        return knownRecords;
+        return int.CreateSaturating(knownRecords);
     }
 
     /// <summary>
@@ -231,7 +224,7 @@ public sealed class DataTableContinuationTokenPaging
             SetContinuationToken(_currentVirtualPage, tokenUsedForCurrentPage);
         }
 
-        if (continuationToken.HasContent())
+        if (continuationToken.HasContent() && _currentVirtualPage < int.MaxValue)
         {
             SetContinuationToken(_currentVirtualPage + 1, continuationToken);
             _hasMorePages = true;
@@ -246,11 +239,11 @@ public sealed class DataTableContinuationTokenPaging
 
         if (_lastPage.HasValue)
         {
-            _estimatedTotalRecords = _lastPage.Value * pageSize + GetPageRecordCount(_lastPage.Value);
+            _estimatedTotalRecords = int.CreateSaturating((long)_lastPage.Value * pageSize + GetPageRecordCount(_lastPage.Value));
         }
         else if (_hasMorePages)
         {
-            _estimatedTotalRecords = Math.Max(_estimatedTotalRecords, _knownRecords + pageSize);
+            _estimatedTotalRecords = Math.Max(_estimatedTotalRecords, int.CreateSaturating(_knownRecords + pageSize));
         }
     }
 
@@ -292,7 +285,7 @@ public sealed class DataTableContinuationTokenPaging
     private int FindClosestPage(int requestedPage)
     {
         var closestPage = -1;
-        var minDistance = int.MaxValue;
+        long minDistance = long.MaxValue;
 
         foreach (var kvp in _pageTokens)
         {
@@ -307,4 +300,4 @@ public sealed class DataTableContinuationTokenPaging
 
         return closestPage;
     }
-} 
+}

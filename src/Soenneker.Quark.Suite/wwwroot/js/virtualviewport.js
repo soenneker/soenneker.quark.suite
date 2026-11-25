@@ -30,10 +30,12 @@ function indexAt(state, offset) {
     return Math.min(index, Math.max(0, count - 1));
 }
 function measure(state, key, height) {
+    const index = state.indexes.get(key);
+    if (index === undefined) return;
     const previous = state.heights.get(key) ?? state.estimate;
-    state.heights.set(key, height);
-    const index = state.indexes?.get(key);
-    if (index === undefined || height === previous) return;
+    if (height === previous) return;
+    if (height === state.estimate) state.heights.delete(key);
+    else state.heights.set(key, height);
     for (let i = index + 1; i < state.tree.length; i += i & -i) state.tree[i] += height - previous;
 }
 
@@ -56,19 +58,25 @@ function schedule(element, state) {
 function refresh(element, state) {
     state.frame = 0;
     if (state.destroyed) return;
-    const rows = [...element.querySelectorAll(state.rowSelector)].filter(row => !row.parentElement || row.parentElement === element);
-    const currentRows = new Set(rows);
-    for (const row of state.rows) if (!currentRows.has(row)) state.resize.unobserve(row);
-    for (const row of rows) {
+    const currentRows = new Set();
+    let requestedRow;
+    for (const row of element.querySelectorAll(state.rowSelector)) {
+        if (row.parentElement && row.parentElement !== element) continue;
+        currentRows.add(row);
+        if (state.scrollRequest && row.getAttribute(state.keyAttribute) === state.scrollRequest.key) requestedRow = row;
         measure(state, row.getAttribute(state.keyAttribute), Math.max(1, row.getBoundingClientRect().height));
         if (!state.rows.has(row)) state.resize.observe(row);
     }
+    for (const row of state.rows) if (!currentRows.has(row)) state.resize.unobserve(row);
     state.rows = currentRows;
     const total = prefix(state, state.keys?.length ?? 0);
     if (state.hasAfter && total <= state.scroller.clientHeight + 100 && !state.loadingAfter && state.receiver && state.afterCursor !== (state.keys?.at(-1) ?? null)) {
         state.afterCursor = state.keys?.at(-1) ?? null;
         state.loadingAfter = true;
-        state.receiver.invokeMethodAsync('RequestAfter').catch(() => {}).finally(() => { state.loadingAfter = false; });
+        state.receiver.invokeMethodAsync('RequestAfter').catch(() => {}).finally(() => {
+            state.loadingAfter = false;
+            schedule(element, state);
+        });
     }
     const top = contentTop(element, state);
     let target = state.scroller.scrollTop;
@@ -102,9 +110,8 @@ function refresh(element, state) {
             const after = pinned < 0 ? 0 : pinned < start ? prefix(state, start) - prefix(state, pinned + 1) : total - prefix(state, pinned + 1);
             args.push(pinned, before, after);
         }
-        const signature = JSON.stringify(args);
-        if (signature !== state.signature && !state.pending) {
-            state.signature = signature;
+        if (!state.pending && (state.signature?.length !== args.length || args.some((value, i) => value !== state.signature[i]))) {
+            state.signature = args;
             state.pending = true;
             state.receiver.invokeMethodAsync(state.pinFocus ? 'SetVirtualWindow' : 'SetWindow', ...args).catch(() => {}).finally(() => {
                 state.pending = false;
@@ -117,13 +124,11 @@ function refresh(element, state) {
     }
     state.scroller.scrollTop = target;
     state.expectedTop = state.scroller.scrollTop;
-    if (state.scrollRequest) {
-        const row = [...rows].find(row => row.getAttribute(state.keyAttribute) === state.scrollRequest.key);
-        if (row) {
-            if (state.scrollRequest.focusSelector) (row.matches(state.scrollRequest.focusSelector) ? row : row.querySelector(state.scrollRequest.focusSelector))?.focus({ preventScroll: true });
-            state.scrollRequest = null;
-            rememberAnchor(element, state);
-        }
+    if (state.scrollRequest && requestedRow) {
+        const selector = state.scrollRequest.focusSelector;
+        if (selector) (requestedRow.matches(selector) ? requestedRow : requestedRow.querySelector(selector))?.focus({ preventScroll: true });
+        state.scrollRequest = null;
+        rememberAnchor(element, state);
     }
 }
 
@@ -174,15 +179,20 @@ export function updateViewport(element, receiver, keys, autoScroll, hasOlderItem
     if (state && state.parentScroll !== !!options.parentScroll) { destroyAutoScroll(element); state = null; }
     state ??= createState(element, options);
     if (state.keys !== null && keys === null) state.signature = null;
-    const retained = new Set(keys ?? []);
-    for (const key of state.heights.keys()) if (!retained.has(key)) state.heights.delete(key);
+    // The caller can supply a fresh array (or mutate one) when just the paging options change.
+    const count = keys?.length ?? 0;
+    const keysChanged = state.indexes.size !== count || keys?.some((key, i) => state.indexes.get(key) !== i);
     state.keys = keys;
-    rebuildHeights(state);
+    if (keysChanged) {
+        rebuildHeights(state);
+        for (const key of state.heights.keys()) if (!state.indexes.has(key)) state.heights.delete(key);
+    }
     state.receiver = receiver;
     state.autoScroll = autoScroll;
     state.hasOlder = hasOlderItems;
+    if (!options.hasAfter) state.afterCursor = undefined;
     state.hasAfter = options.hasAfter;
-    state.disabledKeys = new Set(options.disabledKeys ?? []);
+    state.disabledKeys = options.disabledKeys?.length ? new Set(options.disabledKeys) : null;
     state.pinFocus = !!options.pinFocus;
     schedule(element, state);
 }

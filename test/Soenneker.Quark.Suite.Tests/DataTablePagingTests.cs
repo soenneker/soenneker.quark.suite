@@ -30,6 +30,18 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
+    public void Large_continuation_page_estimates_remain_representable()
+    {
+        var paging = new DataTableContinuationTokenPaging();
+        paging.SetPageRecordCount(int.MaxValue, int.MaxValue);
+        paging.CalculateTotalRecords(2).Should().Be(int.MaxValue);
+        paging.UpdateVirtualPage(int.MaxValue, 1, null);
+        paging.CalculateVirtualStart(2).Should().Be(int.MaxValue);
+        paging.UpdateFromResponse(1, 1, "next");
+        paging.CalculateTotalRecords(1).Should().Be(int.MaxValue);
+    }
+
+    [Test]
     public void Continuation_paging_keeps_the_known_end_when_visiting_an_earlier_page()
     {
         var paging = new DataTableContinuationTokenPaging();

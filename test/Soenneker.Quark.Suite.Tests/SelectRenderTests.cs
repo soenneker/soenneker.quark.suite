@@ -20,6 +20,20 @@ public sealed partial class RenderedShadcnParityTests
         viewportClass.Should().NotContain("data-[position=popper]:h-(--radix-select-trigger-height)");
     }
 
+    [Test]
+    public async System.Threading.Tasks.Task Removing_a_replaced_select_item_keeps_the_new_registration()
+    {
+        var cut = Render(CreatePopperSelect());
+        var select = cut.FindComponent<Select<string>>().Instance;
+        var items = cut.FindComponents<SelectItem<string>>();
+        select.RegisterItemValue("shared", items[1].Instance);
+        select.RegisterItemValue("shared", items[0].Instance);
+        select.UnregisterItemValue("shared", items[1].Instance);
+
+        await cut.InvokeAsync(() => cut.FindComponent<BradixSelect>().Instance.ValueChanged.InvokeAsync("shared"));
+        select.SelectedValue.Should().Be("postal");
+    }
+
     private static RenderFragment CreatePopperSelect()
     {
         return builder =>

@@ -1,4 +1,5 @@
 @namespace Soenneker.Quark
+@using Soenneker.Utils.PooledStringBuilders
 @inject IInputInterop Interop
 
 <input @ref="_input" @attributes="AdditionalAttributes" type="text" inputmode="numeric" value="@DisplayValue" @oninput="Change" />
@@ -16,29 +17,47 @@
 
     protected override void OnParametersSet()
     {
-        if (!Mask.Contains('#') || Mask.Any(char.IsAsciiDigit))
+        if (string.IsNullOrEmpty(Mask) || !Mask.Contains('#') || Mask.AsSpan().IndexOfAnyInRange('0', '9') >= 0)
             throw new ArgumentException("A mask requires a # digit slot and cannot contain literal digits.", nameof(Mask));
     }
+
     private string DisplayValue
     {
         get
         {
-            string raw = Digits(Value);
-            var display = new System.Text.StringBuilder();
-            int index = 0;
-            bool complete = raw.Length == Mask.Count(c => c == '#');
+            int slots = Mask.AsSpan().Count('#');
+            var raw = Digits(Value, slots);
+            if (raw.Length == 0 || slots == Mask.Length) return raw;
+
+            using var display = new PooledStringBuilder(stackalloc char[64]);
+            int digit = 0;
             foreach (char token in Mask)
             {
-                if (index == raw.Length && !complete) break;
-                display.Append(token == '#' ? raw[index++] : token);
+                if (digit == raw.Length && digit < slots) break;
+                display.Append(token == '#' ? raw[digit++] : token);
             }
             return display.ToString();
         }
     }
-    private string Digits(string? text) => new((text ?? "").Where(char.IsAsciiDigit).Take(Mask.Count(c => c == '#')).ToArray());
+
+    private static string Digits(string? text, int slots)
+    {
+        if (string.IsNullOrEmpty(text)) return "";
+        if (text.Length <= slots && text.AsSpan().IndexOfAnyExceptInRange('0', '9') < 0) return text;
+
+        using var digits = new PooledStringBuilder(stackalloc char[64]);
+        foreach (char c in text)
+        {
+            if (!char.IsAsciiDigit(c)) continue;
+            digits.Append(c);
+            if (digits.Length == slots) break;
+        }
+        return digits.ToString();
+    }
+
     private async Task Change(ChangeEventArgs e)
     {
-        await ValueChanged.InvokeAsync(Digits(e.Value?.ToString()));
+        await ValueChanged.InvokeAsync(Digits(e.Value?.ToString(), Mask.AsSpan().Count('#')));
         if (ValueExpression is not null && EditContext is not null)
             EditContext.NotifyFieldChanged(Microsoft.AspNetCore.Components.Forms.FieldIdentifier.Create(ValueExpression));
     }

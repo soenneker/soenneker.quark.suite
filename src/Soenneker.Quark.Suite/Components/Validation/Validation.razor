@@ -58,7 +58,7 @@
     /// Gets or sets the edit context for form validation.
     /// </summary>
     [CascadingParameter(Name = nameof(EditContext))]
-    public EditContext? EditContext { get; set; }
+    public EditContext? EditContext { get => field ?? FormEditContext; set; }
 
     [CascadingParameter]
     private FieldContext? CurrentFieldContext { get; set; }
@@ -161,7 +161,6 @@
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        EditContext ??= FormEditContext;
         if (!ReferenceEquals(_validationEditContext, EditContext))
         {
             _cts?.Cancel();

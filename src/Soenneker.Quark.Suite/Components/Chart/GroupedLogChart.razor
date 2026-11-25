@@ -2,20 +2,36 @@
 @using System
 @using System.Collections.Generic
 @using System.Globalization
-@using System.Linq
+
+
+@{
+    double logMinimum = Math.Log10(Minimum);
+    double logMaximum = Math.Log10(Maximum);
+    double logRange = logMaximum - logMinimum;
+    int lastExponent = (int)Math.Floor(logMaximum);
+
+    string PositionOf(double value)
+    {
+        double fraction = logRange == 0 ? (value - Minimum) / (Maximum - Minimum)
+            : (Math.Log10(value) - logMinimum) / logRange;
+        return string.Create(CultureInfo.InvariantCulture, $"{100 * Math.Clamp(fraction, 0, 1):0.####}%");
+    }
+}
 
 <figure class="m-0" aria-label="@Caption">
     <figcaption class="font-mono text-xs">@Caption</figcaption>
     <div class="flex flex-wrap justify-end gap-2">
-        @foreach (var series in Series.Where(s => !s.Hidden))
+        @for (int i = 0; i < Series.Count; i++)
         {
+            var series = Series[i];
+            if (series.Hidden) continue;
             <span class="inline-flex items-center gap-2 border border-current/20 px-2 py-1"><i class="size-3" style="background:@ColorFor(series)"></i>@series.Name</span>
         }
     </div>
     <div class="overflow-x-auto" tabindex="0" aria-label="@Caption">
         <div class="pt-16 pb-14 pl-20" style="min-width:@(Labels.Count * 12 + 5)rem">
             <div class="relative flex h-80 border-b border-current">
-                @for (var exponent = (int)Math.Ceiling(Math.Log10(Minimum)); exponent <= Math.Floor(Math.Log10(Maximum)); exponent++)
+                @for (var exponent = (int)Math.Ceiling(logMinimum); exponent <= lastExponent; exponent++)
                 {
                     var tick = Math.Pow(10, exponent);
                     <div class="absolute inset-x-0 border-t border-current/15" style="bottom:@PositionOf(tick)"><span class="absolute right-full -translate-y-1/2 pr-2 font-mono text-xs">@(TickFormatter?.Invoke(tick) ?? Format(tick))</span></div>
@@ -23,17 +39,19 @@
                 @for (var index = 0; index < Labels.Count; index++)
                 {
                     <div class="relative flex min-w-0 flex-1 justify-center gap-1 px-2">
-                        <strong class="absolute inset-x-0 bottom-[calc(100%+1.4rem)] text-center font-mono text-xs font-bold">@Annotations.ElementAtOrDefault(index)</strong>
-                        @foreach (var series in Series.Where(s => !s.Hidden))
+                        <strong class="absolute inset-x-0 bottom-[calc(100%+1.4rem)] text-center font-mono text-xs font-bold">@(index < Annotations.Count ? Annotations[index] : null)</strong>
+                        @for (int i = 0; i < Series.Count; i++)
                         {
+                            var series = Series[i];
+                            if (series.Hidden) continue;
                             <div class="relative max-w-16 flex-1">
-                                @if (series.Values.ElementAtOrDefault(index) is double value && double.IsFinite(value) && value > 0)
+                                @if (index < series.Values.Count && series.Values[index] is double value && double.IsFinite(value) && value > 0)
                                 {
                                     <div class="absolute bottom-0 w-full" style="height:@PositionOf(value);background:@ColorFor(series)" title="@($"{Labels[index]} · {series.Name}: {Format(value)}")"><b class="absolute bottom-full left-1/2 -translate-x-1/2 whitespace-nowrap pb-1 font-mono text-xs font-bold">@Format(value)</b></div>
                                 }
                             </div>
                         }
-                        <div class="absolute inset-x-0 top-full pt-2 text-center">@Labels[index]<small class="block font-mono text-xs">@Descriptions.ElementAtOrDefault(index)</small></div>
+                        <div class="absolute inset-x-0 top-full pt-2 text-center">@Labels[index]<small class="block font-mono text-xs">@(index < Descriptions.Count ? Descriptions[index] : null)</small></div>
                     </div>
                 }
             </div>
@@ -60,12 +78,6 @@
     }
 
     private string Format(double value) => ValueFormatter?.Invoke(value) ?? value.ToString("G4", CultureInfo.CurrentCulture);
-
-    private string PositionOf(double value)
-    {
-        double fraction = (Math.Log10(value) - Math.Log10(Minimum)) / (Math.Log10(Maximum) - Math.Log10(Minimum));
-        return (100 * Math.Clamp(fraction, 0, 1)).ToString("0.####", CultureInfo.InvariantCulture) + "%";
-    }
 
     private static string ColorFor(ChartSeries series) => series.Color ?? "currentColor";
 }

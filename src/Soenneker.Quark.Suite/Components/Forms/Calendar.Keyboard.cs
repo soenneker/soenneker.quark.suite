@@ -162,6 +162,7 @@ public partial class Calendar
         catch (Exception ex) when (ex is JSDisconnectedException or TaskCanceledException) { }
         finally
         {
+            _calendarLock.Dispose();
             _calendarReference?.Dispose();
             await base.DisposeAsync();
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
@@ -8,6 +9,32 @@ using Microsoft.AspNetCore.Components;
 namespace Soenneker.Quark.Suite.Tests;
 public sealed partial class RenderedShadcnParityTests
 {
+    [Test]
+    public async Task Disposing_searchable_select_cancels_active_search_and_label_resolution()
+    {
+        var searching = new TaskCompletionSource<CancellationToken>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var resolving = new TaskCompletionSource<CancellationToken>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var searchResult = new TaskCompletionSource<SelectSearchResult>();
+        var labels = new TaskCompletionSource<IReadOnlyList<SelectOption>>();
+        var cut = Render<SearchableSelect>(p => p.Add(c => c.LoadOptions, (_, token) =>
+        {
+            searching.SetResult(token);
+            return new(searchResult.Task.WaitAsync(token));
+        }));
+        var opening = cut.Find("input").FocusAsync();
+        var searchToken = await searching.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        cut.Render(p => p.Add(c => c.Value, "saved").Add(c => c.Resolve, (_, token) =>
+        {
+            resolving.SetResult(token);
+            return new(labels.Task.WaitAsync(token));
+        }));
+        var resolveToken = await resolving.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        await cut.InvokeAsync(() => cut.Instance.DisposeAsync().AsTask());
+        searchToken.IsCancellationRequested.Should().BeTrue();
+        resolveToken.IsCancellationRequested.Should().BeTrue();
+        await opening;
+    }
+
     [Test]
     public async Task Completing_a_remote_search_does_not_reopen_after_escape()
     {
