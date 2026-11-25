@@ -15,6 +15,60 @@ public sealed class QuarkFormExtensionPlaywrightTests : QuarkPlaywrightTest
     }
 
     [Test]
+    [Arguments("components/dialog", "#dialog-name")]
+    [Arguments("components/textarea", "textarea[data-slot='textarea']")]
+    [Arguments("components/memoinputs", "textarea[data-slot='textarea']")]
+    public async ValueTask Text_selection_follows_the_theme_and_respects_forced_colors(string route, string selector, CancellationToken cancellationToken)
+    {
+        await using var session = await CreateSession(cancellationToken: cancellationToken);
+        var page = session.Page;
+        if (route == "components/dialog")
+        {
+            await page.GotoAndWaitForReady($"{BaseUrl}{route}", static p => p.GetByRole(AriaRole.Button, new() { Name = "Open Dialog", Exact = true }));
+            await page.GetByRole(AriaRole.Button, new() { Name = "Open Dialog", Exact = true }).ClickAsync();
+        }
+        else
+        {
+            await page.GotoAndWaitForReady($"{BaseUrl}{route}", p => p.Locator(selector).First);
+        }
+
+        var field = page.Locator(selector).First;
+        await field.FillAsync("Selected text");
+        await field.SelectTextAsync();
+        foreach (var dark in new[] { false, true })
+        {
+            await page.EvaluateAsync("dark => document.documentElement.classList.toggle('dark', dark)", dark);
+            var expected = await field.EvaluateAsync<string[]>("""
+                field => {
+                    const probe = document.createElement('span');
+                    probe.style.cssText = 'background-color: var(--primary); color: var(--primary-foreground)';
+                    field.after(probe);
+                    const style = getComputedStyle(probe);
+                    const colors = [style.backgroundColor, style.color];
+                    probe.remove();
+                    return colors;
+                }
+                """);
+            var selection = await field.EvaluateAsync<string[]>("field => [getComputedStyle(field, '::selection').backgroundColor, getComputedStyle(field, '::selection').color]");
+            selection.Should().Equal(expected);
+        }
+
+        await page.EmulateMediaAsync(new() { ForcedColors = ForcedColors.Active });
+        var matchesNativeSelection = await field.EvaluateAsync<bool>("""
+            field => {
+                const native = document.createElement(field.localName);
+                field.after(native);
+                const actual = getComputedStyle(field, '::selection');
+                const expected = getComputedStyle(native, '::selection');
+                const matches = actual.backgroundColor === expected.backgroundColor && actual.color === expected.color;
+                native.remove();
+                return matches;
+            }
+            """);
+        matchesNativeSelection.Should().BeTrue();
+    }
+
+    [Test]
     public async ValueTask CurrencyInput_formats_on_blur_and_keeps_accessible_field_association(CancellationToken cancellationToken)
     {
         await using var session = await CreateSession(cancellationToken: cancellationToken);
