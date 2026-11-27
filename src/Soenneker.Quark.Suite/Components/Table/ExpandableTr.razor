@@ -24,7 +24,10 @@
                     <div data-slot="table-row-detail-inner"
                          class="min-h-0 overflow-hidden"
                          inert="@(!IsExpanded ? string.Empty : null)">
-                        @DetailContent
+                        @if (!RenderDetailOnFirstExpand || _hasExpanded)
+                        {
+                            @DetailContent
+                        }
                     </div>
                 </div>
             </td>
@@ -41,6 +44,7 @@
     private string? _generatedContentId;
     private QuarkInt32Attribute _colspanAttribute;
     private bool _expanded;
+    private bool _hasExpanded;
     private ValueAtomicBool _initialized;
 
     /// <summary>
@@ -86,6 +90,13 @@
     public RenderFragment? DetailContent { get; set; }
 
     /// <summary>
+    /// Defers rendering the detail content until the row first expands, then keeps it mounted when collapsed.
+    /// Defaults to false, which renders the detail content immediately.
+    /// </summary>
+    [Parameter]
+    public bool RenderDetailOnFirstExpand { get; set; }
+
+    /// <summary>
     /// Gets or sets additional CSS classes for the detail row.
     /// </summary>
     [Parameter]
@@ -117,6 +128,7 @@
             _initialized.Value = true;
         }
 
+        _hasExpanded |= IsExpanded;
         base.OnParametersSet();
     }
 
@@ -130,6 +142,7 @@
         if (!Expanded.HasValue)
         {
             _expanded = next;
+            _hasExpanded |= next;
 
             InvalidateRender();
             await RequestRender();
@@ -164,6 +177,7 @@
         hc.Add(Disabled);
         hc.Add(Colspan);
         hc.Add(DetailContent);
+        hc.Add(RenderDetailOnFirstExpand);
         hc.Add(DetailRowClass);
         hc.Add(DetailCellClass);
     }

@@ -204,9 +204,12 @@ public sealed partial class RenderedShadcnParityTests
     }
 
     [Test]
-    public async ValueTask ExpandableTr_uncontrolled_trigger_opens_and_closes_detail_row(CancellationToken cancellationToken)
+    [Arguments(false)]
+    [Arguments(true)]
+    public async ValueTask ExpandableTr_uncontrolled_trigger_opens_and_closes_detail_row(bool deferDetails, CancellationToken cancellationToken)
     {
         var cut = Render<ExpandableTr>(parameters => parameters
+            .Add(p => p.RenderDetailOnFirstExpand, deferDetails)
             .Add(p => p.Colspan, 2)
             .Add(p => p.ChildContent, builder =>
             {
@@ -225,6 +228,7 @@ public sealed partial class RenderedShadcnParityTests
             .Add(p => p.DetailContent, builder => builder.AddContent(0, "Details")));
 
         var closedDetail = cut.Find("tr[data-slot='table-row-detail']");
+        closedDetail.TextContent.Contains("Details").Should().Be(!deferDetails);
         closedDetail.GetAttribute("data-state").Should().Be("closed");
         closedDetail.GetAttribute("aria-hidden").Should().Be("true");
         cut.Find("[data-slot='table-row-detail-transition']").ClassList.Should().Contain("grid-rows-[0fr]");
@@ -241,6 +245,7 @@ public sealed partial class RenderedShadcnParityTests
 
         await cut.Find("button[data-slot='table-row-trigger']").ClickAsync(new MouseEventArgs());
 
+        cut.Find("tr[data-slot='table-row-detail']").TextContent.Should().Contain("Details");
         cut.Find("tr[data-slot='table-row-detail']").GetAttribute("data-state").Should().Be("closed");
         cut.Find("[data-slot='table-row-detail-transition']").ClassList.Should().Contain("grid-rows-[0fr]");
         cut.Find("button[data-slot='table-row-trigger']").GetAttribute("aria-expanded").Should().Be("false");
@@ -252,6 +257,7 @@ public sealed partial class RenderedShadcnParityTests
         bool? requestedState = null;
         var cut = Render<ExpandableTr>(parameters => parameters
             .Add(p => p.Expanded, false)
+            .Add(p => p.RenderDetailOnFirstExpand, true)
             .Add(p => p.ExpandedChanged, expanded => requestedState = expanded)
             .Add(p => p.ChildContent, builder =>
             {
@@ -271,6 +277,13 @@ public sealed partial class RenderedShadcnParityTests
         await cut.Find("button[data-slot='table-row-trigger']").ClickAsync(new MouseEventArgs());
 
         requestedState.Should().BeTrue();
+        cut.Find("[data-slot='table-row-detail-inner']").TextContent.Should().BeEmpty();
+
+        cut.Render(p => p.Add(row => row.Expanded, true));
+        cut.Find("[data-slot='table-row-detail-inner']").TextContent.Should().Contain("Details");
+
+        cut.Render(p => p.Add(row => row.Expanded, false));
+        cut.Find("[data-slot='table-row-detail-inner']").TextContent.Should().Contain("Details");
     }
 
     [Test]
